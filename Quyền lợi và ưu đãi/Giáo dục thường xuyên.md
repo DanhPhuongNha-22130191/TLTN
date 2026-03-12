@@ -1,0 +1,15 @@
+Giáo dục thường xuyên
+Một trong những giá trị cốt lõi của Clef là “Hãy tốt hơn hôm nay so với ngày hôm qua”, vì vậy điều quan trọng là chúng tôi phải hỗ trợ nỗ lực học hỏi, phát triển và cải thiện bản thân của nhân viên. Đây là một số lợi ích chính khi làm việc tại Clef, và là yếu tố trung tâm trong văn hóa công ty chúng tôi.
+
+Ngân sách học tập
+Mỗi nhân viên đều có ngân sách của công ty để hỗ trợ bất kỳ hoạt động học tập nào mà họ muốn theo đuổi liên quan đến công việc họ làm tại Clef. Điều này không nhất thiết phải là một lớp học liên quan trực tiếp đến vai trò hiện tại của họ, nhưng nó nên giúp họ cải thiện một kỹ năng hữu ích cho họ tại Clef. Mỗi nhân viên có ngân sách hàng năm là 4.000 đô la, có thể được chi cho phí chương trình/học phí, vé máy bay, vé máy bay và khách sạn cho các hội nghị ngành, các lớp học, chương trình cố vấn, sách, chương trình, video hoặc những nơi khác mà họ cảm thấy sẽ mang lại những trải nghiệm học tập có giá trị. Những chi phí này nên được thảo luận trong các cuộc họp riêng và được người sáng lập mà nhân viên đó báo cáo phê duyệt. Ngân sách này được thiết lập lại vào đầu mỗi năm dương lịch và không được chuyển sang năm sau. Ngân sách học tập sẽ được giới hạn ở mức 2.000 đô la trong năm đầu tiên thực hiện và đối với những nhân viên gia nhập công ty sau tháng 5 của năm dương lịch.
+
+Nhân viên cũng có thể sử dụng giờ làm việc để tham gia các dự án học tập, tuy nhiên thời gian này nên được giới hạn ở mức bốn giờ mỗi tuần.
+
+Cố vấn
+Clef hiểu giá trị của việc hướng dẫn, cố vấn. Chúng tôi sẽ hợp tác với từng nhân viên để đảm bảo họ có một người cố vấn trong lĩnh vực của mình bên ngoài công ty, người mà họ có thể gặp gỡ thường xuyên và nhận lời khuyên. Mục tiêu của việc hướng dẫn, cố vấn sẽ được thảo luận trong các cuộc gặp riêng, những người cố vấn tiềm năng từ ngành hoặc mạng lưới của chúng ta sẽ được lựa chọn, và tất cả mọi người trong nhóm sẽ giúp tạo dựng và hỗ trợ mối liên hệ với người cố vấn. Nhân viên cũng được khuyến khích gặp gỡ người cố vấn của mình trong giờ làm việc bình thường. Trong tương lai, chúng tôi sẽ tìm hiểu một nguồn lực hoặc nền tảng toàn diện hơn để giúp nhân viên tìm kiếm người cố vấn.
+
+Hỗ trợ diễn giả
+Việc nhân viên của Clef phát biểu tại các hội nghị ngành giúp hình ảnh công ty trở nên ấn tượng hơn, vì vậy chúng tôi rất vui khi được hỗ trợ các nhân viên Clef được mời phát biểu trước đồng nghiệp về lĩnh vực chuyên môn của họ. Đối với mỗi sự kiện, Clef sẽ chi trả chi phí vé máy bay và khách sạn lên đến 1.000 đô la, và mỗi nhân viên được hưởng quyền lợi này 4 lần mỗi năm (ngân sách này tách biệt với ngân sách đào tạo). Nhân viên cần được sự chấp thuận của người sáng lập mà họ báo cáo về việc chọn hội nghị nào phù hợp để phát biểu, và đảm bảo rằng ngày diễn ra hội nghị không trùng với các ngày quan trọng của công ty.
+
+Việc hỗ trợ diễn giả sẽ chỉ giới hạn ở hai sự kiện trong năm đầu tiên triển khai và dành cho những nhân viên gia nhập công ty sau tháng 5 của năm dương lịch.

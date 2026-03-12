@@ -1,0 +1,25 @@
+Tìm kiếm ứng viên
+Xây dựng một đội ngũ tuyệt vời bắt đầu từ việc thu hút những ứng viên xuất sắc, và có ba kênh chúng ta có thể sử dụng để thu hút ứng viên: giới thiệu, tuyển dụng chủ động và sự quan tâm từ bên ngoài. Chúng ta nên duy trì cả ba kênh này, nhưng cần cân nhắc kỹ về những thành kiến ​​phát sinh từ mỗi kênh để có thể tận dụng chúng phục vụ cho mục tiêu và giá trị xây dựng đội ngũ của chúng ta.
+
+Giới thiệu
+Lời giới thiệu từ những người đang làm việc tại Clef là một trong những tín hiệu tốt nhất mà chúng tôi có thể nhận được về việc liệu một ứng viên có thành công tại Clef hay không. Nhân viên của Clef hiểu rõ nhu cầu của Clef và môi trường làm việc tại Clef, và mối quan hệ của họ với ứng viên có nghĩa là họ biết nhiều hơn những gì chúng ta có thể tìm hiểu được trong quá trình phỏng vấn.
+
+Để có được những ứng viên tiềm năng, mọi người cần biết những vị trí nào đang tuyển dụng, biết cách bắt đầu quy trình tuyển dụng, có thời gian tìm kiếm trong mạng lưới quan hệ của mình và cảm thấy phù hợp với các chính sách của công ty. Các vị trí tuyển dụng nên được đăng tải trên getclef.com/about và cả trên kênh #hiring để mọi người đều biết chúng ta đang tìm kiếm ứng viên cho ai. Chúng ta sẽ tổ chức một buổi ăn trưa cùng công ty vào thứ Ba tuần thứ hai của mỗi tháng để thảo luận về các vị trí đang tuyển dụng và xem xét các ứng viên tiềm năng trong mạng lưới trực tuyến của mọi người. Nhân viên sẽ chủ động liên hệ với những người có mối quan hệ tiềm năng, điều này sẽ tạo cơ hội tốt để chúng ta thảo luận về cách bắt đầu quy trình tuyển dụng.
+
+Chúng tôi cũng cung cấp khoản tiền thưởng giới thiệu trị giá 5.000 đô la cho bất kỳ nhân viên mới nào được tuyển dụng thông qua sự giới thiệu của nhân viên hiện tại, nhằm giúp hài hòa các ưu đãi của công ty với ưu đãi cá nhân của từng cá nhân.
+
+Nguy cơ của việc giới thiệu ứng viên là chúng ta thường giới thiệu những người giống mình, dẫn đến một đội ngũ đồng nhất thay vì đa dạng như mong muốn. Chúng ta nên ưu tiên sự đa dạng trong các buổi gặp gỡ giới thiệu ứng viên và tìm kiếm trong các mạng lưới địa phương mà chúng ta tham gia. Chúng ta cũng nên tiếp tục tìm kiếm các cách khác để bù đắp sự thiên vị này ở cấp độ tổ chức.
+
+Tuyển dụng bên ngoài
+Với mỗi vị trí tuyển dụng tại Clef, cần có một thành viên trong nhóm (người sáng lập cho 10 nhân viên đầu tiên) chịu trách nhiệm tuyển dụng cho vị trí đó. Điều này bắt đầu bằng việc viết mô tả công việc và đăng tải trên getclef.com, nhưng cũng bao gồm việc chủ động tìm kiếm những người có thể phù hợp, tìm kiếm các nguồn ứng viên tiềm năng để tuyển dụng, và nhờ bạn bè giới thiệu những ứng viên triển vọng.
+
+Điều cực kỳ quan trọng là chúng ta phải tìm được các nguồn ứng viên đa dạng để tuyển dụng, và hoạt động tuyển dụng chủ động của chúng ta cần nhắm đến các nhóm thiểu số. Nếu chúng ta tuyển dụng từ các trường đại học, chúng ta cần cẩn thận trong việc lựa chọn trường nào để tuyển. Nếu chúng ta tuyển dụng người từ các công ty khác, điều quan trọng là chúng ta phải cân nhắc kỹ về vị trí và định kiến ​​ngành nghề của các công ty đó. Clef hợp tác và hỗ trợ nhiều tổ chức địa phương và quốc gia tập trung vào việc tăng số lượng người thiểu số trong ngành công nghệ, bao gồm Hack the Hood, Women Who Code và Qeyno Labs. Việc hợp tác với các cộng đồng này sẽ giúp chúng ta tìm được các nguồn ứng viên để tuyển dụng.
+
+Ứng dụng đến
+Tất cả các vị trí tuyển dụng và mô tả công việc của chúng tôi sẽ được đăng tải trên getclef.com, và một số vị trí sẽ được đăng trên các trang web khác để quảng cáo. Cần cân nhắc kỹ lưỡng về nơi đăng tuyển dụng, vì các diễn đàn truyền thống thường có đối tượng người dùng đồng nhất. Chúng tôi cũng sẽ có người đọc về Clef thông qua blog và mạng xã hội, các nhà phát triển làm việc với các công cụ của chúng tôi và tham gia vào cộng đồng, và một lượng lớn người dùng biết đến Clef thông qua tin tức hoặc sử dụng sản phẩm.
+
+Các đơn xin việc đến từ bên ngoài mang lại cho chúng ta số lượng ứng viên nhiều nhất từ ​​bên ngoài mạng lưới cá nhân của chúng ta, nhưng đồng thời cũng có bộ lọc ban đầu thấp nhất vì không ai ở Clef đưa ra bất kỳ đánh giá nào về ứng viên trước khi họ tham gia vào quy trình tuyển dụng của chúng ta. Do bộ lọc khá nhẹ, chúng ta có thể dễ dàng loại bỏ những ứng viên này, nhưng một đơn xin việc đến từ bên ngoài là một tín hiệu mạnh mẽ cho thấy ứng viên tin tưởng vào những gì chúng ta đang làm tại Clef. Điều này có nghĩa là một tỷ lệ nhỏ hơn các ứng viên từ một nhóm ứng viên rộng hơn sẽ tiếp tục tham gia vào quy trình phỏng vấn của chúng ta. Tuy nhiên, chúng ta vẫn cần phải tôn trọng các đơn xin việc đến từ bên ngoài.
+
+Mỗi đơn xin việc gửi đến cần nhận được phản hồi từ nhóm Clef trong vòng 3 ngày để người nộp đơn cảm thấy được lắng nghe và có thể liên hệ trực tiếp với chúng tôi.
+
+Lưu ý: Chúng tôi sử dụng Workable để quản lý ứng viên, nhưng khi bạn "Loại bỏ" một ứng viên trên Workable, hệ thống sẽ không gửi email hoặc thông báo cho ứng viên đó rằng họ đã bị loại. Bạn nên luôn gửi email cho ứng viên trước khi "Loại bỏ" họ.
