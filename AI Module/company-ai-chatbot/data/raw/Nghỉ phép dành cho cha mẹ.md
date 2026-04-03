@@ -1,0 +1,8 @@
+Nghỉ phép dành cho cha mẹ mới
+Clef cung cấp 12 tuần nghỉ phép có lương cho tất cả nhân viên toàn thời gian, không phân biệt giới tính hay xu hướng tình dục, sau khi sinh con hoặc nhận con nuôi. Thời gian này dành cho cha mẹ mới chào đón đứa con sơ sinh hoặc con nuôi vào gia đình. Kỳ nghỉ nên được thực hiện trong vòng một năm sau khi sinh con hoặc nhận con nuôi.
+
+Nhân viên nên thông báo cho các thành viên còn lại trong nhóm càng sớm càng tốt trước khi nghỉ phép chăm sóc con cái, mặc dù không có quy định cụ thể về thời gian thông báo trước bao lâu. Việc làm cha mẹ có thể bất ngờ và nhạy cảm, nhưng nhóm càng chuẩn bị trước được sự vắng mặt này thì việc xử lý sẽ càng dễ dàng hơn.
+
+Thời gian nghỉ phép có lương dưới bất kỳ hình thức nào, bao gồm cả Nghỉ phép chăm con mới sinh, không được tích lũy thêm thời gian nghỉ phép có lương dưới dạng ngày nghỉ lễ, ngày nghỉ ốm hoặc thời gian dành cho kỳ nghỉ dài hạn. Ví dụ, một nhân viên đã làm việc cho Clef được 4 năm sẽ đủ điều kiện nghỉ dài hạn sau 1 năm làm việc nữa. Nếu họ nghỉ phép chăm con mới sinh 12 tuần, khi trở lại làm việc, họ vẫn cần đủ 1 năm làm việc nữa mới đủ điều kiện nghỉ dài hạn.
+
+Tại California, các chương trình Bảo hiểm Khuyết tật Tiểu bang và Nghỉ phép Gia đình có lương sẽ chi trả một phần lương cho nhân viên không thể làm việc do mang thai và sinh con. Việc người sử dụng lao động trả lương quá cao cho nhân viên khi họ đang sử dụng các chương trình này là bất hợp pháp, vì vậy Clef sẽ bù thêm để duy trì mức lương của nhân viên thay vì trả toàn bộ lương.

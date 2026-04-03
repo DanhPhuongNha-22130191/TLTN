@@ -1,0 +1,32 @@
+[
+    {
+        "question": "Nếu nhân viên chọn gói bảo hiểm đắt hơn gói cơ bản thì ai chịu phần chênh lệch chi phí?",
+        "expected": "Nhân viên sẽ phải chịu phần chênh lệch nếu chọn gói đắt hơn gói cơ bản.",
+        "generated": "Nếu nhân viên chọn gói bảo hiểm đắt hơn gói cơ bản, họ sẽ phải chịu phần chênh lệch chi phí.",
+        "processing_time": 9.418098449707031
+    },
+    {
+        "question": "Ai sẽ trải qua ba vòng phỏng vấn?",
+        "expected": "Mỗi ứng viên sẽ trải qua ba vòng phỏng vấn.",
+        "generated": "Tất cả ứng viên sẽ trải qua ba vòng phỏng vấn.",
+        "processing_time": 24.887616634368896
+    },
+    {
+        "question": "Phương pháp gặp gỡ thân mật này đã sàng lọc được bao nhiêu phần trăm ứng viên cho đến nay?",
+        "expected": "Phương pháp này đã sàng lọc được khoảng 80% ứng viên.",
+        "generated": "Không có dữ liệu.",
+        "processing_time": 26.173824071884155
+    },
+    {
+        "question": "Kỳ nghỉ phép dài hạn có thể giúp nhân viên tránh vấn đề gì?",
+        "expected": "Có thể giúp một số nhân viên tránh bị kiệt sức do làm việc quá lâu chỉ một việc.",
+        "generated": "Kỳ nghỉ phép dài hạn có thể giúp nhân viên tránh vấn đề về sức khỏe và tinh thần. Nó cũng có thể giúp họ tìm hiểu về một lĩnh vực mà họ quan tâm và có thể giúp họ tránh bị kiệt sức do làm việc quá lâu chỉ một việc.",
+        "processing_time": 12.68310809135437
+    },
+    {
+        "question": "OKRs là gì theo văn bản?",
+        "expected": "Là mục tiêu và kết quả chính của tất cả mọi người tại Clef.",
+        "generated": "OKRs là Objectives and Key Results.",
+        "processing_time": 4.3108227252960205
+    }
+]
