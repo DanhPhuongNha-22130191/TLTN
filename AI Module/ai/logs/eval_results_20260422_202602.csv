@@ -1,0 +1,21 @@
+﻿question,answer,ctx_accuracy,ctx_recall@k,ctx_precision@k,ctx_hit_rate@k,ctx_mrr@k,ctx_ndcg@k,ctx_bleu,ctx_rouge_l,faith_accuracy,faith_bleu,faith_rouge_l,ans_accuracy,ans_cosine_sim,ans_bleu,ans_rouge_l,noise_accuracy,noise_precision,neg_accuracy,neg_em,info_accuracy,counter_accuracy,counter_r_rate
+Quy tắc vàng của GitLab về việc bắt đầu một cuộc họp mà không có agenda là gì?,"The rules of GitLab regarding starting a meeting without an agenda are not explicitly stated in the provided context. However, based on common practices and best practices for meetings, it is generally recommended to have a clear purpose or topic before starting a meeting. This ensures that all participants understand what will be discussed and can prepare accordingly. Without an agenda, the meeting may lack direction and focus, potentially leading to less productive discussions.",1.0,0.0,0.0,0.0,0.0,0.0,2.7788812895482627e-155,0.0,3.0,2.7788812895482627e-155,0.0,4.0,0.6691849231719971,2.7788812895482627e-155,0.0,1.0,0.0,1.0,0.0,1.0,1.0,0.0
+Tại sao việc phản hồi (feedback) nhanh chóng cho ứng viên sau buổi phỏng vấn lại là ưu tiên hàng đầu?,"The priority of providing rapid feedback to candidates after the interview is to ensure a positive and comfortable experience for them. This helps in building trust and confidence among potential employees, which can lead to better retention rates and higher job satisfaction. Additionally, it allows candidates to make informed decisions about their next steps based on immediate insights from the interview process.",1.0,0.0,0.0,0.0,0.0,0.0,9.005433441115789e-232,0.0,4.0,9.005433441115789e-232,0.0,4.0,0.6079379320144653,9.005433441115789e-232,0.0,4.0,0.0,1.0,0.0,1.0,1.0,0.0
+Tại sao mọi cuộc họp đều phải có một tài liệu ghi chép (notes) đi kèm?,"Mỗi cuộc họp cần có một tài liệu ghi chép (notes) đi kèm vì nó giúp lưu giữ và tổng hợp tất cả thông tin được thảo luận trong hội nghị. Điều này đặc biệt quan trọng trong các tình huống khi bạn cần trở lại một vấn đề cụ thể sau một thời gian dài. Tài liệu ghi chép cũng giúp giảm thiểu sự hiểu lầm và đảm bảo rằng mọi người đều nắm bắt được ý tưởng chính và quyết định cuối cùng. Ngoài ra, nó còn giúp cải thiện hiệu suất làm việc bằng cách đảm bảo rằng mọi người đều đang theo dõi cùng một số liệu và thông tin liên quan.",3.0,0.0,0.0,0.0,0.0,0.0,1.2220567571859207e-78,0.0,4.0,1.2220567571859207e-78,0.0,4.0,0.7306231260299683,1.2220567571859207e-78,0.0,4.0,0.0,4.0,0.0,1.0,4.0,0.0
+Làm thế nào để đảm bảo những người không tham gia trực tiếp cuộc họp vẫn nắm bắt được thông tin?,"Để đảm bảo những người không tham gia trực tiếp cuộc họp vẫn nắm bắt được thông tin, bạn nên:
+
+1. **Chuyển các mục thời gian vắng mặt vào Thời gian nghỉ của Deel**.
+2. **Sắp xếp lịch Google và ứng dụng Slack** để cập nhật thông tin kịp thời.
+3. **Xác nhận và từ chối các cuộc họp không cần thiết**.
+4. **Hãy xem lại lịch và lên lịch lại các cuộc phỏng vấn nếu cần**.
+
+Ngoài ra, bạn cũng nên cung cấp thông tin qua email hoặc các kênh khác nhau để đảm bảo rằng mọi người đều có thể theo dõi và nắm bắt được thông tin.",4.0,0.0,0.0,0.0,0.0,0.0,4.165784142014312e-155,0.0,1.0,4.165784142014312e-155,0.0,3.0,0.6277740001678467,4.165784142014312e-155,0.0,1.0,0.0,1.0,0.0,1.0,1.0,0.0
+Thành viên mới làm thế nào để đóng góp vào việc cải thiện handbook ngay từ những ngày đầu?,"Để đóng góp vào việc cải thiện handbook ngay từ những ngày đầu, thành viên mới có thể:
+
+1. Cập nhật sổ tay: Tham gia vào quá trình viết và chỉnh sửa sổ tay để đưa ra ý kiến và đề xuất.
+2. Quay video hỗ trợ: Kỹ năng quay video có thể giúp họ truyền đạt thông tin hiệu quả hơn cho đồng nghiệp khác.
+3. Đóng góp vào việc học tập: Tham gia các khóa đào tạo hoặc workshop liên quan đến handbook để nâng cao kiến thức.
+4. Chia sẻ kinh nghiệm: Giúp đỡ đồng nghiệp khác giải quyết vấn đề liên quan đến handbook.
+5. Tham gia thảo luận: Tham gia vào các cuộc họp để thảo luận về bản cập nhật mới nhất của handbook.
+
+Đây là những cách đơn giản nhưng hiệu quả để thành viên mới đóng góp vào việc cải thiện handbook ngay từ những ngày đầu.",4.0,0.0,0.0,0.0,0.0,0.0,8.207928204044647e-79,0.0,1.0,8.207928204044647e-79,0.0,1.0,0.6163416504859924,8.207928204044647e-79,0.0,1.0,0.0,1.0,0.0,1.0,1.0,0.0

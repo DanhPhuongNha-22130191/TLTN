@@ -1,0 +1,95 @@
+🚀 Initializing Advanced Async RAG Pipeline...
+🔍 Loading Async Hybrid Retriever (BGE-M3 + Qdrant)...
+Fetching 30 files:   0%|          | 0/30 [00:00<?, ?it/s]Fetching 30 files:   3%|▎         | 1/30 [00:01<00:37,  1.30s/it]Fetching 30 files:  20%|██        | 6/30 [00:02<00:10,  2.25it/s]Fetching 30 files:  60%|██████    | 18/30 [00:03<00:01,  6.99it/s]Fetching 30 files:  60%|██████    | 18/30 [00:19<00:01,  6.99it/s]Fetching 30 files:  63%|██████▎   | 19/30 [05:14<04:41, 25.62s/it]Fetching 30 files:  80%|████████  | 24/30 [05:15<01:37, 16.22s/it]Fetching 30 files: 100%|██████████| 30/30 [05:15<00:00, 10.50s/it]
+✅ Hybrid Retriever ready!
+🔄 Loading BGE-Reranker-v2-M3...
+🧠 Loading Generator Qwen/Qwen2.5-3B-Instruct...
+Fetching 2 files:   0%|          | 0/2 [00:00<?, ?it/s]Fetching 2 files:  50%|█████     | 1/2 [08:53<08:53, 533.83s/it]Fetching 2 files: 100%|██████████| 2/2 [08:53<00:00, 266.92s/it]
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.39s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.84s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.93s/it]
+Some parameters are on the meta device because they were offloaded to the cpu.
+Initializing Async RAG Evaluator (using existing Qwen LLM and BGE-M3)...
+Fetching 30 files:   0%|          | 0/30 [00:00<?, ?it/s]Fetching 30 files: 100%|██████████| 30/30 [00:00<00:00, 6271.08it/s]
+✅ BGE-M3 model loaded for semantic similarity.
+[1/5] Query: Quy tắc vàng của GitLab về việc bắt đầu một cuộc họp mà không có agenda là gì? ...
+Traceback (most recent call last):
+  File "/home/phuongnha/SourcesCode/TLTN/AI Module/ai/scripts/09_evaluate.py", line 192, in <module>
+    asyncio.run(evaluate())
+    ~~~~~~~~~~~^^^^^^^^^^^^
+  File "/usr/lib64/python3.14/asyncio/runners.py", line 204, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "/usr/lib64/python3.14/asyncio/runners.py", line 127, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/usr/lib64/python3.14/asyncio/base_events.py", line 719, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/home/phuongnha/SourcesCode/TLTN/AI Module/ai/scripts/09_evaluate.py", line 186, in evaluate
+    result = await pipeline.run(pair["question"])
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/phuongnha/SourcesCode/TLTN/AI Module/ai/scripts/08_query_pipeline.py", line 66, in run
+    candidates = await self.retriever.search(query, top_k=15)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/phuongnha/SourcesCode/TLTN/AI Module/ai/scripts/05_retriever.py", line 46, in search
+    dense, sparse_indices, sparse_values = await asyncio.to_thread(self._encode_query, query)
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib64/python3.14/asyncio/threads.py", line 25, in to_thread
+    return await loop.run_in_executor(None, func_call)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib64/python3.14/concurrent/futures/thread.py", line 86, in run
+    result = ctx.run(self.task)
+  File "/usr/lib64/python3.14/concurrent/futures/thread.py", line 73, in run
+    return fn(*args, **kwargs)
+  File "/home/phuongnha/SourcesCode/TLTN/AI Module/ai/scripts/05_retriever.py", line 34, in _encode_query
+    embeddings = self.model.encode([query], return_dense=True, return_sparse=True, return_colbert_vecs=False)
+  File "/home/phuongnha/SourcesCode/TLTN/AI Module/venv/lib64/python3.14/site-packages/FlagEmbedding/inference/embedder/encoder_only/m3.py", line 295, in encode
+    return super().encode(
+           ~~~~~~~~~~~~~~^
+        sentences,
+        ^^^^^^^^^^
+    ...<5 lines>...
+        **kwargs
+        ^^^^^^^^
+    )
+    ^
+  File "/home/phuongnha/SourcesCode/TLTN/AI Module/venv/lib64/python3.14/site-packages/FlagEmbedding/abc/inference/AbsEmbedder.py", line 266, in encode
+    return self.encode_single_device(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sentences,
+        ^^^^^^^^^^
+    ...<4 lines>...
+        **kwargs
+        ^^^^^^^^
+    )
+    ^
+  File "/home/phuongnha/SourcesCode/TLTN/AI Module/venv/lib64/python3.14/site-packages/torch/utils/_contextlib.py", line 124, in decorate_context
+    return func(*args, **kwargs)
+  File "/home/phuongnha/SourcesCode/TLTN/AI Module/venv/lib64/python3.14/site-packages/FlagEmbedding/inference/embedder/encoder_only/m3.py", line 340, in encode_single_device
+    self.model.to(device)
+    ~~~~~~~~~~~~~^^^^^^^^
+  File "/home/phuongnha/SourcesCode/TLTN/AI Module/venv/lib64/python3.14/site-packages/torch/nn/modules/module.py", line 1384, in to
+    return self._apply(convert)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "/home/phuongnha/SourcesCode/TLTN/AI Module/venv/lib64/python3.14/site-packages/torch/nn/modules/module.py", line 934, in _apply
+    module._apply(fn)
+    ~~~~~~~~~~~~~^^^^
+  File "/home/phuongnha/SourcesCode/TLTN/AI Module/venv/lib64/python3.14/site-packages/torch/nn/modules/module.py", line 934, in _apply
+    module._apply(fn)
+    ~~~~~~~~~~~~~^^^^
+  File "/home/phuongnha/SourcesCode/TLTN/AI Module/venv/lib64/python3.14/site-packages/torch/nn/modules/module.py", line 934, in _apply
+    module._apply(fn)
+    ~~~~~~~~~~~~~^^^^
+  File "/home/phuongnha/SourcesCode/TLTN/AI Module/venv/lib64/python3.14/site-packages/torch/nn/modules/module.py", line 965, in _apply
+    param_applied = fn(param)
+  File "/home/phuongnha/SourcesCode/TLTN/AI Module/venv/lib64/python3.14/site-packages/torch/nn/modules/module.py", line 1370, in convert
+    return t.to(
+           ~~~~^
+        device,
+        ^^^^^^^
+        dtype if t.is_floating_point() or t.is_complex() else None,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        non_blocking,
+        ^^^^^^^^^^^^^
+    )
+    ^
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 978.00 MiB. GPU 0 has a total capacity of 3.68 GiB of which 544.19 MiB is free. Including non-PyTorch memory, this process has 3.13 GiB memory in use. Of the allocated memory 3.03 GiB is allocated by PyTorch, and 20.28 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)

@@ -1,0 +1,46 @@
+﻿question,answer,ctx_accuracy,ctx_recall@k,ctx_precision@k,ctx_hit_rate@k,ctx_mrr@k,ctx_ndcg@k,ctx_bleu,ctx_rouge_l,faith_accuracy,faith_bleu,faith_rouge_l,ans_accuracy,ans_cosine_sim,ans_bleu,ans_rouge_l,noise_accuracy,noise_precision,neg_accuracy,neg_em,info_accuracy,counter_accuracy,counter_r_rate
+GitLab giữ lại bao nhiêu ngày hoạt động trên Slack trước khi chúng biến mất?,GitLab giữ lại 90 ngày hoạt động trên Slack trước khi chúng biến mất.,1.0,1.0,0.2,1.0,1.0,1.0,0.05629361690000878,0.0,1.0,0.05629361690000878,0.0,0.0,0.8693348634762688,0.05629361690000878,0.0,0.0,0.2,0.0,0.0,0.0,0.0,0.0
+Tại sao việc phản hồi (feedback) nhanh chóng cho ứng viên sau buổi phỏng vấn lại là ưu tiên hàng đầu?,"Việc phản hồi (feedback) nhanh chóng cho ứng viên sau buổi phỏng vấn lại là ưu tiên hàng đầu vì:
+
+1. **Tăng khả năng nhận biết và thích ứng**: Một phản hồi nhanh giúp ứng viên nhận biết ngay bản thân có gì nên làm, không nên làm hay cần cải thiện. Điều này tăng khả năng nhận biết và thích ứng.
+   
+2. **Giải quyết vấn đề kịp thời**: Nhanh chóng phản hồi giúp giải quyết vấn đề ngay lập tức, tránh tình trạng phức tạp hóa.
+   
+3. **Đánh giá hiệu quả buổi phỏng vấn**: Thông qua phản hồi, cả ứng viên và nhà tuyển dụng có cơ hội đánh giá hiệu quả buổi phỏng vấn.
+   
+4. **Xây dựng mối quan hệ tốt đẹp**: Việc phản hồi nhanh giúp duy trì mối quan hệ tốt đẹp giữa ứng viên và nhà tuyển dụng.
+   
+5. **Tiết kiệm thời gian**: Nhanh chóng phản hồi giúp tiết kiệm thời gian, tránh tình trạng chờ đợi lâu.
+   
+6. **Chăm sóc khách hàng**: Đối với doanh nghiệp, việc phản hồi nhanh giúp giữ chân khách hàng, nâng cao lòng tin",1.0,0.0,0.0,0.0,0.0,0.0,5.663370702233968e-79,0.0,0.0,5.663370702233968e-79,0.0,1.0,0.6834351796391706,5.663370702233968e-79,0.0,1.0,0.0,1.0,0.0,1.0,1.0,0.0
+Tại sao mọi cuộc họp đều phải có một tài liệu ghi chép (notes) đi kèm?,"Một số lý do tại sao mọi cuộc họp cần có tài liệu ghi chép (notes) đi kèm:
+
+1. **Ghi lại thông tin**: Trong suốt cuộc họp, thông tin liên tục được cập nhật và ghi chú. Tài liệu giúp giữ nguyên thông tin và không bị mất mát.
+
+2. **Phát triển ý tưởng và kế hoạch**: Tài liệu giúp nhóm ghi nhớ và đánh dấu các ý tưởng, kế hoạch và quyết định được đưa ra trong cuộc họp.
+
+3. **Kiểm soát nội dung**: Tài liệu giúp kiểm soát nội dung được thảo luận, ngăn chặn việc thông tin bị thất thoát hoặc không chính xác.
+
+4. **Tiết kiệm thời gian**: Sau cuộc họp, tài liệu có thể được sử dụng để tái tạo thông tin nếu cần thiết.
+
+5. **Dữ liệu lưu trữ**: Tài liệu có thể được lưu trữ và phân tích sau cuộc họp, giúp ích cho việc chuẩn bị kế hoạch và hành động cụ thể.
+
+6. **Thúc đẩy sự tham gia tích cực**: Việc có tài liệu ghi chép khuyến khích tất cả mọi người tham gia cuộc họp, không chỉ những người có mặt trực tiếp.
+
+7. **Kiểm soát nội dung",1.0,0.0,0.0,0.0,0.0,0.0,1.1293638375503395e-78,0.0,1.0,1.1293638375503395e-78,0.0,1.0,0.7486794732431902,1.1293638375503395e-78,0.0,1.0,0.0,1.0,0.0,1.0,1.0,0.0
+Làm thế nào để đảm bảo những người không tham gia trực tiếp cuộc họp vẫn nắm bắt được thông tin?,"Để đảm bảo những người không tham gia trực tiếp cuộc họp vẫn nắm bắt được thông tin, cần thực hiện các bước sau:
+
+1. **Ghi chép và chia sẻ thông tin**: Ghi chép kiến thức và chia sẻ thông tin với người khác để ngăn chặn rủi ro quan trọng.
+
+2. **Tạo và chia sẻ Google Docs**: Tạo và chia sẻ Google Docs liệt kê tất cả các dự án/tương tác khách hàng quan trọng với các chi tiết liên quan.
+
+3. **Phân công và quản lý nhiệm vụ**: Phân công thành viên nhóm phụ trách cho từng dự án/khách hàng và chỉ định cuộc họp cần tham dự.
+
+4. **Xây dựng kế hoạch và phân tích**: Xây dựng kế hoạch và phân tích để xác định chủ đề ưu tiên và vấn đề cần giải quyết.
+
+5. **Giải quyết thông qua thảo luận**: Giải quyết thông qua thảo luận và hỏi ý kiến đóng góp của các thành viên nhóm.
+
+6. **Sử dụng công nghệ thông minh**: Sử dụng công nghệ thông minh như Google Calendar và Slack để quản lý lịch và cuộc họp hiệu quả.
+
+7. **Thiết kế nội dung",1.0,0.0,0.0,0.0,0.0,0.0,3.366184837157962e-155,0.0,1.0,3.366184837157962e-155,0.0,1.0,0.705439038920217,3.366184837157962e-155,0.0,1.0,0.0,1.0,0.0,1.0,1.0,0.0
+Thành viên mới làm thế nào để đóng góp vào việc cải thiện handbook ngay từ những ngày đầu?,"The process of introducing new employees should be done with care to ensure they understand the organization, feel included, and are supported in their learning and development. At GitLab, if an employee has difficulty getting up to speed, they can be encouraged to update the handbook, provide videos for others who may face similar challenges, and contribute to ongoing learning and development efforts. Additionally, it's important to have a comprehensive handbook that all team members can access freely.",0.0,1.0,0.2,1.0,0.2,0.38685280723454163,7.053721699186672e-232,0.0,4.0,7.053721699186672e-232,0.0,1.0,0.6580457993003256,7.053721699186672e-232,0.0,1.0,0.2,1.0,0.0,1.0,1.0,0.0

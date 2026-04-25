@@ -1,0 +1,52 @@
+﻿question,answer,ctx_accuracy,ctx_recall@k,ctx_precision@k,ctx_hit_rate@k,ctx_mrr@k,ctx_ndcg@k,ctx_bleu,ctx_rouge_l,faith_accuracy,faith_bleu,faith_rouge_l,ans_accuracy,ans_cosine_sim,ans_bleu,ans_rouge_l,noise_accuracy,noise_precision,neg_accuracy,neg_em,info_accuracy,counter_accuracy,counter_r_rate
+GitLab giữ lại bao nhiêu ngày hoạt động trên Slack trước khi chúng biến mất?,GitLab giữ lại 90 ngày hoạt động trên Slack trước khi chúng biến mất.,5.0,1.0,0.2,1.0,1.0,1.0,0.05629361690000878,0.0,5.0,0.05629361690000878,0.0,1.0,0.8693348634762688,0.05629361690000878,0.0,1.0,0.2,1.0,0.0,1.0,5.0,0.0
+Tại sao việc phản hồi (feedback) nhanh chóng cho ứng viên sau buổi phỏng vấn lại là ưu tiên hàng đầu?,"Việc phản hồi nhanh chóng cho ứng viên sau buổi phỏng vấn là ưu tiên hàng đầu vì:
+
+1. **Tiếp nhận kịp thời**: Việc phản hồi ngay sau buổi phỏng vấn giúp ứng viên nắm rõ thông tin về kết quả phỏng vấn, từ đó có cơ hội tốt để chuẩn bị cho việc tiếp theo.
+
+2. **Đánh giá chính xác**: Thời gian phản hồi ngắn giúp nhà tuyển dụng có thêm thời gian đánh giá kỹ càng hơn ứng viên, từ đó đưa ra quyết định chính xác hơn.
+
+3. **Giải quyết vấn đề nhanh**: Nhanh chóng phản hồi giúp giải quyết vấn đề nhanh chóng, tránh tình trạng ứng viên chờ lâu.
+
+4. **Thúc đẩy tiến độ**: Việc phản hồi sớm giúp thúc đẩy tiến độ phỏng vấn, từ đó nâng cao hiệu quả tổng thể.
+
+5. **Chăm sóc khách hàng**: Đây là cách tiếp xúc tốt với ứng viên, tạo cảm giác thân thiện và chu đáo từ phía nhà tuyển dụng.
+
+6. **Kết nối giữa nhà tuyển dụng và ứng viên**: Việc phản hồi nhanh giúp xây dựng mối quan hệ bền chặt giữa nhà tuyển dụng và ứng viên.
+
+7",5.0,0.0,0.0,0.0,0.0,0.0,5.3194775619888765e-79,0.0,5.0,5.3194775619888765e-79,0.0,5.0,0.6765497532318334,5.3194775619888765e-79,0.0,5.0,0.0,5.0,0.0,5.0,5.0,0.0
+Tại sao mọi cuộc họp đều phải có một tài liệu ghi chép (notes) đi kèm?,"Mọi cuộc họp đều có một tài liệu ghi chép (notes) đi kèm giúp giữ vững kỷ luật và kiểm soát nội dung. Tài liệu notes giúp lưu trữ thông tin liên tục, tạo nền tảng cho việc tổng hợp, phân tích và đánh giá hiệu quả của cuộc họp. Nó còn giúp giảm thiểu sự thiếu hụt thông tin và nâng cao chất lượng thông tin được chia sẻ. Đồng thời, notes cũng giúp tái tạo thông tin nếu có sự cố xảy ra, đảm bảo thông tin không bị mất mát.",5.0,0.0,0.0,0.0,0.0,0.0,3.816067034059306e-155,0.0,5.0,3.816067034059306e-155,0.0,5.0,0.759942253740223,3.816067034059306e-155,0.0,5.0,0.0,1.0,0.0,5.0,5.0,0.0
+Làm thế nào để đảm bảo những người không tham gia trực tiếp cuộc họp vẫn nắm bắt được thông tin?,"Để đảm bảo những người không tham gia trực tiếp cuộc họp vẫn nắm bắt được thông tin, cần thực hiện các bước sau:
+
+1. **Ghi chép và chia sẻ thông tin**: Ghi chú kiến thức và chia sẻ thông tin với người khác để ngăn chặn rủi ro quan trọng.
+
+2. **Tạo và chia sẻ Google Docs**: Tạo và chia sẻ Google Docs liệt kê tất cả các dự án/tương tác khách hàng quan trọng với chi tiết liên quan.
+
+3. **Phân công và quản lý nhiệm vụ**: Phân công thành viên nhóm phụ trách cho từng dự án/khách hàng và chỉ định cuộc họp cần tham dự.
+
+4. **Xây dựng kế hoạch và phân công nhiệm vụ**: Xây dựng kế hoạch và phân công nhiệm vụ rõ ràng.
+
+5. **Giải quyết thông tin kịp thời**: Giúp đỡ giải quyết thông tin kịp thời qua việc ghi chú, chia sẻ và quản lý thông tin.
+
+6. **Sử dụng công nghệ thông minh**: Sử dụng công nghệ thông minh như Google Calendar, Google Hangouts, Slack để quản lý cuộc họp và lưu trữ thông tin.
+
+7. **Bảo vệ",5.0,0.0,0.0,0.0,0.0,0.0,3.2035846306745997e-155,0.0,5.0,3.2035846306745997e-155,0.0,5.0,0.718231847100701,3.2035846306745997e-155,0.0,5.0,0.0,5.0,0.0,5.0,5.0,0.0
+Thành viên mới làm thế nào để đóng góp vào việc cải thiện handbook ngay từ những ngày đầu?,"Thành viên mới có thể đóng góp vào việc cải thiện handbook ngay từ những ngày đầu bằng cách:
+
+1. **Giao tiếp tích cực**: Thăm dò và lắng nghe ý kiến ​​nhất trí của đồng nghiệp và đồng đội.
+   
+2. **Xây dựng mối quan hệ**: Đánh dấu sự quan tâm và hỗ trợ trong cuộc trò chuyện.
+   
+3. **Phát huy ý kiến**: Chia sẻ và ủng hộ ý kiến ​​nhất trí của mình.
+   
+4. **Hỗ trợ và tích cực**: Cố gắng giải quyết vấn đề một cách hiệu quả và tích cực.
+   
+5. **Xây dựng lòng tin**: Đánh dấu sự tin tưởng và tôn trọng trong cuộc trò chuyện.
+   
+6. **Xây dựng mối quan hệ bền chặt**: Đánh dấu sự gắn kết và tình bạn trong cuộc trò chuyện.
+   
+7. **Xây dựng lòng tin và mối quan hệ bền chặt**: Đánh dấu sự tin tưởng và gắn kết trong cuộc trò chuyện.
+   
+8. **Xây dựng lòng tin và mối quan hệ bền chặt**: Đánh dấu sự tin tưởng và gắn kết trong cuộc trò chuyện.
+   
+9. **Xây dựng lòng tin và mối",5.0,1.0,0.2,1.0,0.2,0.38685280723454163,0.014902550364799531,0.0,5.0,0.014902550364799531,0.0,5.0,0.677276798414136,0.014902550364799531,0.0,5.0,0.2,5.0,0.0,5.0,1.0,0.0

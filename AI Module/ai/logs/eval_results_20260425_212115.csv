@@ -1,0 +1,28 @@
+﻿question,answer,ctx_accuracy,ctx_recall@k,ctx_precision@k,ctx_hit_rate@k,ctx_mrr@k,ctx_ndcg@k,ctx_bleu,ctx_rouge_l,faith_accuracy,faith_bleu,faith_rouge_l,ans_accuracy,ans_cosine_sim,ans_bleu,ans_rouge_l,noise_accuracy,noise_precision,neg_accuracy,neg_em,info_accuracy,counter_accuracy,counter_r_rate
+GitLab giữ lại bao nhiêu ngày hoạt động trên Slack trước khi chúng biến mất?,GitLab giữ lại 90 ngày hoạt động trên Slack trước khi chúng biến mất.,5.0,1.0,0.2,1.0,1.0,1.0,0.05629361690000878,0.0,5.0,0.05629361690000878,0.0,5.0,0.8693348634762688,0.05629361690000878,0.0,5.0,0.2,5.0,0.0,5.0,5.0,0.0
+Tại sao việc phản hồi (feedback) nhanh chóng cho ứng viên sau buổi phỏng vấn lại là ưu tiên hàng đầu?,"Để giúp ứng viên nắm bắt và áp dụng kiến thức ngay sau buổi phỏng vấn, nhóm tuyển dụng của GitLab nhấn mạnh tầm quan trọng của việc phản hồi (feedback) nhanh chóng cho ứng viên. Việc này giúp ứng viên:
+
+1. Nắm bắt và áp dụng kiến thức ngay sau buổi phỏng vấn.
+2. Giúp họ đánh giá lại bản thân và tìm kiếm cách tiếp cận tốt hơn cho công việc.
+3. Cải thiện khả năng làm việc nhóm và phối hợp với đồng nghiệp.
+
+Những lợi ích này giúp tăng cường cảm giác hài lòng và tự tin của ứng viên, đồng thời thúc đẩy quá trình học hỏi và phát triển nghề nghiệp.",5.0,0.0,0.0,0.0,0.0,0.0,9.94685314591141e-79,0.0,5.0,9.94685314591141e-79,0.0,5.0,0.7657838880252203,9.94685314591141e-79,0.0,5.0,0.0,5.0,0.0,5.0,5.0,0.0
+Tại sao mọi cuộc họp đều phải có một tài liệu ghi chép (notes) đi kèm?,"Mục tiêu không phải là tạo ra văn hóa ghi chép chỉ vì mục đích ghi chép; thay vào đó, để tạo ra một môi trường trong đó các giải pháp hoàn toàn mới được ghi lại trong một cuốn sổ tay có thể truy cập được trên toàn cầu trước khi phổ biến và các lần lặp lại được thực hiện đối với nguồn sự thật duy nhất.",5.0,0.0,0.0,0.0,0.0,0.0,3.820587712675482e-155,0.0,5.0,3.820587712675482e-155,0.0,5.0,0.675461895937101,3.820587712675482e-155,0.0,5.0,0.0,5.0,0.0,5.0,5.0,0.0
+Làm thế nào để đảm bảo những người không tham gia trực tiếp cuộc họp vẫn nắm bắt được thông tin?,"Để đảm bảo rằng những người không tham gia trực tiếp cuộc họp vẫn nắm bắt được thông tin, bạn nên:
+
+1. **Ghi lại kiến thức**: Ghi chú và chia sẻ kiến thức của bạn với người khác để ngăn chặn rủi ro về người quan trọng.
+
+2. **Tạo và chia sẻ Google Doc**: Cập nhật và chia sẻ thông tin quan trọng với các dự án và khách hàng quan trọng.
+
+3. **Phân công thành viên nhóm**: Chia nhỏ công việc và phân công cho từng thành viên nhóm phụ trách cho từng dự án/khách hàng.
+
+4. **Cuộc gọi/cuộc họp**: Đảm bảo rằng các cuộc gọi và cuộc họp đều được lên lịch và thông báo cho tất cả các thành viên nhóm.
+
+5. **Nhận xét và đánh giá**: Bao gồm một phần để nhận xét và đánh giá bằng cách bao gồm các thành viên trong nhóm.",5.0,0.0,0.0,0.0,0.0,0.0,3.463387200018527e-155,0.0,5.0,3.463387200018527e-155,0.0,5.0,0.6808898626190172,3.463387200018527e-155,0.0,5.0,0.0,5.0,0.0,5.0,5.0,0.0
+Thành viên mới làm thế nào để đóng góp vào việc cải thiện handbook ngay từ những ngày đầu?,"Để đóng góp vào việc cải thiện Handbook ngay từ những ngày đầu, thành viên mới nên:
+
+1. Trao quyền ngay từ ngày đầu tiên: Tại GitLab, nếu nhân viên mới gặp khó khăn trong quá trình làm quen, họ được khuyến khích cập nhật sổ tay, quay video để giúp đỡ những người khác có thể gặp phải trở ngại tương tự và đóng góp cho việc học tập và phát triển ngay từ ngày đầu.
+
+2. Tham gia vào nhóm biên tập sổ tay: Đối với các công ty có quy mô lớn, hãy cân nhắc việc thuê những người ghi chép chuyên trách ngồi trong mỗi nhóm. Các cựu nhà báo là những người lý tưởng cho loại công việc này vì nó không chỉ dừng lại ở việc ghi chép. Việc ghi lại ghi chú trong meetings và chuyển đổi chúng từ Google Documents sang handbook, đòi hỏi khả năng kể chuyện cũng như hiểu biết về điều gì là quan trọng và điều gì Cần thêm bối cảnh. 
+
+3. Đóng góp vào việc học tập và phát triển: Tại GitLab, chúng tôi lập tài liệu để tạo một nguồn thông tin chính xác duy nhất để chúng tôi có thể vận hành handbook-first và co",5.0,1.0,0.2,1.0,0.2,0.38685280723454163,9.300904988242857e-79,0.0,5.0,9.300904988242857e-79,0.0,5.0,0.657236385131258,9.300904988242857e-79,0.0,5.0,0.2,5.0,0.0,5.0,5.0,0.0

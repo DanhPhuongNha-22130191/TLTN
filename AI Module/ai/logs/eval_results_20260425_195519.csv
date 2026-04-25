@@ -1,0 +1,20 @@
+﻿question,answer,ctx_accuracy,ctx_recall@k,ctx_precision@k,ctx_hit_rate@k,ctx_mrr@k,ctx_ndcg@k,ctx_bleu,ctx_rouge_l,faith_accuracy,faith_bleu,faith_rouge_l,ans_accuracy,ans_cosine_sim,ans_bleu,ans_rouge_l,noise_accuracy,noise_precision,neg_accuracy,neg_em,info_accuracy,counter_accuracy,counter_r_rate
+GitLab giữ lại bao nhiêu ngày hoạt động trên Slack trước khi chúng biến mất?,GitLab giữ lại 90 ngày hoạt động trên Slack trước khi chúng biến mất.,1.0,1.0,0.2,1.0,1.0,1.0,0.05629361690000878,0.0,0.0,0.05629361690000878,0.0,0.0,0.8693348634762688,0.05629361690000878,0.0,0.0,0.2,0.0,0.0,0.0,0.0,0.0
+Tại sao việc phản hồi (feedback) nhanh chóng cho ứng viên sau buổi phỏng vấn lại là ưu tiên hàng đầu?,"Việc phản hồi nhanh chóng cho ứng viên sau buổi phỏng vấn là ưu tiên hàng đầu vì nó giúp tạo ra môi trường làm việc tích cực và thoải mái. Một phản hồi nhanh chóng giúp ứng viên hiểu rõ hơn về kết quả phỏng vấn, điều này rất hữu ích trong quá trình tìm kiếm công việc. Đồng thời, phản hồi nhanh chóng cũng giúp ứng viên nắm bắt cơ hội để cải thiện khả năng và kỹ năng của bản thân, tăng khả năng thành công trong tương lai.",2.0,0.0,0.0,0.0,0.0,0.0,1.0059610597032623e-78,0.0,1.0,1.0059610597032623e-78,0.0,4.0,0.660241753075258,1.0059610597032623e-78,0.0,1.0,0.0,2.0,0.0,1.0,0.0,0.0
+Tại sao mọi cuộc họp đều phải có một tài liệu ghi chép (notes) đi kèm?,"The need for a written record at every meeting is to ensure that all participants have a clear understanding of what was discussed and agreed upon. This helps in maintaining accountability among team members and ensures transparency within the organization. Additionally, having a documented record provides a reference point for future meetings or discussions related to the same topic. It also serves as an audit trail, allowing management to track decisions made during these meetings over time. In essence, it acts as a tool to document collective knowledge and decision-making processes, which can be invaluable for both current and future operations.",0.0,0.0,0.0,0.0,0.0,0.0,6.689869579535845e-232,0.0,0.0,6.689869579535845e-232,0.0,1.0,0.7404518728882397,6.689869579535845e-232,0.0,1.0,0.0,0.0,0.0,1.0,0.0,0.0
+Làm thế nào để đảm bảo những người không tham gia trực tiếp cuộc họp vẫn nắm bắt được thông tin?,Tôi không rõ thông tin này,3.0,0.0,0.0,0.0,0.0,0.0,0,0.0,1.0,0,0.0,1.0,0.4499196302102768,0,0.0,1.0,0.0,1.0,0.0,0.0,0.0,0.0
+Thành viên mới làm thế nào để đóng góp vào việc cải thiện handbook ngay từ những ngày đầu?,"Để giúp thành viên mới đóng góp vào việc cải thiện handbook ngay từ những ngày đầu, bạn có thể thực hiện các bước sau:
+
+1. **Xác định mục tiêu**: Xác định rõ ràng mục đích của việc cải tiến và yêu cầu từ thành viên mới.
+   
+2. **Khuyến khích sự tham gia**: Khuyến khích thành viên mới tham gia vào thảo luận và đóng góp ý kiến.
+   
+3. **Phát động hoạt động tích cực**: Tổ chức các buổi hội thoại trực tuyến hoặc offline để thành viên mới có cơ hội nói lên ý kiến của mình.
+   
+4. **Giải quyết vấn đề nhanh chóng**: Tránh tình trạng thành viên mới bị mắc kẹt hoặc gặp khó khăn.
+   
+5. **Hỗ trợ kịp thời**: Hỗ trợ thành viên mới bằng cách giải thích, hướng dẫn hoặc hỗ trợ trực tiếp.
+   
+6. **Kết nối với đội ngũ**: Kết nối thành viên mới với đội ngũ để tạo điều kiện thuận lợi cho việc tham gia và đóng góp.
+   
+7. **Xây dựng văn hóa tổ chức**: Xây dựng một môi trường tích cực và thân thiện để thành viên mới cảm thấy thoải mái và muốn đóng góp.",2.0,0.0,0.0,0.0,0.0,0.0,6.739168935453924e-79,0.0,0.0,6.739168935453924e-79,0.0,1.0,0.7129302385686545,6.739168935453924e-79,0.0,1.0,0.0,1.0,0.0,1.0,1.0,0.0

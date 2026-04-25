@@ -1,0 +1,5 @@
+--- RAG REPORT ---
+Total: 5
+1. Context Relevance Acc: 2.40, Recall: 0.000
+2. Faithfulness Acc: 3.60
+3. Answer Relevance Acc: 3.40, Cosine: 0.5678

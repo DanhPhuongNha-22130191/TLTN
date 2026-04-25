@@ -1,8 +1,0 @@
-Tuần lễ Hack
-Tuần thứ sáu của mỗi quý tại Clef là tuần hackathon. Chúng tôi tạm dừng các dự án thường nhật và thành lập các nhóm nhỏ để thực hiện những dự án nhỏ mà chúng tôi cảm thấy hứng thú và có thể hoàn thành trong vòng một tuần. Bất kỳ ai cũng có thể đề xuất dự án, và không có quy định nào về những gì được phép thực hiện ngoại trừ việc nó phải liên quan đến Clef. Mỗi nhân viên tự quyết định mình muốn làm gì, vì vậy các dự án cần nhiều hơn một người cũng cần phải thuyết phục các nhân viên khác cùng tham gia. Bất kỳ ai cũng có thể làm việc độc lập trên một dự án, nhưng các nhóm được khuyến khích và có thể có tối đa 4 người làm việc trên cùng một dự án. Càng nhiều càng tốt, các nhóm nên bao gồm các thành viên từ các bộ phận khác nhau trong tổ chức để tạo cơ hội cho mọi người làm việc với những người mà họ không làm việc cùng hàng ngày.
-
-Nên gọi đồ ăn ngoài hoặc chuẩn bị bữa trưa chung để mọi người cùng ăn. Đây là một tuần làm việc cộng đồng, nơi mọi người cùng làm việc, trò chuyện và suy nghĩ. Việc hoàn thành các dự án trong một tuần sẽ rất gấp rút, và mục tiêu là để mọi người cùng làm việc trên những dự án mà họ hào hứng, vì vậy cần có một bầu không khí tràn đầy năng lượng tích cực.
-
-Chúng tôi cũng sẽ thử nghiệm tổ chức một số tuần hackathon này ở ngoài văn phòng và mời những diễn giả thú vị để khơi gợi sự sáng tạo vào đầu tuần.
-
-Vào cuối ngày thứ Sáu, mỗi nhóm sẽ trình bày dự án của mình trước toàn công ty, và sau đó chúng ta sẽ tổ chức một buổi liên hoan tuần lễ hackathon.
