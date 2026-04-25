@@ -127,8 +127,4 @@ AI Module/
 
 ---
 
-## 9. Hướng phát triển
 
-*   **Tích hợp Agentic RAG**: Cho phép AI tự quyết định khi nào cần tìm kiếm thêm hoặc khi nào cần phản hồi ngay.
-*   **Xử lý Đa phương thức**: Hỗ trợ đọc hiểu hình ảnh, biểu đồ trong tài liệu sổ tay.
-*   **Web Dashboard**: Xây dựng giao diện quản lý logs và xem báo cáo đánh giá trực quan hơn.
