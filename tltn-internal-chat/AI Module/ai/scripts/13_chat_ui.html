@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Internal AI Assistant</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --panel-bg: rgba(30, 41, 59, 0.7);
+            --primary: #14b8a6;
+            /* Teal */
+            --primary-hover: #0d9488;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --message-user: #1e293b;
+            --message-ai: rgba(20, 184, 166, 0.1);
+            --border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-image:
+                radial-gradient(circle at 15% 50%, rgba(20, 184, 166, 0.05), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(20, 184, 166, 0.08), transparent 25%);
+        }
+
+        .chat-container {
+            width: 90%;
+            max-width: 900px;
+            height: 85vh;
+            background: var(--panel-bg);
+            border-radius: 24px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .ai-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, var(--primary), #0284c7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 4px 12px rgba(20, 184, 166, 0.3);
+        }
+
+        .header-info h1 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            letter-spacing: -0.025em;
+        }
+
+        .header-info p {
+            font-size: 0.875rem;
+            color: var(--primary);
+            margin-top: 2px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--primary);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--primary);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(20, 184, 166, 0.4);
+            }
+
+            70% {
+                box-shadow: 0 0 0 6px rgba(20, 184, 166, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(20, 184, 166, 0);
+            }
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            scroll-behavior: smooth;
+        }
+
+        .chat-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .message {
+            display: flex;
+            flex-direction: column;
+            max-width: 80%;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            align-self: flex-end;
+            align-items: flex-end;
+        }
+
+        .message.ai {
+            align-self: flex-start;
+            align-items: flex-start;
+        }
+
+        .bubble {
+            padding: 14px 18px;
+            border-radius: 20px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            position: relative;
+        }
+
+        .message.user .bubble {
+            background: var(--message-user);
+            border-bottom-right-radius: 4px;
+            border: 1px solid var(--border-color);
+        }
+
+        .message.ai .bubble {
+            background: var(--message-ai);
+            border-bottom-left-radius: 4px;
+            border: 1px solid rgba(20, 184, 166, 0.2);
+            color: #d1d5db;
+        }
+
+        .sources {
+            margin-top: 8px;
+            padding: 10px 14px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            border: 1px dashed rgba(20, 184, 166, 0.3);
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .sources-title {
+            color: var(--primary);
+            font-weight: 600;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .source-item {
+            margin-bottom: 4px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .source-score {
+            color: var(--primary);
+        }
+
+        .chat-input-container {
+            padding: 20px 24px;
+            border-top: 1px solid var(--border-color);
+            background: rgba(15, 23, 42, 0.5);
+        }
+
+        .input-wrapper {
+            display: flex;
+            gap: 12px;
+            background: var(--message-user);
+            padding: 8px 8px 8px 16px;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .input-wrapper:focus-within {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(20, 184, 166, 0.2);
+        }
+
+        input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text-main);
+            font-size: 1rem;
+        }
+
+        input::placeholder {
+            color: var(--text-muted);
+        }
+
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        button:hover {
+            background: var(--primary-hover);
+            transform: scale(1.05);
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        button svg {
+            width: 20px;
+            height: 20px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        /* Loading Dot Animation */
+        .typing-indicator {
+            display: none;
+            align-items: center;
+            gap: 4px;
+            padding: 14px 18px;
+            background: var(--message-ai);
+            border-radius: 20px;
+            border-bottom-left-radius: 4px;
+            width: fit-content;
+        }
+
+        .typing-indicator span {
+            width: 6px;
+            height: 6px;
+            background-color: var(--primary);
+            border-radius: 50%;
+            animation: typing 1.4s infinite ease-in-out both;
+        }
+
+        .typing-indicator span:nth-child(1) {
+            animation-delay: -0.32s;
+        }
+
+        .typing-indicator span:nth-child(2) {
+            animation-delay: -0.16s;
+        }
+
+        @keyframes typing {
+
+            0%,
+            80%,
+            100% {
+                transform: scale(0);
+            }
+
+            40% {
+                transform: scale(1);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="chat-container">
+        <div class="chat-header">
+            <div class="ai-avatar">✨</div>
+            <div class="header-info">
+                <h1>Hệ thống RAG AI Nội bộ</h1>
+                <p><span class="status-dot"></span> Sẵn sàng kết nối</p>
+            </div>
+        </div>
+
+        <div class="chat-messages" id="chat-messages">
+            <div class="message ai">
+                <div class="bubble">
+                    Chào bạn! Mình là Trợ lý AI được trang bị toàn bộ tài liệu từ Handbook của công ty. Bạn muốn hỏi gì
+                    về chính sách, nghỉ phép, hay quy trình làm việc hôm nay?
+                </div>
+            </div>
+
+            <div id="typing-indicator" class="message ai" style="display: none;">
+                <div class="typing-indicator" style="display: flex;">
+                    <span></span><span></span><span></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="chat-input-container">
+            <div class="input-wrapper">
+                <input type="text" id="query-input" placeholder="Gõ câu hỏi của bạn vào đây..." autocomplete="off">
+                <button id="send-btn">
+                    <svg viewBox="0 0 24 24">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const inputField = document.getElementById('query-input');
+        const sendBtn = document.getElementById('send-btn');
+        const messagesContainer = document.getElementById('chat-messages');
+        const typingIndicator = document.getElementById('typing-indicator');
+
+        // Gửi qua phím Enter
+        inputField.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        // Gửi qua nút nhấn
+        sendBtn.addEventListener('click', sendMessage);
+
+        async function sendMessage() {
+            const query = inputField.value.trim();
+            if (!query) return;
+
+            // 1. Thêm tin nhắn của User
+            addMessage(query, 'user');
+            inputField.value = '';
+
+            // Scroll xuống dưới cùng
+            scrollToBottom();
+
+            // 2. Hiện Typing Indicator (di chuyển nó xuống cuối)
+            messagesContainer.appendChild(typingIndicator);
+            typingIndicator.style.display = 'flex';
+            scrollToBottom();
+
+            // 3. Gửi Request lên API
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: query })
+                });
+
+                const data = await response.json();
+
+                // Ẩn Indicator
+                typingIndicator.style.display = 'none';
+
+                // 4. Thêm tin nhắn của AI + Sources
+                addMessage(data.answer, 'ai', data.sources);
+
+            } catch (error) {
+                typingIndicator.style.display = 'none';
+                addMessage("Xin lỗi, không thể kết nối tới Server AI lúc này.", 'ai');
+            }
+        }
+
+        function addMessage(text, sender, sources = []) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+
+            // Xử lý xuống dòng cho text
+            const formattedText = text.replace(/\n/g, '<br>');
+
+            let messageHTML = `<div class="bubble">${formattedText}</div>`;
+
+            // Nếu có Sources và là AI
+            if (sender === 'ai' && sources.length > 0) {
+                let sourcesHTML = `
+                    <div class="sources">
+                        <div class="sources-title">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                            Dữ liệu tham khảo:
+                        </div>
+                `;
+
+                // Chỉ lấy top 3 sources
+                const topSources = sources.slice(0, 3);
+                topSources.forEach((s, index) => {
+                    const score = (s.score * 100).toFixed(1);
+                    // Lấy ra ~60 ký tự đầu làm preview text để hiển thị, tooltip thì full 200 ký tự
+                    const previewTitle = s.content_preview ? s.content_preview.substring(0, 50).replace(/<[^>]*>?/gm, '') + '...' : 'Trích đoạn tài liệu';
+
+                    sourcesHTML += `
+                        <div class="source-item" style="display: flex; flex-direction: column; background: rgba(0,0,0,0.1); padding: 8px; border-radius: 6px; margin-bottom: 8px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                <span style="font-weight: 600; color: #cbd5e1;">Nguồn ${index + 1}</span>
+                                <span class="source-score" style="color: var(--primary); font-size: 0.8em; background: rgba(20, 184, 166, 0.1); padding: 2px 6px; border-radius: 4px;">Độ khớp: ${score}%</span>
+                            </div>
+                            <span title="${s.content_preview ? s.content_preview.replace(/"/g, '&quot;') : ''}" style="color: #94a3b8; font-style: italic; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                "${previewTitle}"
+                            </span>
+                        </div>
+                    `;
+                });
+
+                sourcesHTML += `</div>`;
+                messageHTML += sourcesHTML;
+            }
+
+            messageDiv.innerHTML = messageHTML;
+
+            // Chèn tin nhắn mới CHƯỚC typing indicator
+            messagesContainer.insertBefore(messageDiv, typingIndicator);
+            scrollToBottom();
+        }
+
+        function scrollToBottom() {
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+    </script>
+</body>
+
+</html>

@@ -308,7 +308,27 @@ Lý do: <nhận xét>
             percent = (score / 5) * 100
             term_table += f"| {name.ljust(35)} | {f'{score:.2f} / 5.0'.center(20)} | {f'{percent:.1f}%'.center(15)} |\n"
         
+        # --- BẢNG BỔ SUNG: MATH & STRING METRICS ---
         term_table += f"{table_border}\n"
+        term_table += f"{'📊 CÁC CHỈ SỐ TƯƠNG ĐỒNG & THỐNG KÊ (MATH & STRING) 📊'.center(80)}\n"
+        term_table += f"{table_border}\n"
+        term_table += f"| {'TIÊU CHÍ (MATH/STRING)'.ljust(35)} | {'GIÁ TRỊ TRUNG BÌNH'.center(20)} | {'PHẦN TRĂM (%)'.center(15)} |\n"
+        term_table += "|" + "-"*37 + "|" + "-"*22 + "|" + "-"*17 + "|\n"
+        
+        math_mapping = [
+            ("Semantic Cosine Similarity", avg('ans_cosine_sim')),
+            ("Answer BLEU Score", avg('ans_bleu')),
+            ("Answer ROUGE-L Score", avg('ans_rouge_l')),
+            ("Negative Exact Match (EM)", avg('neg_em')),
+            ("Retriever Hit Rate@k", avg('ctx_hit_rate@k'))
+        ]
+        
+        for name, score in math_mapping:
+            percent = score * 100
+            term_table += f"| {name.ljust(35)} | {f'{score:.4f} / 1.0'.center(20)} | {f'{percent:.1f}%'.center(15)} |\n"
+            
+        term_table += f"{table_border}\n"
+        
         print(term_table)
         
         with open(log_filepath, "w", encoding="utf-8") as f: f.write(term_table)

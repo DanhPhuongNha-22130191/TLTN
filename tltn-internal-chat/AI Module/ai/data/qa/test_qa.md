@@ -2,67 +2,85 @@
 
 > Tổng số: 10 câu
 
-**Q1:** GitLab giữ lại bao nhiêu ngày hoạt động trên Slack trước khi chúng biến mất?
+**Q1:** Các hoạt động cụ thể trong quy trình tuyển dụng bao gồm?
 
-**A:** Tại GitLab, chỉ 90 ngày hoạt động Slack được giữ lại. Sau đó, nó biến mất. Điều này là có chủ ý để ngăn Slack trở thành nguồn thông tin thay thế cho handbook.
+**A:** Dựa trên thông tin CONTEXT cung cấp, các hoạt động cụ thể trong quy trình tuyển dụng bao gồm:
 
-**ChunkID:** a5ad83ad-49fb-63ba-d76a-320aefe1edca
+1. Phê duyệt các hoạt động bên ngoài
+2. Tiết lộ và ủy quyền việc làm bên ngoài
+3. Câu hỏi thường gặp về quy trình phỏng vấn
 
-**Q2:** Tại sao việc phản hồi (feedback) nhanh chóng cho ứng viên sau buổi phỏng vấn lại là ưu tiên hàng đầu?
+Đây là các bước chính trong quy trình tuyển dụng:
 
-**A:** Việc trì hoãn phản hồi dễ đánh mất thiện cảm, mang lại trải nghiệm không tốt cho ứng viên (candidate experience), đánh mất nhân tài và đi ngươc tiêu chí Giao tiếp Minh bạch vốn là thế mạnh của GitLab.
+1. Phê duyệt các hoạt động bên ngoài
+a. Trước khi bắt đầu làm việc bên ngoài, ứng viên phải tiết lộ hoạt động đó bằng văn bản cho người quản lý của mình và báo cáo thêm nếu cần.
+b. Sự phê duyệt sẽ không được cấp nếu GitLab xác định rằng hoạt động bên ngoài được đề xuất sẽ là xung đột lợi ích theo Quy tắc ứng xử và đạo đức kinh doanh hoặc nếu nó làm tổn hại đến khả năng thực hiện công việc của họ một cách hiệu quả.
 
-## 8. Onboarding Buddies (Bạn đồng hành)
+2. Tiết lộ và ủy quyền việc làm bên ngoài
+a. Các ứng viên (và, nếu có, các thành viên nhóm hiện tại) sẽ nhận được email để điền vào đơn đăng ký sàng lọc lý lịch.
+b. Ứng dụng sẽ yêu cầu thông tin cá nhân và nghề nghiệp.
 
-**ChunkID:** 00a48ca4-c177-ff69-950b-33b97f35d387
+**ChunkID:** eab4d745-c564-68ce-abb4-4909ee106cf7
 
-**Q3:** Tại sao mọi cuộc họp đều phải có một tài liệu ghi chép (notes) đi kèm?
+**Q2:** Nhóm Nhân sự tại GitLab hoạt động như thế nào?
 
-**A:** Việc ghi chép trong cuộc họp đảm bảo rằng những người không thể tham gia vì lý do thời gian hoặc khác biệt múi giờ vẫn có thể nắm rõ những quyết định đã được đưa ra cũng như mạch thảo luận, hỗ trợ nguyên tắc giao tiếp async.
+**A:** Nhóm Nhân sự tại GitLab hoạt động như một phần quan trọng của tổ chức, tập trung vào việc thu hút và giữ chân nguồn lực chất lượng cao cho GitLab. Họ thực hiện nhiều nhiệm vụ như:
 
-**ChunkID:** 4e9a2a89-102d-fafa-6c3d-72d459741780
+1. Phối hợp với các đơn vị khác trong GitLab để đảm bảo rằng tất cả các hoạt động đều tuân thủ quy trình và chuẩn mực của GitLab.
+2. Xây dựng và duy trì mối quan hệ chặt chẽ với các đối tác kinh doanh và các cộng đồng trong ngành công nghệ.
+3. Thực hiện các chiến dịch tuyển dụng và thu hút nhân tài, bao gồm việc phỏng vấn ứng viên và đưa ra quyết định về việc phỏng vấn.
+4. Theo dõi và đánh giá hiệu suất của các thành viên trong nhóm, đặc biệt là những người đã làm việc lâu dài với GitLab.
+5. Quản lý và duy trì các quy trình và thủ tục liên quan đến việc thăng tiến và gia hạn hợp đồng của các thành viên trong nhóm.
 
-**Q4:** Làm thế nào để đảm bảo những người không tham gia trực tiếp cuộc họp vẫn nắm bắt được thông tin?
+Nhóm Nhân sự cũng giúp tạo ra môi trường làm việc thân thiện và gắn kết giữa các thành viên trong nhóm, thúc đẩy sự phát triển và tương tác giữa các thành viên trong nhóm.
 
-**A:** Người điều phối cần đảm bảo biên bản tóm tắt cuộc họp được ghi lại chi tiết và sau đó tải lên hoặc chia sẻ nội dung công khai qua tài liệu dùng chung, và nếu có thể, cung cấp cả video ghi hình cuộc họp.
+**ChunkID:** c71b42a1-1728-da9c-638a-c15bbbdc7847
 
-**ChunkID:** 08b30261-3af0-0da6-49eb-7a35a3faf085
+**Q3:** Tại sao GitLab đã hợp tác với Lighthouse Services?
 
-**Q5:** Thành viên mới làm thế nào để đóng góp vào việc cải thiện handbook ngay từ những ngày đầu?
+**A:** Để cung cấp đường dây nóng báo cáo ẩn danh cho tất cả thành viên trong nhóm.
 
-**A:** Thành viên mới được khuyến khích tạo Merge Request sớm nhất có thể ngay cả khi chỉ để sửa lỗi chính tả hay bổ sung một bước còn thiếu trong quy trình hội nhập, để thực hành văn hóa "Mọi người có thể đóng góp".
+**ChunkID:** 927500ba-3827-125f-6460-9aacd6b99a2b
 
-## 4. Quy trình Onboarding (Hội nhập)
+**Q4:** Tại sao GitLab thuê người ở khắp nơi trên thế giới?
 
-**ChunkID:** 80844ec4-5332-b0f8-2744-8a4e6f59bc3c
+**A:** GitLab thuê người ở khắp nơi trên thế giới vì họ coi đa dạng, hòa nhập và thân thuộc là một trong những giá trị cốt lõi của họ. Điều này thể hiện qua việc họ có cơ sở hạ tầng việc làm ở nhiều quốc gia khác nhau, giúp họ trở nên toàn cầu hóa.
 
-**Q6:** Những thách thức lớn nhất khi thực hiện onboarding 100% từ xa là gì?
+**ChunkID:** a2d0af7d-78bb-f54b-d2bc-10d6e5035808
 
-**A:** Nhân viên mới dễ cảm thấy bị lạc lõng, quá tải thông tin, và khó khăn trong việc thiết lập ranh giới công việc - cuộc sống mà không có cấu trúc truyền thống của văn phòng. Sự thiếu hụt tương tác cá nhân trực tiếp cũng có thể tạo cảm giác đơn độc.
+**Q5:** Quy trình và thủ tục giải quyết khiếu nại về quấy rối tình dục như thế nào?
 
-**ChunkID:** d008e975-8c2d-1798-ff48-827975c8015a
+**A:** Theo Chính sách của Công ty TNHH tư nhân GitLab Ấn Độ chống quấy rối tình dục, quy trình và thủ tục giải quyết khiếu nại về quấy rối tình dục được quy định trong đó.
 
-**Q7:** Làm thế nào để nhân viên mới cảm thấy được chào đón mà không cần gặp mặt trực tiếp?
+**ChunkID:** 0e961388-a9ee-e9d8-1373-5ccd1a03138a
 
-**A:** GitLab chỉ định một Người Đồng Hành (Onboarding Buddy), tổ chức các cuộc gọi giới thiệu, gửi quà chào mừng (swag) và sử dụng kênh Slack #new_team_members cùng văn hóa giới thiệu nồng nhiệt để mang lại cảm giác gắn kết từ thuở sơ khai.
+**Q6:** Theo quy trình của GitLab Ireland, khi nào vụ việc có thể được xử lý thông qua các giai đoạn khác của thủ tục?
 
-**ChunkID:** ea1fc977-26cd-e9f1-19d1-8a65298ade6d
+**A:** Nếu hòa giải không thành công hoặc không đạt được mục tiêu, vụ việc có thể được xử lý thông qua các giai đoạn khác của thủ tục.
 
-**Q8:** Tại sao GitLab coi "việc viết ra" (writing things down) là một kỹ năng cốt lõi cho phong cách làm việc async?
+**ChunkID:** 368eedcb-1df2-24a8-9bde-8dfcae2ca2eb
 
-**A:** Việc viết lại tài liệu giúp lưu trữ thông tin lâu dài, tránh thất thoát ngữ cảnh và giúp mọi người cùng thống nhất một góc nhìn chung ("Single Source of Truth"). Điều này giúp các thành viên nhóm dễ dàng tự phục vụ (self-serve) thông tin mà không cần hỏi người khác.
+**Q7:** Tại sao GitLab chọn cách tiếp cận dựa trên chi phí lao động thay vì chi phí sinh hoạt?
 
-**ChunkID:** 80f3680d-62d9-43e2-4d97-95292ec8e9c5
+**A:** Để giúp phân bổ nguồn lực lao động trên toàn cầu, GitLab sử dụng dữ liệu thị trường địa phương từ Radford để tạo phạm vi bồi thường bằng nội tệ.
 
-**Q9:** "Quyền được từ chối tham gia cuộc họp" (The right to decline a meeting) có nghĩa là gì tại GitLab?
+**ChunkID:** 9d676a8c-b30d-749a-7979-ac69e0482e66
 
-**A:** Tại GitLab, nhân viên được khuyến khích từ chối hoặc không tham gia các cuộc họp nếu họ thấy sự hiện diện của mình không mang lại giá trị hoặc không cần thiết. Họ có thể linh hoạt theo dõi biên bản cuộc họp sau đó mà không sợ bị phán xét.
+**Q8:** Tại sao việc công khai quy trình, văn hóa và chiến lược của tổ chức giúp tăng cường ứng viên?
 
-**ChunkID:** f3c7ac76-2648-334d-e8be-2dc9df51edda
+**A:** Việc công khai quy trình, văn hóa và chiến lược của tổ chức tạo ra một môi trường thân thiện hơn cho các ứng viên và nhân viên mới, giúp nhóm tuyển dụng của bạn tiếp cận được đầu vào có trình độ cao hơn, được đưa ra bởi những cá nhân đã điều tra công ty của bạn và tin rằng chúng phù hợp với mục tiêu và sứ mệnh của bạn.
 
-**Q10:** Mục tiêu cốt lõi của quy trình phản hồi 360 độ tại GitLab là gì?
+**ChunkID:** 6f789eed-be36-479e-770f-fc65efdfa78f
 
-**A:** Mục tiêu của nó là tập trung thúc đẩy sự phát triển liên tục (development) của các nhân sự qua việc cung cấp góc nhìn toàn diện về mặt mạnh, sự thăng tiến tiềm năng cũng như các khía cạnh cần củng cố, chú trọng vào năng lực lãnh đạo và giá trị cốt lõi.
+**Q9:** Quyền chọn là gì?
 
-**ChunkID:** 0d7c60af-7a1c-bf11-8ee8-c6338c14cd82
+**A:** Quyền chọn cho phép người mua có quyền nhưng không có nghĩa vụ để mua một tài sản cụ thể vào một ngày nhất định trong tương lai.
+
+**ChunkID:** 187ad875-6608-6391-bf08-3adda99fa12f
+
+**Q10:** Phần thưởng tùy ý là gì?
+
+**A:** Phản hồi công nhận ngang hàng cho công việc xuất sắc vượt qua kỳ vọng về vai trò đồng thời thể hiện các giá trị CREDIT của GitLab: :handshake: Cộng tác, 📈 Kết quả cho Khách hàng, :đồng hồ bấm giờ: Hiệu quả, :globe_with_meridians: Đa dạng, Hòa nhập & Thuộc về, :footprints: Lặp lại và :eye: Minh bạch. Công việc tốt và tuyệt vời là tiêu chuẩn cơ bản của chúng tôi — tiền thưởng tôn vinh những đóng góp thực sự đặc biệt, nổi bật ngay cả theo tiêu chuẩn cao đó.
+
+**ChunkID:** acb038b4-a765-849b-1d2c-52e3eff65ab7
 

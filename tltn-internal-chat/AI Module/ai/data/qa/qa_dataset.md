@@ -1,322 +1,305 @@
-# Bộ câu hỏi (Tự động tách)
+# Bộ câu hỏi (Tự động sinh bằng AI từ Handbook)
 
 > Tổng số: 50 câu
+> Lưu ý: Dữ liệu này đảm bảo 100% khớp với Handbook hiện tại.
 
-**Q1:** Lợi ích chính của việc giao tiếp bất đối xứng (async) đối với một lực lượng lao động phân tán toàn cầu là gì?
+**Q1:** Làm thế nào để tiếp cận đúng thành viên của Nhóm Nhân dân?
 
-**A:** Giao tiếp async cho phép nhân viên ở các múi giờ khác nhau làm việc một cách liền mạch mà không bị phụ thuộc vào thời gian trực tuyến của nhau. Nó tăng tính linh hoạt, giảm áp lực phải phản hồi ngay lập tức và tạo không gian cho suy nghĩ thấu đáo hơn.
+**A:** Tiếp cận đúng thành viên của Nhóm Nhân dân nên tập trung vào việc thu hút nhân tài và hiểu biết sâu sắc. Việc này giúp phát hiện và tuyển chọn những ứng viên phù hợp với vị trí công việc.
 
-**ChunkID:** f468ef90-a2ba-34a0-8aa8-2682bff51608
+**ChunkID:** da755316-8700-a426-020d-e27321005e1a
 
-**Q2:** Tại sao GitLab coi "việc viết ra" (writing things down) là một kỹ năng cốt lõi cho phong cách làm việc async?
+**Q2:** Tại sao việc công khai quy trình, văn hóa và chiến lược của tổ chức giúp tăng cường ứng viên?
 
-**A:** Việc viết lại tài liệu giúp lưu trữ thông tin lâu dài, tránh thất thoát ngữ cảnh và giúp mọi người cùng thống nhất một góc nhìn chung ("Single Source of Truth"). Điều này giúp các thành viên nhóm dễ dàng tự phục vụ (self-serve) thông tin mà không cần hỏi người khác.
-
-**ChunkID:** 80f3680d-62d9-43e2-4d97-95292ec8e9c5
-
-**Q3:** Làm thế nào để duy trì sự gắn kết giữa các thành viên trong nhóm khi phần lớn giao tiếp không diễn ra trong thời gian thực?
-
-**A:** GitLab kết hợp giao tiếp async với các cuộc gọi xã hội định kỳ (Coffee Chats, Social Calls) và các hoạt động xây dựng nhóm không bắt buộc để tạo dựng mối quan hệ cá nhân, từ đó củng cố sự gắn kết dù làm việc từ xa.
-
-**ChunkID:** 8c4d23b8-7d71-93d4-d447-8892015cea0a
-
-**Q4:** GitLab đưa ra lời khuyên gì khi một cuộc thảo luận async trở nên quá phức tạp hoặc gây hiểu lầm?
-
-**A:** Nếu một chủ đề trở thành chuỗi tin nhắn/ping quá dài (thường trên 3-4 phản hồi qua lại mà chưa giải quyết được), bạn nên tổ chức ngay một cuộc gọi video đồng bộ (sync) ngắn gọn để giải quyết, sau đó ghi chú lại kết quả cuộc gọi đó vào tài liệu văn bản.
-
-**ChunkID:** 44248ded-10f9-a0cd-c3f7-3c5990749d38
-
-**Q5:** Giao tiếp async giúp giảm thiểu sự thiên vị (bias) trong môi trường làm việc như thế nào?
-
-**A:** Nó tạo ra một sân chơi bình đẳng, nơi ý tưởng được đánh giá dựa trên chất lượng văn bản và lập luận thay vì dựa trên ngữ điệu giọng nói, tốc độ phản xạ hoặc tính hướng ngoại của người đưa ra ý tưởng, từ đó giúp giảm thiểu tính thiên vị vô thức.
-
-## 2. Quản lý cuộc họp (Meeting Management)
-
-**ChunkID:** 5aa6a6a7-00e8-aba2-73b6-ff25dbbbf65c
-
-**Q6:** Quy tắc vàng của GitLab về việc bắt đầu một cuộc họp mà không có agenda là gì?
-
-**A:** "Không có chương trình nghị sự (agenda), không có cuộc họp" (No agenda, no attenda). Mọi cuộc họp đều phải có sẵn tài liệu nghị sự trước để những người tham gia có thể chuẩn bị. Nếu không có nghị sự, cuộc họp nên bị hủy.
-
-**ChunkID:** 20c24d21-481a-e5f2-3536-18377981620d
-
-**Q7:** Tại sao mọi cuộc họp đều phải có một tài liệu ghi chép (notes) đi kèm?
-
-**A:** Việc ghi chép trong cuộc họp đảm bảo rằng những người không thể tham gia vì lý do thời gian hoặc khác biệt múi giờ vẫn có thể nắm rõ những quyết định đã được đưa ra cũng như mạch thảo luận, hỗ trợ nguyên tắc giao tiếp async.
-
-**ChunkID:** 4e9a2a89-102d-fafa-6c3d-72d459741780
-
-**Q8:** "Quyền được từ chối tham gia cuộc họp" (The right to decline a meeting) có nghĩa là gì tại GitLab?
-
-**A:** Tại GitLab, nhân viên được khuyến khích từ chối hoặc không tham gia các cuộc họp nếu họ thấy sự hiện diện của mình không mang lại giá trị hoặc không cần thiết. Họ có thể linh hoạt theo dõi biên bản cuộc họp sau đó mà không sợ bị phán xét.
-
-**ChunkID:** f3c7ac76-2648-334d-e8be-2dc9df51edda
-
-**Q9:** Làm thế nào để đảm bảo những người không tham gia trực tiếp cuộc họp vẫn nắm bắt được thông tin?
-
-**A:** Người điều phối cần đảm bảo biên bản tóm tắt cuộc họp được ghi lại chi tiết và sau đó tải lên hoặc chia sẻ nội dung công khai qua tài liệu dùng chung, và nếu có thể, cung cấp cả video ghi hình cuộc họp.
-
-**ChunkID:** 08b30261-3af0-0da6-49eb-7a35a3faf085
-
-**Q10:** Mục đích của "Social Calls" hoặc "Coffee Chats" trong môi trường làm việc từ xa là gì?
-
-**A:** Để thay thế cho những cuộc trò chuyện tình cờ nơi công sở (watercooler chats). Đây là các cuộc gọi chỉ nói về các vấn đề ngoài công việc nhằm xây dựng lòng tin, sự đồng cảm và kết nối con người giữa các thành viên phân tán.
-
-## 3. Triết lý Handbook-first
-
-**ChunkID:** 8c4d23b8-7d71-93d4-d447-8892015cea0a
-
-**Q11:** Tại sao GitLab lại ưu tiên cập nhật handbook trước khi thực hiện thông báo thay đổi?
-
-**A:** GitLab tuân theo quy tắc "sổ tay đi đầu" (Handbook-first). Thay đổi sổ tay trước nhằm đảm bảo sổ tay luôn là nguồn thông tin chính thức. Nếu có thay đổi, quy trình sẽ là: cập nhật Sổ tay -> thông báo thay đổi với liên kết đến Sổ tay.
-
-**ChunkID:** d855fbcb-d79d-e041-89f1-be234de8713a
-
-**Q12:** Handbook đóng vai trò là "Single Source of Truth" (SSoT) có ý nghĩa như thế nào đối với hiệu quả công việc?
-
-**A:** Là SSoT, Handbook cung cấp một nơi duy nhất để tra cứu mọi quy trình, tránh tình trạng lưu trữ giấu giếm kiến thức (siloed information). Nhân viên có thể tìm kiếm và thực hiện công việc độc lập mà không phải phụ thuộc vào câu trả lời từ người khác.
-
-**ChunkID:** e1d9629b-369a-d1a3-caf0-a2210dd458ef
-
-**Q13:** Làm thế nào để ngăn chặn handbook trở nên lỗi thời?
-
-**A:** Mọi người trong công ty đều chịu trách nhiệm đề xuất các bản yêu cầu hợp nhất (Merge Requests - MR) để cập nhật thông tin nếu thấy tài liệu không còn chính xác, thay vì phải hỏi riêng một ai đó. Sổ tay là sản phẩm của toàn công ty.
-
-**ChunkID:** b8836a36-605c-19b6-1426-39180d2955f2
-
-**Q14:** Lợi ích của việc công khai handbook ra bên ngoài (public-facing) là gì?
-
-**A:** Nó nâng cao tính minh bạch trứ danh của GitLab, cho phép ứng viên và đối tác hoặc cộng đồng mã nguồn mở hiểu rõ cách GitLab hoạt động, đóng vai trò như một nam châm hút nhân tài tự nhiên và chia sẻ kinh nghiệm vận hành với thế giới.
-
-**ChunkID:** 11227304-61c4-2dbc-818a-e4c0b3a42c42
-
-**Q15:** Thành viên mới làm thế nào để đóng góp vào việc cải thiện handbook ngay từ những ngày đầu?
-
-**A:** Thành viên mới được khuyến khích tạo Merge Request sớm nhất có thể ngay cả khi chỉ để sửa lỗi chính tả hay bổ sung một bước còn thiếu trong quy trình hội nhập, để thực hành văn hóa "Mọi người có thể đóng góp".
-
-## 4. Quy trình Onboarding (Hội nhập)
-
-**ChunkID:** a6ff8099-ed32-d5db-8591-7658701a7627
-
-**Q16:** Những thách thức lớn nhất khi thực hiện onboarding 100% từ xa là gì?
-
-**A:** Nhân viên mới dễ cảm thấy bị lạc lõng, quá tải thông tin, và khó khăn trong việc thiết lập ranh giới công việc - cuộc sống mà không có cấu trúc truyền thống của văn phòng. Sự thiếu hụt tương tác cá nhân trực tiếp cũng có thể tạo cảm giác đơn độc.
-
-**ChunkID:** d008e975-8c2d-1798-ff48-827975c8015a
-
-**Q17:** Vai trò của "Onboarding Issue" trong việc quản lý tiến trình hội nhập của nhân viên mới?
-
-**A:** "Onboarding Issue" là một danh sách kiểm tra đa nhiệm toàn diện được tạo riêng (template) cho nhân viên mới. Nó mô tả các tác vụ hàng tuần, hướng dẫn rõ ràng người đó cần làm gì, tìm sự trợ giúp ở đâu, đảm bảo không một ai bị bỏ lại phía sau.
-
-**ChunkID:** fd3b5a75-130b-86f4-ec98-d20235c45326
-
-**Q18:** Làm thế nào để nhân viên mới cảm thấy được chào đón mà không cần gặp mặt trực tiếp?
-
-**A:** GitLab chỉ định một Người Đồng Hành (Onboarding Buddy), tổ chức các cuộc gọi giới thiệu, gửi quà chào mừng (swag) và sử dụng kênh Slack #new_team_members cùng văn hóa giới thiệu nồng nhiệt để mang lại cảm giác gắn kết từ thuở sơ khai.
-
-**ChunkID:** ea1fc977-26cd-e9f1-19d1-8a65298ade6d
-
-**Q19:** GitLab đề xuất gì để giảm bớt sự "quá tải thông tin" trong tuần đầu tiên làm việc?
-
-**A:** Công ty khuyên nhân viên mới chỉ tập trung xử lý "Onboarding Issue", đọc theo nhịp độ cá nhân, và không nên nỗ lực biết mọi thứ ngay tập tức. GitLab cho phép dùng cả tháng đầu tiên chỉ tập trung vào việc học hỏi, làm quen với hệ thống.
-
-**ChunkID:** fc5cb40b-327b-ab64-7f8f-9f440e12b306
-
-**Q20:** Tại sao việc cung cấp thiết bị làm việc sớm (trước ngày bắt đầu) lại quan trọng?
-
-**A:** Để nhân viên có thể sử dụng ngày đầu tiên làm quen thực sự với văn hóa và quy trình hội nhập thay vì phải đối mặt vật lộn với những bực bội về thiết lập phần cứng.
-
-## 5. Sức khỏe tinh thần và Cân bằng (Mental Health)
-
-**ChunkID:** fafb2955-0679-cb69-6d13-7d7eb3cc1279
-
-**Q21:** Dấu hiệu của sự kiệt sức (burnout) trong môi trường làm việc từ xa mà quản lý cần chú ý là gì?
-
-**A:** Bao gồm sự suy giảm bất thường trong tỷ lệ phản hồi, thiếu nhiệt tình trong các cuộc gọi sync, giảm lượng đóng góp MR, thay đổi múi giờ làm việc bất thường (ví dụ gửi slack vào giữa đêm), hoặc sự tiêu cực kéo dài.
-
-**ChunkID:** 4db63187-27ca-5291-dbf2-43bd7bac0ca3
-
-**Q22:** GitLab khuyến khích nhân viên quản lý thời gian nghỉ ngơi như thế nào?
-
-**A:** Nhân viên cần phải tự thiết lập ranh giới (Personal limits), tuân theo chính sách "Giao tiếp tới tất cả sự nghỉ ngơi" (PTO by communication). Do không có quy định số ngày nghỉ cụ thể, GitLab vẫn nhắc nhở nhân viên hãy nghỉ đủ và tách bạch với công việc.
-
-**ChunkID:** 7d69db38-1678-a1b8-925c-730f1c44448f
-
-**Q23:** Tại sao "Work-Life Harmony" lại được ưu tiên hơn khái niệm "Work-Life Balance" truyền thống?
-
-**A:** Do tính chất 100% từ xa, công việc và đời sống sẽ đan xen nhau. "Work-Life Harmony" đề cập đến việc đan cài linh hoạt các ưu tiên cá nhân vào lịch làm việc một cách tự chủ, thay vì đánh giá bằng tỷ lệ đối kháng 50/50 giữa sức lao động và lúc thảnh thơi.
-
-**ChunkID:** 05cedfbe-9156-f3de-3173-7edb904d8a82
-
-**Q24:** Các bước cụ thể để ngắt kết nối (unplug) sau giờ làm việc hiệu quả là gì?
-
-**A:** Đóng máy xách tay, gỡ tài khoản Slack hoặc làm mờ thông báo Slack trên điện thoại, đi bộ rời khỏi phòng làm việc và thiết lập lịch làm việc hàng ngày có thói quen báo hiệu hoàn tất giờ hành chính.
-
-**ChunkID:** 298cee34-68a7-e7e0-f3c3-d5cdb883b4bf
-
-**Q25:** GitLab hỗ trợ gì cho nhân viên gặp khó khăn về sức khỏe tinh thần tại các khu vực khác nhau?
-
-**A:** GitLab cung cấp Chương trình Hỗ Trợ Nhân Viên Cùng Hiện Diện toàn cầu (EAP, bao gồm tư vấn tâm lý miễn phí) và ngân sách sức khỏe định kỳ cho phép nhân viên có thể chi trả các nhu cầu vật chất hoặc sức khỏe tư duy phù hợp ở địa phương.
-
-## 6. Quy trình Tuyển dụng (Hiring Process)
-
-**ChunkID:** 7e98a09e-4e77-53cc-2035-357cd49d2b64
-
-**Q26:** Ứng viên bên ngoài có thể tìm kiếm các vị trí đang tuyển của GitLab ở đâu?
-
-**A:** Ứng viên có thể tìm vị trí tuyển dụng trên trang Tuyển dụng chính thức của GitLab (GitLab Jobs page) được lưu trữ công khai để ứng tuyển.
-
-**ChunkID:** cac270b8-5fe9-f2a9-f9f5-ffe9c5c78b6f
-
-**Q27:** Quy trình phỏng vấn tại GitLab thường bao gồm những giai đoạn chính nào?
-
-**A:** Bao gồm sàng lọc hồ sơ, làm bài đánh giá văn bản (Written Evaluation), phỏng vấn với các quản lý/bạn đồng nghiệp, kiểm tra kiến thức về nền tảng công nghệ nếu cần và cuối cùng thường sẽ là đợt đánh giá toàn diện để chuẩn bị cho Offer.
-
-**ChunkID:** bdfbe77f-2507-6807-2097-7c52635a5374
-
-**Q28:** Làm thế nào để ứng viên có thể phân biệt được các cuộc gọi tuyển dụng giả mạo mạo danh GitLab?
-
-**A:** Mọi trao đổi tuyển dụng chính thức của GitLab sẽ luôn có đuôi email từ "@gitlab.com". GitLab sẽ không bao giờ yêu cầu gửi tiền, cài đặc ứng dụng thứ ba không rõ ràng (ngoài Zoom cho Interview) hay gửi thiết bị làm việc qua trung gian một cách mờ ám.
-
-**ChunkID:** 2ef68850-1399-2325-c27c-1bda21d6b4b1
-
-**Q29:** GitLab xử lý như thế nào khi một ứng viên muốn ứng tuyển nhiều vị trí cùng một lúc?
-
-**A:** GitLab khuyến khích ứng viên tìm hiểu kỹ định hướng của mình và ứng tuyển không quá ba (3) vai trò thích hợp nhất cùng lúc. Điều này giúp bộ phận Tuyển dụng dễ sắp xếp và đánh giá sâu xác hơn thay vì để ứng viên ứng tuyển rải rác đại trà.
-
-**ChunkID:** 60e0a435-8b8b-df35-b2a0-3f60b3857cfb
-
-**Q30:** Yêu cầu về "hồ sơ tham chiếu" (references) đối với ứng viên khi sắp nhận được ưu đãi (offer) là gì?
-
-**A:** GitLab bắt buộc tiến hành kiểm tra reference ở giai đoạn Offer đối với tất cả ứng viên, thông thường có từ 2 đến 3 người từng là quản lý cũ hoặc đồng nghiệp. Mục đích là để xác minh năng lực và dự toán cách phối hợp hỗ trợ họ hội nhập tốt nhất.
-
-## 7. Kỹ năng Phỏng vấn (Interviewing)
-
-**ChunkID:** 60e0a435-8b8b-df35-b2a0-3f60b3857cfb
-
-**Q31:** Phương pháp STAR là gì và tại sao nó thường được sử dụng trong các cuộc phỏng vấn tại GitLab?
-
-**A:** STAR là (Situation, Task, Action, Result). Nó được dùng nhằm đánh giá cụ thể các hành vi thực tế ứng viên đã trải qua bằng cách nêu hoàn cảnh, công việc, hành động ứng viên đã thực hiện và kết quả thu được, giúp câu trả lời đi thẳng vào tính hệ thống.
-
-**ChunkID:** f15f6728-f602-7388-7a91-d502e82d5201
-
-**Q32:** Làm thế nào để người phỏng vấn đảm bảo tính công bằng và tránh sự thiên vị vô thức?
-
-**A:** Bằng cách chuẩn bị trước danh sách câu hỏi nhất quán dựa trên bảng điểm đánh giá (scorecard) đã thỏa thuận trước cho vai trò đó, ghi chú cụ thể những gì ứng viên phản hồi thay vì nhận xét dựa trên ghi nhớ hoặc cảm tính.
-
-**ChunkID:** 108be603-ec8f-2ef0-3714-91e74238c390
-
-**Q33:** Tầm quan trọng của việc ghi chú chi tiết (detailed notes) trong suốt cuộc phỏng vấn là gì?
-
-**A:** Ghi chú chi tiết sẽ chứng minh được quá trình ra quyết định, làm cơ sở khách quan hỗ trợ việc thảo luận ở vòng Debriefing (đánh giá ứng viên), đồng thời bảo đảm tính Async vì đồng nghiệp khác không tham gia vẫn có thể đọc hiểu nhận xét về buổi trao đổi.
+**A:** Việc công khai quy trình, văn hóa và chiến lược của tổ chức tạo ra một môi trường thân thiện hơn cho các ứng viên và nhân viên mới, giúp nhóm tuyển dụng của bạn tiếp cận được đầu vào có trình độ cao hơn, được đưa ra bởi những cá nhân đã điều tra công ty của bạn và tin rằng chúng phù hợp với mục tiêu và sứ mệnh của bạn.
 
 **ChunkID:** 6f789eed-be36-479e-770f-fc65efdfa78f
 
-**Q34:** Người phỏng vấn nên xử lý thế nào khi ứng viên đưa ra các câu hỏi khó về văn hóa công ty?
+**Q3:** Sterling đã thực hiện những hành vi nào khi liên hệ với ứng viên?
 
-**A:** Hãy chia sẻ thẳng thắn thực tế kể cả ưu và khuyết điểm thay vì bao biện; nếu không biết câu trả lời chính xác, cần hướng dẫn/đưa URL cho ứng viên tham khảo về phần đó nằm ở đâu trong Sổ tay của GitLab.
+**A:** Sterling đã liên hệ với ứng viên để lấy tài liệu bổ sung về việc làm trước đây.
 
-**ChunkID:** 9fdb31e8-da6a-01b6-e5f3-f84695974a23
+**ChunkID:** 618fb748-830c-2400-43d7-1ea567ac84d8
 
-**Q35:** Tại sao việc phản hồi (feedback) nhanh chóng cho ứng viên sau buổi phỏng vấn lại là ưu tiên hàng đầu?
+**Q4:** Tại sao công ty cần xem xét quy định và hướng dẫn về quản lý hành vi quấy rối hoặc hành vi sai trái?
 
-**A:** Việc trì hoãn phản hồi dễ đánh mất thiện cảm, mang lại trải nghiệm không tốt cho ứng viên (candidate experience), đánh mất nhân tài và đi ngươc tiêu chí Giao tiếp Minh bạch vốn là thế mạnh của GitLab.
+**A:** Để đảm bảo rằng mọi người đều tuân thủ các quy tắc và luật pháp, công ty cần xem xét và áp dụng các quy định và hướng dẫn về quản lý hành vi quấy rối hoặc hành vi sai trái.
 
-## 8. Onboarding Buddies (Bạn đồng hành)
+**ChunkID:** 89067f91-5c58-5b43-a026-ffd7b4d800e7
 
-**ChunkID:** 00a48ca4-c177-ff69-950b-33b97f35d387
+**Q5:** Thủ tục khiếu nại và liên hệ của GitLab Ireland?
 
-**Q36:** Nhiệm vụ quan trọng nhất của một Onboarding Buddy trong ngày đầu tiên của nhân viên mới là gì?
+**A:** Công ty nhận thức được tác động của việc bắt nạt, quấy rối và quấy rối tình dục đối với các thành viên trong nhóm của mình. Để giải quyết vấn đề, người liên hệ được chỉ định là "Người liên hệ" – Quan hệ thành viên nhóm: teammemberrelations@gitlab. com. Thủ tục không chính thức bao gồm việc nỗ lực giải quyết cáo buộc bắt nạt, quấy rối và quấy rối tình dục thông qua thủ tục nêu dưới đây.
 
-**A:** Buddy cần chủ động kết nối trực tiếp hoặc qua video call ngắn, chào mừng nhân viên mới, dẫn dắt nhanh về cách tổ chức công việc nội bộ và làm trạm yết hầu (Go-to person) an toàn để trả lời những "câu hỏi ngớ ngẩn" trong vài tuần đầu.
+**ChunkID:** bb279398-1a72-6063-d61a-df5a26d691ee
 
-**ChunkID:** 8c4d23b8-7d71-93d4-d447-8892015cea0a
+**Q6:** Các hoạt động cụ thể trong quy trình tuyển dụng bao gồm?
 
-**Q37:** Làm thế nào để một Buddy giúp nhân viên mới vượt qua "nỗi lo lắng về công việc mới"?
+**A:** Hoạt động nhân sự, giới thiệu, tham gia, lễ kỷ niệm, và hoạt động khác liên quan đến tuyển dụng.
 
-**A:** Buddy tạo ra không khí thân thiện bằng cách kể những thất bại và sự sai sót thời kỳ đầu của chính mình, đảm bảo rằng GitLab có không gian dung thứ và khuyên nhân viên cứ từ từ tiếp nạp công việc thông qua Sổ tay theo tiến độ ổn định.
+**ChunkID:** eab4d745-c564-68ce-abb4-4909ee106cf7
 
-**ChunkID:** 5aa6a6a7-00e8-aba2-73b6-ff25dbbbf65c
+**Q7:** Tại sao GitLab đã hợp tác với Lighthouse Services?
 
-**Q38:** Một thành viên nhóm cần làm việc tại GitLab bao lâu thì đủ điều kiện làm Onboarding Buddy?
+**A:** Để cung cấp đường dây nóng báo cáo ẩn danh cho tất cả thành viên trong nhóm.
 
-**A:** Thường không yêu cầu quá cứng nhắc về thâm niên, nhưng một thành viên nhóm thường phải qua thời gian Onboarding hoàn tất (khoảng một tới ba tháng) và tự tin hiểu biết về văn hóa GitLab mới có khả năng dẫn dắt ứng cử viên mới.
+**ChunkID:** 927500ba-3827-125f-6460-9aacd6b99a2b
+
+**Q8:** Quyền chọn là gì?
+
+**A:** Quyền chọn cho phép người mua có quyền nhưng không có nghĩa vụ để mua một tài sản cụ thể vào một ngày nhất định trong tương lai.
+
+**ChunkID:** 187ad875-6608-6391-bf08-3adda99fa12f
+
+**Q9:** Tại sao GitLab thuê người ở khắp nơi trên thế giới?
+
+**A:** GitLab thuê người ở khắp nơi trên thế giới vì họ coi đa dạng, hòa nhập và thân thuộc là một trong những giá trị cốt lõi của họ. Điều này thể hiện qua việc họ có cơ sở hạ tầng việc làm ở nhiều quốc gia khác nhau, giúp họ trở nên toàn cầu hóa.
+
+**ChunkID:** a2d0af7d-78bb-f54b-d2bc-10d6e5035808
+
+**Q10:** Điều gì được gọi là Hoa Hồng bán hàng?
+
+**A:** Thu nhập đúng mục tiêu (OTM) hoặc Thu nhập đúng mục tiêu (OTE) trong trường hợp này.
+
+**ChunkID:** 99e28ccf-66ae-74a1-538f-4c41845031ef
+
+**Q11:** Quy trình yêu cầu nghỉ phép tang chế như thế nào?
+
+**A:** Chúng tôi không yêu cầu tài liệu hoặc bằng chứng về sự mất mát để được nghỉ phép tang chế, ngoại trừ khi luật địa phương hoặc pháp luật yêu cầu. Cách tiếp cận này giúp xây dựng niềm tin và hỗ trợ cho các thành viên trong nhóm trong những thời điểm khó khăn.
+
+**ChunkID:** d600f41b-002c-93a9-f1fd-3f8315154188
+
+**Q12:** Cách nào tốt nhất để thực hiện quá trình giới thiệu từ xa?
+
+**A:** Sử dụng phương pháp tích hợp, tập trung vào tổ chức, kỹ thuật và xã hội để đảm bảo hiệu quả cao trong quá trình giới thiệu từ xa.
+
+**ChunkID:** d39764a1-08a1-f02b-aff5-01345ee81da4
+
+**Q13:** Qua quá trình giới thiệu từ xa, khoảng thời gian nào mà GitLab dự đoán sẽ mất để hoàn tất?
+
+**A:** GitLab dự đoán quá trình giới thiệu từ xa sẽ mất ít nhất hai tuần trọn vẹn, với tuần thứ ba được dành cho việc đào tạo và giới thiệu dành riêng cho từng nhóm.
+
+**ChunkID:** 0a378d1c-8d38-041f-f9d0-3f321afb5c57
+
+**Q14:** Tại sao bạn nên tạo vấn đề trong dự án con thích hợp hoặc 'chung'?
+
+**A:** Để đảm bảo quyền riêng tư và bảo mật, bạn nên tạo vấn đề trong dự án con thích hợp hoặc 'chung'. Nếu không rõ ràng, các thành viên khác không thể xem nó.
+
+**ChunkID:** e6fd962f-488f-daf0-3ceb-0868fd3ff522
+
+**Q15:** Quy trình và thủ tục giải quyết khiếu nại về quấy rối tình dục như thế nào?
+
+**A:** Theo Chính sách của Công ty TNHH tư nhân GitLab Ấn Độ chống quấy rối tình dục, quy trình và thủ tục giải quyết khiếu nại về quấy rối tình dục được quy định trong đó.
+
+**ChunkID:** 0e961388-a9ee-e9d8-1373-5ccd1a03138a
+
+**Q16:** Theo quy trình của GitLab Ireland, khi nào vụ việc có thể được xử lý thông qua các giai đoạn khác của thủ tục?
+
+**A:** Nếu hòa giải không thành công hoặc không đạt được mục tiêu, vụ việc có thể được xử lý thông qua các giai đoạn khác của thủ tục.
+
+**ChunkID:** 368eedcb-1df2-24a8-9bde-8dfcae2ca2eb
+
+**Q17:** Nguồn gốc của quy định về tiền thưởng giới thiệu?
+
+**A:** Người giới thiệu (thực tập sinh) sẽ được trả tiền thưởng nếu người giới thiệu này được chuyển đổi thành thành viên nhóm cấp trung, toàn thời gian.
+
+**ChunkID:** a86fd360-7a76-b7bd-2f7b-bdf266219cf7
+
+**Q18:** Tại sao GitLab chọn cách tiếp cận dựa trên chi phí lao động thay vì chi phí sinh hoạt?
+
+**A:** Để giúp phân bổ nguồn lực lao động trên toàn cầu, GitLab sử dụng dữ liệu thị trường địa phương từ Radford để tạo phạm vi bồi thường bằng nội tệ.
+
+**ChunkID:** 9d676a8c-b30d-749a-7979-ac69e0482e66
+
+**Q19:** Tại sao cần tìm hiểu thêm về tài liệu?
+
+**A:** Tìm hiểu thêm về tài liệu giúp bạn nắm rõ tầm quan trọng của nó trong tài nguyên GitLab, bao gồm việc ghi lại tài liệu, hướng dẫn về văn phong tài liệu và hướng dẫn về phần sổ tay viết kỹ thuật.
+
+**ChunkID:** f6ce1bb8-39ed-7ea2-5399-4dcd66692b58
+
+**Q20:** Những quy định nào liên quan đến việc mua bán cổ phiếu của GitLab?
+
+**A:** Các nhà cung cấp dịch vụ của Hoa Kỳ có tùy chọn theo luật định không đủ tiêu chuẩn (NQ), cho phép các người không phải là nhân viên của GitLab được cấp quyền chọn cổ phiếu. Quyền chọn này được coi là NQ và được giao dịch trên NASDAQ. Để thực hiện quyền chọn, lợi ích của việc thực hiện (giá trị thị trường hợp lý trừ đi giá thực hiện) phải được báo cáo theo biểu mẫu 1099-MISC (hộp 7). Việc khấu trừ thường không bắt buộc, nhưng khi nhà cung cấp dịch vụ không cung cấp mã số thuế có giá trị theo mẫu 1099, GitLab phải đảm bảo khấu trừ dự phòng (khoảng 25%).
+
+**ChunkID:** c8a11113-0b9b-01f4-73a1-e4d38852bbca
+
+**Q21:** Những ai có thể giúp đỡ nhân viên trong việc phòng ngừa hành vi bắt nạt và quấy rối?
+
+**A:** Các nhân viên có thể giúp đỡ bằng cách:
+
+**ChunkID:** d93d9df2-7801-a6e1-63f5-84f1c2ab30bb
+
+**Q22:** Theo phương pháp tiếp cận toàn diện, điều gì được xem xét khi tính toán tang chế?
+
+**A:** Người quản lý không hạn chế hoặc xếp bậc nghỉ phép dựa trên mối quan hệ với người đã khuất.
+
+**ChunkID:** 54c29649-4dca-f7bd-0314-05d52ca16be2
+
+**Q23:** Theo GitLab LTD, khiếu nại về quấy rối hoặc phân biệt đối xử sẽ được xử lý như thế nào?
+
+**A:** Theo GitLab LTD, mọi khiếu nại hoặc quan ngại về cáo buộc quấy rối hoặc phân biệt đối xử sẽ được xem xét một cách nghiêm túc và xử lý kịp thời, tế nhị và bảo mật.
+
+**ChunkID:** 2053a269-4025-c337-e0c8-63635ee8d8b5
+
+**Q24:** Theo quy trình tính tiền thưởng, khi nào sẽ được áp dụng phương pháp tính tiền thưởng tạm thời?
+
+**A:** Phương pháp tính tiền thưởng tạm thời được áp dụng cho các thành viên trong nhóm theo kế hoạch trả lương cơ bản, trong khi đó, đối với các thành viên trong nhóm theo kế hoạch trả thưởng OTE, phương pháp tính tiền thưởng tạm thời phụ thuộc vào kết quả đạt được trong giai đoạn tạm thời.
+
+**ChunkID:** 4d58e618-75cb-3a10-97a3-15d921d5a784
+
+**Q25:** Tính toán hoa hồng bán hàng dựa trên các yếu tố nào?
+
+**A:** Hoa hồng bán hàng phụ thuộc vào mục tiêu hoa hồng và tỷ lệ chia giữa cơ sở và hoa hồng.
+
+**ChunkID:** a14e515b-f954-b7f2-4a2b-ed3c7b57d5ab
+
+**Q26:** Thời gian thử việc khi gia nhập GitLab?
+
+**A:** Thời gian thử việc từ 1 đến 9 tháng tùy vị trí, thông lệ chung là tối đa 9 tháng cho tất cả các quốc gia.
 
 **ChunkID:** 7e5aaf8c-5999-b753-a7e9-5f7c8df8276f
 
-**Q39:** Buddy hỗ trợ nhân viên mới về mặt kỹ thuật (như thiết lập GitLab Development Kit) như thế nào?
+**Q27:** Làm thế nào để tránh bị choáng ngợp khi tham gia vào quá trình xây dựng sổ tay?
 
-**A:** Buddy giúp chỉ ra những điểm gây nhầm lẫn trên Handbook, giải quyết sự cố cài đặt bằng cách hỗ trợ qua zoom đồng bộ hoặc kết nối bạn mới đến các chuyên gia IT / Engineering phù hợp nếu có khúc mắc công nghệ ngoài tầm tay.
+**A:** Sử dụng phương pháp iterativize để giải quyết vấn đề, tức là tiến hành từng bước nhỏ hơn trong suốt quá trình, từ đó dần dần hoàn thiện mục tiêu cuối cùng.
 
-**ChunkID:** c57cb668-beca-d1c2-4a0a-e472d8e80791
+**ChunkID:** 82f1a75b-dbb8-f218-6058-b36d440fada0
 
-**Q40:** Tần suất liên lạc khuyến nghị giữa Buddy và nhân viên mới trong tháng đầu tiên là bao nhiêu?
+**Q28:** Tại sao không nên sử dụng các công cụ như Lightshot?
 
-**A:** GitLab đề nghị nên có ít nhất một cuộc trò chuyện coffee chat sync hàng tuần (1 lần/tuần) qua không gian mạng và liên tục giao tiếp bất đồng bộ qua Slack bất cứ khi nào nhân viên mới cần thắc mắc.
+**A:** Vì Lightshot không cho phép tắt chức năng tải lên và có thể dẫn đến việc vô tình tải lên dữ liệu.
 
-## 9. Phản hồi 360 độ (360 Feedback)
+**ChunkID:** d0d64805-b40d-1607-3507-95cd7825b7ed
 
-**ChunkID:** 08b51288-8e88-6d70-8a17-0de30fd77be5
+**Q29:** Đối với lá lớn hơn 31 ngày, quyền lợi bảo hiểm chăm sóc sức khỏe sẽ chấm dứt khi nào?
 
-**Q41:** Mục tiêu cốt lõi của quy trình phản hồi 360 độ tại GitLab là gì?
+**A:** Khi các thành viên trong nhóm không chọn duy trì bảo hiểm chăm sóc sức khỏe của mình hoặc không thu xếp được thanh toán chi phí phúc lợi.
 
-**A:** Mục tiêu của nó là tập trung thúc đẩy sự phát triển liên tục (development) của các nhân sự qua việc cung cấp góc nhìn toàn diện về mặt mạnh, sự thăng tiến tiềm năng cũng như các khía cạnh cần củng cố, chú trọng vào năng lực lãnh đạo và giá trị cốt lõi.
+**ChunkID:** f6f8cdb5-452a-02e6-8901-a22afb6e0888
 
-**ChunkID:** 0d7c60af-7a1c-bf11-8ee8-c6338c14cd82
+**Q30:** Các hoạt động hệ thống và mạng bị cấm bao gồm nhưng không giới hạn ở những hoạt động nào?
 
-**Q42:** Tại sao quy trình này không nên được coi là một công cụ quản lý hiệu suất (performance management)?
+**A:** - Vi phạm quyền của bất kỳ cá nhân hoặc công ty nào được bảo vệ bởi bản quyền, bí mật thương mại, bằng sáng chế hoặc tài sản trí tuệ khác hoặc các luật hoặc quy định tương tự.
 
-**A:** Bởi vì nếu bị dính líu đến hiệu suất công việc (thăng chức, lương thưởng), con người sẽ có xu hướng đánh giá một cách nể nang, ngần ngại nói thẳng. Tách biệt việc này giúp nhận xét trở nên cởi mở chân tính và vì sự tiến bộ đích thực.
+**ChunkID:** 0708345a-3788-61fb-4306-bc709736927b
 
-**ChunkID:** 4dac6cc4-ce27-3b0b-5d14-fb7f52dbaa28
+**Q31:** Theo GitLab, quấy rối tình dục là gì?
 
-**Q43:** Nhân viên cần làm việc tối thiểu bao nhiêu tháng để đủ điều kiện tham gia phản hồi 360 độ?
+**A:** Quấy rối tình dục là hành vi gây bất lợi hoặc khó chịu cho người khác hoặc gây tổn hại đến môi trường làm việc bằng lời nói hoặc hành vi có tính chất tình dục.
 
-**A:** Nhân viên cần gia nhập công ty tối thiểu ba tháng trước thời điểm tiến hành kỳ đánh giá (360 cycles) mới đủ điều kiện và được mời, nhằm có đủ thông tin nền xây dựng một lộ trình thiết thực.
+**ChunkID:** e23f2f3d-0824-2d04-e35f-0000c4fa29e1
 
-**ChunkID:** a242bfae-e437-a7a9-deca-fdf8de21db7a
+**Q32:** Cách gửi yêu cầu nghỉ phép khẩn cấp trong Workday?
 
-**Q44:** Làm thế nào để đảm bảo tính ẩn danh và bảo mật cho người cung cấp phản hồi?
+**A:** Nhập yêu cầu nghỉ phép khẩn cấp thông qua ứng dụng Workday hoặc tích hợp Slack. Sau đó, chọn các ngày cần nghỉ, nhấp vào "Nghỉ phép", nhấp vào "Nghỉ khẩn cấp", thêm nhận xét và gửi yêu cầu.
 
-**A:** GitLab cung cấp thông tin tổng hợp cho nhà quản lý trực tiếp chứ không hiện rõ tên theo từng đầu mục khi xuất bản báo cáo xuống nhân viên. Dữ liệu đánh giá ẩn danh giữa những cá nhân đồng cấp đảm bảo họ thấy thoải mái khi khen ngợi lãn phê phán.
+**ChunkID:** fed3cf6b-becf-f0d4-dffc-c67b7d0a240a
 
-**ChunkID:** f780a881-2529-4325-9208-a384cd4ff725
+**Q33:** Theo đoạn văn, mục tiêu của Tập đoàn Con người là gì?
 
-**Q45:** Người quản lý nên xử lý các phản hồi trái chiều hoặc mâu thuẫn từ nhiều nguồn khác nhau như thế nào?
+**A:** Tập đoàn Con người đang hướng đến việc xây dựng một công ty nhiều thế hệ thông qua việc hỗ trợ khả năng của GitLab trong việc thực hiện kế hoạch năm tài chính 2026.
 
-**A:** Nhà quản lý cần tổng hợp, phát hiện các xu hướng lập lại thay vì thiên vị vào một chỉ trích cá biệt, tiến hành trao đổi (1:1) trực tiếp với nhân viên để cùng nhau phân tích mà không phán xét, cũng như đề xuất lộ trình cải thiện trung lập hợp nhất.
+**ChunkID:** 632d8dbe-6b99-119b-816c-745f759c8c1d
 
-## 10. Chế độ Ưu đãi và Thưởng (Incentives)
+**Q34:** Tại sao bạn cần kiểm tra tính khả dụng của nhóm?
 
-**ChunkID:** 086c0ea4-27c5-6ed8-42c7-876b20feb00e
+**A:** Để xem ai vắng mặt trong một nhóm.
 
-**Q46:** Tiêu chí để một nhân viên nhận được thưởng khi đảm nhiệm vai trò tạm thời (acting/interim roles) là gì?
+**ChunkID:** 2966fa40-e713-2ea9-3e28-46ebf9abc0cc
 
-**A:** Họ phải tiếp quản phần lớn trách nhiệm công việc tạm thời liên tục và trong thời gian đáng kể (thông thường từ một đến nhiều tháng khi doanh nghiệp khuyết nhân sự chủ chốt), giúp công việc vẫn trôi chảy và hiệu quả ở khâu thay thế đó.
+**Q35:** Nhóm Nhân sự tại GitLab hoạt động như thế nào?
 
-**ChunkID:** 5a2b1a58-1c4b-a256-2daa-82c150867cb4
+**A:** Nhóm Nhân sự giúp thu hút và tạo điều kiện cho các tài năng hàng đầu vào GitLab, đồng thời thúc đẩy họ thực hiện các đóng góp ý nghĩa cho GitLab theo giá trị của chúng ta.
 
-**Q47:** Tiền thưởng cho vai trò tạm thời thường được tính toán dựa trên công thức nào?
+**ChunkID:** c71b42a1-1728-da9c-638a-c15bbbdc7847
 
-**A:** Nó được tính bằng mức chênh lệch giữa bậc lương của vai trò hiện tại và định vị lương cơ bản của cấp bậc tương ứng với vai trò chịu trách nhiệm tạm thời (phản ánh theo chính sách trả lương mở trên sổ tay), tính theo thời gian duy trì trách nhiệm.
+**Q36:** Tại GitLab, chúng tôi tin tưởng vào việc dành thời gian để nạp lại năng lượng.
 
-**ChunkID:** 06e33c08-f945-9188-47b8-90271ef69527
+**A:** Điều này giúp bạn chuẩn bị cho thời gian xa nhà trong khi vẫn duy trì các giá trị của chúng tôi về cộng tác, kết quả, hiệu quả, tính đa dạng, sự hòa nhập và thuộc về, lặp lại và minh bạch.
 
-**Q48:** Các loại "tiền thưởng tùy ý" (discretionary bonuses) dành cho cá nhân và nhóm thường được trao trong những trường hợp nào?
+**ChunkID:** b8a75c97-1a47-c585-a411-b70ad4c5995f
 
-**A:** Tiền thưởng tùy ý thường được trao khi nhân sự hoặc đội nhóm làm được những điều phi thường ngoài mong đợi, vượt xa nhiệm vụ mô tả như bàn giao dự án lớn xuất sắc, thể hiện phẩm giá cốt lõi vượt trội giúp tối ưu hóa giá trị công ty cực độ.
+**Q37:** Theo GitLab, điều gì xảy ra với người không đủ tiêu chuẩn?
+
+**A:** Nếu thành viên trong nhóm không hoặc không thể đủ tiêu chuẩn, GitLab sẽ phục hồi họ làm công việc mà họ đã đảm nhiệm trước khi nghỉ phép hoặc ở vị trí có thâm niên, lương và địa vị tương đương.
+
+**ChunkID:** d195ddd1-9a3a-acf2-100c-e3a1a31445a3
+
+**Q38:** Theo GitLab, tại sao họ áp dụng các bộ lọc cụ thể cho dữ liệu thị trường?
+
+**A:** Để đảm bảo các tiêu chuẩn lương thưởng phù hợp và chính xác, GitLab áp dụng các bộ lọc cụ thể cho dữ liệu thị trường như ngành nghề, địa lý và thành viên nhóm.
+
+**ChunkID:** fc498b06-6c06-7559-90a4-1af38cc3109d
+
+**Q39:** Tại sao quy trình gửi thư thay đổi công việc được phân loại vào hai trường hợp cụ thể?
+
+**A:** Theo quy trình này, nếu quá trình phê duyệt được thông qua Greenhouse hoặc Ngày làm việc, quy trình sẽ được trình bày trong phần "Thư thay đổi công việc" trên trang sổ tay Quy trình hợp đồng CES hoặc cẩm nang Thăng chức & Chuyển việc, tương ứng với từng trường hợp.
+
+**ChunkID:** 67260c08-c0db-948c-fa8e-fce28bd715d5
+
+**Q40:** Tại sao các nhà lãnh đạo nên tổ chức giao tiếp không chính thức?
+
+**A:** Để tạo cơ hội có tổ chức cho những người mới được tuyển dụng để làm quen với đồng nghiệp của họ.
+
+**ChunkID:** d0606ba3-1304-5286-8331-871b4b4f7f41
+
+**Q41:** Phần thưởng tùy ý là gì?
+
+**A:** Phản hồi công nhận ngang hàng cho công việc xuất sắc vượt qua kỳ vọng về vai trò đồng thời thể hiện các giá trị CREDIT của GitLab: :handshake: Cộng tác, 📈 Kết quả cho Khách hàng, :đồng hồ bấm giờ: Hiệu quả, :globe_with_meridians: Đa dạng, Hòa nhập & Thuộc về, :footprints: Lặp lại và :eye: Minh bạch. Công việc tốt và tuyệt vời là tiêu chuẩn cơ bản của chúng tôi — tiền thưởng tôn vinh những đóng góp thực sự đặc biệt, nổi bật ngay cả theo tiêu chuẩn cao đó.
 
 **ChunkID:** acb038b4-a765-849b-1d2c-52e3eff65ab7
 
-**Q49:** Làm thế nào để một người quản lý đề xuất khen thưởng cho một thành viên xuất sắc?
+**Q42:** Theo đoạn văn, tại sao Trợ cấp Tùy chọn (Trợ cấp Tùy chọn rất hiếm kể từ tháng 9 năm 2021)?
 
-**A:** Người quản lý có thể đề xuất lên Ban giám đốc hoặc hệ thống Workday kèm bản giải trình chi tiết về công lao của nhân sự (liên kết với thành tựu trong các GitLab Issues) với sự chuẩn thuận từ quản lý cấp cao và phòng Tài chính nhân sự (People/Total Rewards).
+**A:** Trợ cấp Tùy chọn rất hiếm kể từ tháng 9 năm 2021.
 
-**ChunkID:** 8d78ba02-4a51-a4bc-9b25-9e0641ad7300
+**ChunkID:** 69c49469-e99f-d985-eb10-8eccd0b81795
 
-**Q50:** Các khoản thưởng thâm niên hoặc kỷ niệm làm việc được GitLab thực hiện như thế nào để ghi nhận sự đóng góp lâu dài?
+**Q43:** Thời gian nào là phù hợp để gửi email kỷ niệm?
 
-**A:** GitLab có thường các giải thưởng theo chặng đường làm việc kỉ niệm thời gian qua từng năm (Anniversaries), có thể chi trả dưới hình thức trợ cấp để người đó sử dụng vào việc tận hưởng cá nhân, như một món quà thay lời cảm ơn sâu sắc.
+**A:** Hàng ngày (nếu có).
 
-**ChunkID:** 400a73ca-8182-9ed4-a295-15a92869779d
+**ChunkID:** 0f270cb8-8a5c-ca04-ee3c-07ae45454a4d
+
+**Q44:** Tại sao thời gian nghỉ của tính năng Deel không đồng bộ hóa với GitLab.com?
+
+**A:** Do đó, nếu bạn mất quá 48 giờ, hãy cập nhật trạng thái GitLab.com của bạn bằng cách nhấp vào ảnh hồ sơ của bạn và chọn "Chỉnh sửa trạng thái".
+
+**ChunkID:** d2f40fd0-961a-485e-7e01-2976f61a6062
+
+**Q45:** Khi nào tôi có thể đăng ký lại vị trí sau khi bị từ chối?
+
+**A:** Nếu đơn đăng ký của bạn bị từ chối vì bạn không đủ tiêu chuẩn cho vai trò đó, bạn có thể nộp đơn lại vào vị trí tương tự sau 6 tháng trôi qua. Nếu bạn có được những kỹ năng, kinh nghiệm hoặc kiến ​​thức mà chúng tôi đã nêu trong phản hồi cho bạn, bạn có thể đăng ký lại bất cứ lúc nào.
+
+**ChunkID:** 65988309-f994-ed05-3f08-2bfb7b4b19f9
+
+**Q46:** Tại sao buổi đào tạo này được tổ chức?
+
+**A:** Buổi đào tạo này được tổ chức để cung cấp thông tin cho thành viên nhóm E-TRADE về những vấn đề liên quan đến đơn vị hàng tồn kho bị hạn chế của GitLab.
+
+**ChunkID:** 95d40171-14b1-efec-2e40-b84ddaa75d3d
+
+**Q47:** Theo yêu cầu của nhà tuyển dụng, bạn cần cung cấp thông tin nào khi ứng tuyển?
+
+**A:** Thông tin cần cung cấp bao gồm: tên của việc làm, dự án hoặc hoạt động bên ngoài, khách hàng GitLab tham gia vào dự án và phạm vi tham gia (nếu có), thời gian đầu tư ước tính mỗi tuần (tính theo giờ), vai trò của ứng viên trong công việc, dự án hoặc hoạt động bên ngoài.
+
+**ChunkID:** 37bb33e7-f372-d7f7-6a47-432d5d8f85e8
+
+**Q48:** Những gì cần lưu ý khi quản lý nhóm?
+
+**A:** Kiểm tra tất cả các đánh giá MR được chỉ định vào ngày làm việc cuối cùng của bạn trước PTO. Đối với mỗi lần đánh giá, hãy hoàn thành việc đánh giá nếu thời gian cho phép hoặc để lại nhận xét về ngày PTO và lợi nhuận dự kiến ​​của bạn hoặc giao lại cho người đánh giá sẵn có khác.
+
+**ChunkID:** 4db63187-27ca-5291-dbf2-43bd7bac0ca3
+
+**Q49:** Tại sao chúng tôi nghiên cứu cho bạn?
+
+**A:** Để đánh giá các dịch vụ của chúng tôi so với các công ty công nghệ hàng đầu khác, đảm bảo bạn nhận được tổng phần thưởng cạnh tranh.
+
+**ChunkID:** facb2c28-dba6-c769-3848-2ba5424ab328
+
+**Q50:** Nên làm gì khi bạn nhận thấy một sự cố về an toàn?
+
+**A:** Liên hệ với cơ quan thực thi pháp luật địa phương và thông báo cho Nhóm vận hành nhân sự thông qua yêu cầu HelpLab.
+
+**ChunkID:** 2d4a2d93-ee06-c87b-f28e-1629d4b89914
 
