@@ -193,11 +193,11 @@ Bạn phải cung cấp cho người quản lý và các thành viên trong nhó
 
 ### Các tính năng chính
 
-{{% chi tiết tóm tắt="Ngày làm việc đến thời gian nghỉ bằng Deel Integration" %}}
+{{% chi tiết tóm tắt="Tích hợp Ngày làm việc với tính năng Nghỉ phép của Deel" %}}
 
-### Ngày làm việc được nghỉ bằng Deel Integration
+### Tích hợp Ngày làm việc với tính năng Nghỉ phép của Deel
 
-Đồng bộ hóa Lịch Google: Các mục thời gian vắng mặt sẽ chuyển vào Thời gian nghỉ của Deel và đồng bộ hóa với Lịch Google của bạn.
+Đồng bộ hóa Lịch Google: Các mục thời gian vắng mặt sẽ chuyển vào tính năng Nghỉ phép của Deel và đồng bộ hóa với Lịch Google của bạn.
 
 - Lời mời theo lịch được gửi đến người quản lý để theo dõi sự vắng mặt của đội (dựa trên ngày theo lịch, không được điều chỉnh theo múi giờ).
 - Người quản lý có thể từ chối và tự tạo các mục lịch chính xác mà không ảnh hưởng đến yêu cầu nghỉ phép.
@@ -205,18 +205,18 @@ Bạn phải cung cấp cho người quản lý và các thành viên trong nhó
 
 {{% /chi tiết %}}
 
-{{% chi tiết tóm tắt="Thời gian nghỉ của Deel Features" %}}
+{{% chi tiết tóm tắt="Các tính năng Nghỉ phép của Deel" %}}
 
 ### Thời gian nghỉ của tính năng Deel
 
-- **Cập nhật trạng thái tự động**: Đặt trạng thái OOO trong Slack và kích hoạt cài đặt "Không làm phiền" (yêu cầu thiết lập quyền riêng lẻ).
+- **Cập nhật trạng thái tự động**: Đặt trạng thái OOO (Vắng mặt) trong Slack và kích hoạt cài đặt "Không làm phiền" (yêu cầu thiết lập quyền riêng lẻ).
   - Quan trọng: Thao tác này sẽ **không** tự động từ chối tất cả các cuộc họp trên Lịch Google của bạn.
 - **Vai trò và Bàn giao nhiệm vụ**: Phân công trách nhiệm cho đồng nghiệp khi vắng mặt. Các vai trò được chấp nhận sẽ xuất hiện trong tin nhắn vắng mặt của Slack.
   - Quan trọng: Yêu cầu quyền trước khi gán #channel cho một vai trò để tránh tạo quá nhiều thông báo.
 - **Lời nhắc PTO hàng tháng**: Đăng ký tùy chọn nhận lời nhắc hàng tháng khuyến khích bạn lên kế hoạch cho thời gian nghỉ.
   - Gửi vào ngày làm việc đầu tiên hàng tháng.
   - Để quản lý đăng ký: Đi tới ứng dụng Time Off by Deel trong Slack → tab Trang chủ → Menu thả xuống thông báo → Đăng ký/Hủy đăng ký.
-- **Lưu ý**: Time Off của Deel đồng bộ hóa với Workday, Slack và Lịch Google nhưng nó **không** đồng bộ hóa với GitLab.com. Đối với những lần vắng mặt hơn 48 giờ, hãy cập nhật trạng thái GitLab.com của bạn với những ngày bạn không làm việc bằng cách nhấp vào ảnh hồ sơ của bạn và chọn "Chỉnh sửa trạng thái" (ví dụ: 'OOO Trở lại vào ngày 28-04-2025'). Trạng thái này có thể truy cập công khai và giúp bạn bị [người đánh giá roulette] bỏ qua (https://docs.gitlab.com/development/code_review/#reviewer-roulette).
+- **Lưu ý**: Tính năng Nghỉ phép (Time Off) của Deel đồng bộ hóa với Workday, Slack và Lịch Google nhưng nó **không** đồng bộ hóa với GitLab.com. Đối với những lần vắng mặt hơn 48 giờ, hãy cập nhật trạng thái GitLab.com của bạn với những ngày bạn không làm việc bằng cách nhấp vào ảnh hồ sơ của bạn và chọn "Chỉnh sửa trạng thái" (ví dụ: 'OOO Trở lại vào ngày 28-04-2025'). Trạng thái này có thể truy cập công khai và giúp bạn tránh việc bị hệ thống tự động phân bổ người đánh giá (reviewer roulette) chọn nhầm.
 
 {{% /chi tiết %}}
 

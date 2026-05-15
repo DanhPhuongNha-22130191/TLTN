@@ -65,7 +65,7 @@ Nếu bạn cho rằng mình đã bị phân biệt đối xử hoặc chứng k
 
 GitLab không dung thứ cho các hành vi bạo lực hoặc đe dọa bạo lực. Công ty sẽ không dung thứ cho việc đánh nhau, bắt nạt, ép buộc hoặc sử dụng những từ ngữ lăng mạ hoặc đe dọa nhằm vào, về hoặc chống lại đồng nghiệp, lãnh đạo, người quản lý, giám đốc điều hành, ứng viên, khách hàng/khách hàng, nhà cung cấp, người đóng góp hoặc bất kỳ người nào khác. Không cá nhân nào được GitLab tuyển dụng được phép thực hiện hoặc đe dọa thực hiện bất kỳ hành vi bạo lực nào hoặc thảo luận về việc thực hiện các hành vi phạm tội đó, ngay cả khi nói đùa.
 
-###Trả thù
+###  Trả thù
 Việc trả thù dưới bất kỳ hình thức nào vì đã nộp đơn khiếu nại về hành vi quấy rối sẽ không được dung thứ. Nếu bạn cho rằng mình đã bị trả thù, vui lòng liên hệ với Giám đốc nhân sự, [Quan hệ thành viên nhóm](/handbook/people-group/team-member-relations) hoặc [People Business Partner](/handbook/people-group/people-business-partners/#people-business-partner-alignments) để bắt đầu điều tra.
 
 ## Lên tiếng trong tình huống công cộng
@@ -128,7 +128,7 @@ Giám đốc Nhân sự và Đối tác Kinh doanh Nhân dân có trách nhiệm
 1. Thông báo cho các cơ quan chức năng thích hợp (cảnh sát, FBI, các cơ quan cụ thể của quốc gia) khi bị cáo buộc có hoạt động tội phạm.
 1. Khám phá các biện pháp không chính thức để giải quyết hành vi quấy rối tiềm ẩn nếu khiếu nại bằng văn bản (chính thức) không được đưa ra khi các cáo buộc bằng lời nói được chia sẻ.
 
-##Phân loại xử lý kỷ luật
+## Phân loại xử lý kỷ luật
 
 Tất cả các cá nhân thành viên nhóm, người quản lý và lãnh đạo sẽ phải chịu biện pháp kỷ luật, lên đến và bao gồm cả việc sa thải, đối với bất kỳ hành vi quấy rối nào mà họ thực hiện. Mặc dù hình thức kỷ luật sẽ được áp dụng cụ thể cho từng trường hợp nhưng nhìn chung có thể phân thành 4 cấp độ:
 
