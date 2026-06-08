@@ -5,8 +5,8 @@
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="secretchat.auth.controller.LoginController"
       spacing="0"
-      prefWidth="1200"
-      prefHeight="800"
+      prefWidth="1000"
+      prefHeight="600"
       styleClass="root"
       stylesheets="@../css/register.css">
 
