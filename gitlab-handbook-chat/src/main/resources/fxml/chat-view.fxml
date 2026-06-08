@@ -10,8 +10,8 @@
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="secretchat.chat.controller.ChatController"
             stylesheets="@../css/chat.css"
-            prefWidth="1300"
-            prefHeight="800"
+            prefWidth="1200"
+            prefHeight="700"
             styleClass="app-root">
 
     <!-- ═══════════════════════════════════════
