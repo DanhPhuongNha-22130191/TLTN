@@ -1,0 +1,235 @@
+.root {
+    -fx-font-family: "Inter", "Segoe UI", sans-serif;
+    -fx-background-color: #f5f7ff;
+}
+
+/* ================= LEFT ================= */
+.left-panel {
+    -fx-background-color: linear-gradient(
+            from 0% 0% to 100% 100%,
+            #6a8dff,
+            #8f7bff,
+            #ff8fcf
+    );
+
+    -fx-padding: 60;
+}
+
+/* ================= LOGO ================= */
+.logo-box {
+    -fx-background-color: rgba(255,255,255,0.20);
+    -fx-background-radius: 999;
+
+    -fx-min-width: 72;
+    -fx-pref-width: 72;
+    -fx-max-width: 72;
+
+    -fx-min-height: 72;
+    -fx-pref-height: 72;
+    -fx-max-height: 72;
+
+    -fx-alignment: center;
+
+    -fx-effect: dropshadow(
+            gaussian,
+            rgba(0,0,0,0.12),
+            14,
+            0.2,
+            0,
+            4
+    );
+}
+
+.logo-text {
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+/* ================= HERO ================= */
+.hero-title {
+    -fx-font-size: 38px;
+    -fx-font-weight: 900;
+    -fx-text-fill: white;
+}
+
+.hero-subtitle {
+    -fx-font-size: 15px;
+    -fx-text-fill: rgba(255,255,255,0.92);
+}
+
+/* ================= RIGHT ================= */
+.right-panel {
+    -fx-background-color: #f5f7ff;
+}
+
+/* ================= SCROLL ================= */
+.form-scroll {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-padding: 26 0 26 0;
+}
+
+.form-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+/* ================= CARD ================= */
+.form-card {
+    -fx-background-color: white;
+    -fx-background-radius: 24;
+
+    -fx-padding: 30;
+
+    -fx-pref-width: 420;
+    -fx-max-width: 420;
+
+    -fx-effect: dropshadow(
+            gaussian,
+            rgba(0,0,0,0.10),
+            30,
+            0.16,
+            0,
+            8
+    );
+}
+
+/* ================= TITLES ================= */
+.form-title {
+    -fx-font-size: 28px;
+    -fx-font-weight: 900;
+    -fx-text-fill: #1f2340;
+}
+
+.form-caption {
+    -fx-font-size: 13px;
+    -fx-text-fill: #6b7390;
+}
+
+/* ================= INPUT ================= */
+.input-field {
+    -fx-background-color: #f3f5ff;
+
+    -fx-text-fill: #1f2340;
+    -fx-prompt-text-fill: #a0a8c3;
+
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+
+    -fx-border-color: transparent;
+
+    -fx-min-height: 44;
+    -fx-pref-height: 44;
+    -fx-max-height: 44;
+
+    -fx-pref-width: 10000;
+
+    -fx-padding: 0 14;
+}
+
+.input-field:focused {
+    -fx-background-color: white;
+
+    -fx-border-color: #6a8dff;
+    -fx-border-width: 2;
+}
+
+/* ================= TOGGLE BUTTON ================= */
+.toggle-btn {
+    -fx-background-color: transparent;
+
+    -fx-text-fill: #6a8dff;
+
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+
+    -fx-cursor: hand;
+
+    -fx-pref-width: 58;
+    -fx-min-width: 58;
+
+    -fx-pref-height: 44;
+    -fx-min-height: 44;
+
+    -fx-background-radius: 10;
+}
+
+.toggle-btn:hover {
+    -fx-background-color: rgba(106,141,255,0.10);
+}
+
+/* ================= BUTTON ================= */
+.primary-btn {
+    -fx-background-color: linear-gradient(
+            from 0% 0% to 100% 0%,
+            #6a8dff,
+            #8f7bff
+    );
+
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+
+    -fx-background-radius: 12;
+
+    -fx-pref-height: 48;
+
+    -fx-cursor: hand;
+}
+
+.primary-btn:hover {
+    -fx-opacity: 0.92;
+}
+
+/* ================= LABELS ================= */
+.field-label {
+    -fx-text-fill: #3a4162;
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+}
+
+.error-label {
+    -fx-text-fill: #ff4d6d;
+    -fx-font-size: 11px;
+}
+
+.message-label {
+    -fx-font-size: 13px;
+}
+
+.loading-label {
+    -fx-text-fill: #6b7390;
+}
+
+.terms-checkbox {
+    -fx-text-fill: #3a4162;
+}
+
+.login-hint {
+    -fx-text-fill: #6b7390;
+}
+
+/* ================= LINK ================= */
+.link-btn {
+    -fx-background-color: transparent;
+
+    -fx-text-fill: #6a8dff;
+
+    -fx-font-weight: bold;
+
+    -fx-cursor: hand;
+}
+.status-label {
+    -fx-text-fill: white;
+
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+
+    -fx-background-color: rgba(255,255,255,0.15);
+    -fx-background-radius: 12;
+
+    -fx-padding: 10 18 10 18;
+
+    -fx-border-color: rgba(255,255,255,0.25);
+    -fx-border-radius: 12;
+}
