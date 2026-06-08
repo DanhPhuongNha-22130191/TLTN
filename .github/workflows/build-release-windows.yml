@@ -23,11 +23,12 @@ jobs:
           cache: maven
 
       - name: Build Standalone App with Maven
+        working-directory: ./gitlab-handbook-chat
         run: mvn clean javafx:jlink -DskipTests
 
       - name: Upload Windows Standalone App
         uses: actions/upload-artifact@v4
         with:
           name: SecretChat-Windows-App
-          path: target/app.zip
+          path: gitlab-handbook-chat/target/app.zip
           if-no-files-found: warn
