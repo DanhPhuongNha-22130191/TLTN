@@ -1,0 +1,87 @@
+.dialog-root {
+    -fx-font-family: "Inter", "Segoe UI", sans-serif;
+    -fx-background-color: white;
+    -fx-background-radius: 24;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 28, 0, 0, 12);
+}
+
+.dialog-header {
+    -fx-background-color: #f5f6ff;
+    -fx-background-radius: 24 24 0 0;
+    -fx-padding: 22 24;
+}
+
+.dialog-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #1e1b4b;
+}
+
+.dialog-caption {
+    -fx-font-size: 13px;
+    -fx-text-fill: #6b7390;
+}
+
+.dialog-body {
+    -fx-background-color: white;
+}
+
+.field-label {
+    -fx-text-fill: #3a4162;
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+}
+
+.input-field {
+    -fx-background-color: #f3f5ff;
+    -fx-text-fill: #1f2340;
+    -fx-prompt-text-fill: #a0a8c3;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-border-color: transparent;
+    -fx-min-height: 44;
+    -fx-pref-height: 44;
+    -fx-max-height: 44;
+    -fx-pref-width: 10000;
+    -fx-padding: 0 14;
+}
+
+.input-field:focused {
+    -fx-background-color: white;
+    -fx-border-color: #6a8dff;
+    -fx-border-width: 2;
+}
+
+.error-label {
+    -fx-text-fill: #ff4d6d;
+    -fx-font-size: 11px;
+}
+
+.dialog-footer {
+    -fx-background-color: transparent;
+}
+
+.cancel-btn {
+    -fx-background-color: #f5f6ff;
+    -fx-text-fill: #374151;
+    -fx-background-radius: 14;
+    -fx-border-radius: 14;
+    -fx-padding: 10 18;
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+    -fx-cursor: hand;
+}
+
+.primary-btn {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 0%, #6a8dff, #8f7bff);
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 14;
+    -fx-padding: 10 18;
+    -fx-cursor: hand;
+}
+
+.primary-btn:hover {
+    -fx-opacity: 0.92;
+}
