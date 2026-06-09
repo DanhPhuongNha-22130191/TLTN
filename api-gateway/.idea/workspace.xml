@@ -1,0 +1,412 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="a440b8e4-b689-4182-a084-1223884310db" name="Changes" comment="Implement `login` method in `AuthService` with `LoginCommand` and placeholder response">
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/tltn/chat/gateway/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/tltn/chat/gateway/config/SecurityConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/tltn/chat/gateway/filter/JwtAuthGlobalFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/tltn/chat/gateway/filter/JwtAuthGlobalFilter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chat-service/.gradle/9.5.1/executionHistory/executionHistory.bin" beforeDir="false" afterPath="$PROJECT_DIR$/../chat-service/.gradle/9.5.1/executionHistory/executionHistory.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chat-service/.gradle/9.5.1/executionHistory/executionHistory.lock" beforeDir="false" afterPath="$PROJECT_DIR$/../chat-service/.gradle/9.5.1/executionHistory/executionHistory.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chat-service/.gradle/9.5.1/fileHashes/fileHashes.bin" beforeDir="false" afterPath="$PROJECT_DIR$/../chat-service/.gradle/9.5.1/fileHashes/fileHashes.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chat-service/.gradle/9.5.1/fileHashes/fileHashes.lock" beforeDir="false" afterPath="$PROJECT_DIR$/../chat-service/.gradle/9.5.1/fileHashes/fileHashes.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chat-service/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/../chat-service/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chat-service/.gradle/file-system.probe" beforeDir="false" afterPath="$PROJECT_DIR$/../chat-service/.gradle/file-system.probe" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chat-service/bin/main/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/../chat-service/bin/main/application.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chat-service/postman_collection.json" beforeDir="false" afterPath="$PROJECT_DIR$/../chat-service/postman_collection.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/api/controller/ConversationController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/api/controller/ConversationController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/api/controller/GroupController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/api/controller/GroupController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/api/controller/MessageController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/api/controller/MessageController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/api/mapper/ConversationApiMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/api/mapper/ConversationApiMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/api/mapper/MessageApiMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/api/mapper/MessageApiMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/api/request/AddGroupMemberRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/api/request/AddGroupMemberRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/api/request/CreateGroupRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/api/request/CreateGroupRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/api/request/CreatePersonalConversationRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/api/request/CreatePersonalConversationRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/api/request/SendMessageRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/api/request/SendMessageRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/api/response/ConversationResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/api/response/ConversationResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/api/response/GroupMemberResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/api/response/GroupMemberResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/api/response/GroupResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/api/response/GroupResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/api/response/MessageResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/api/response/MessageResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/application/port/in/ConversationUseCase.java" beforeDir="false" afterPath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/application/port/in/ConversationUseCase.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/application/port/in/GroupUseCase.java" beforeDir="false" afterPath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/application/port/in/GroupUseCase.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/application/port/in/MessageUseCase.java" beforeDir="false" afterPath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/application/port/in/MessageUseCase.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/application/port/out/ConversationRepositoryPort.java" beforeDir="false" afterPath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/application/port/out/ConversationRepositoryPort.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/application/port/out/GroupMemberRepositoryPort.java" beforeDir="false" afterPath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/application/port/out/GroupMemberRepositoryPort.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/application/port/out/MessageRepositoryPort.java" beforeDir="false" afterPath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/application/port/out/MessageRepositoryPort.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/application/service/ConversationService.java" beforeDir="false" afterPath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/application/service/ConversationService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/application/service/GroupService.java" beforeDir="false" afterPath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/application/service/GroupService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/application/service/MessageService.java" beforeDir="false" afterPath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/application/service/MessageService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/application/usecase/command/CreateGroupCommand.java" beforeDir="false" afterPath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/application/usecase/command/CreateGroupCommand.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/application/usecase/command/SendMessageCommand.java" beforeDir="false" afterPath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/application/usecase/command/SendMessageCommand.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/domain/model/Conversation.java" beforeDir="false" afterPath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/domain/model/Conversation.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/domain/model/Group.java" beforeDir="false" afterPath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/domain/model/Group.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/domain/model/GroupMember.java" beforeDir="false" afterPath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/domain/model/GroupMember.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/domain/model/Message.java" beforeDir="false" afterPath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/domain/model/Message.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/infrastructure/persistence/adapter/ConversationRepositoryAdapter.java" beforeDir="false" afterPath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/infrastructure/persistence/adapter/ConversationRepositoryAdapter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/infrastructure/persistence/adapter/GroupMemberRepositoryAdapter.java" beforeDir="false" afterPath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/infrastructure/persistence/adapter/GroupMemberRepositoryAdapter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/infrastructure/persistence/adapter/MessageRepositoryAdapter.java" beforeDir="false" afterPath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/infrastructure/persistence/adapter/MessageRepositoryAdapter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/infrastructure/persistence/entity/ConversationEntity.java" beforeDir="false" afterPath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/infrastructure/persistence/entity/ConversationEntity.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/infrastructure/persistence/entity/GroupEntity.java" beforeDir="false" afterPath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/infrastructure/persistence/entity/GroupEntity.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/infrastructure/persistence/entity/GroupMemberEntity.java" beforeDir="false" afterPath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/infrastructure/persistence/entity/GroupMemberEntity.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/infrastructure/persistence/entity/GroupMemberId.java" beforeDir="false" afterPath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/infrastructure/persistence/entity/GroupMemberId.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/infrastructure/persistence/entity/MessageEntity.java" beforeDir="false" afterPath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/infrastructure/persistence/entity/MessageEntity.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/infrastructure/persistence/mapper/ConversationMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/infrastructure/persistence/mapper/ConversationMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/infrastructure/persistence/mapper/MessageMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/infrastructure/persistence/mapper/MessageMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/infrastructure/persistence/repository/ConversationRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/infrastructure/persistence/repository/ConversationRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/infrastructure/persistence/repository/GroupMemberRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/infrastructure/persistence/repository/GroupMemberRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/infrastructure/persistence/repository/MessageRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/../chat-service/src/main/java/secretchat/chatservice/infrastructure/persistence/repository/MessageRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../chat-service/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/../chat-service/src/main/resources/application.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/.gradle/9.0.0/checksums/checksums.lock" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/.gradle/9.0.0/checksums/md5-checksums.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/.gradle/9.0.0/checksums/sha1-checksums.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/.gradle/9.0.0/executionHistory/executionHistory.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/.gradle/9.0.0/executionHistory/executionHistory.lock" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/.gradle/9.0.0/fileChanges/last-build.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/.gradle/9.0.0/fileHashes/fileHashes.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/.gradle/9.0.0/fileHashes/fileHashes.lock" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/.gradle/9.0.0/fileHashes/resourceHashesCache.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/.gradle/9.0.0/gc.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/.gradle/buildOutputCleanup/cache.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/.gradle/buildOutputCleanup/outputFiles.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/.gradle/file-system.probe" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/.gradle/vcs-1/gc.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/.idea/compiler.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/.idea/dataSources.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/.idea/gradle.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/.idea/misc.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/.idea/modules.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/.idea/modules/user-service.main.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/.idea/sqldialects.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/.idea/vcs.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/.mvn/wrapper/maven-wrapper.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/build.gradle" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/database/init.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/docker-compose.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/gradle/wrapper/gradle-wrapper.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/gradle/wrapper/gradle-wrapper.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/gradlew" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/gradlew.bat" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/nhan_su_cong_ty_phan_mem_150(NhanSu).csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/postman/user-service.postman_collection.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/src/main/java/com/tltn/chat/user/UserServiceApplication.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/src/main/java/com/tltn/chat/user/api/controller/AuthController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/src/main/java/com/tltn/chat/user/api/controller/UserController.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/src/main/java/com/tltn/chat/user/api/exception/ErrorResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/src/main/java/com/tltn/chat/user/api/exception/GlobalExceptionHandler.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/src/main/java/com/tltn/chat/user/api/mapper/AuthApiMapper.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/src/main/java/com/tltn/chat/user/api/mapper/UserApiMapper.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/src/main/java/com/tltn/chat/user/api/request/LoginRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/src/main/java/com/tltn/chat/user/api/request/LogoutRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/src/main/java/com/tltn/chat/user/api/request/RegisterRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/src/main/java/com/tltn/chat/user/api/request/UserActivateRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/src/main/java/com/tltn/chat/user/api/request/UserCreateRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/src/main/java/com/tltn/chat/user/api/request/UserUpdateRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/src/main/java/com/tltn/chat/user/api/response/LoginResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/src/main/java/com/tltn/chat/user/api/response/RegisterResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/src/main/java/com/tltn/chat/user/application/dto/AuthToken.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/src/main/java/com/tltn/chat/user/application/dto/LoginResult.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/src/main/java/com/tltn/chat/user/application/dto/RegisterResult.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/src/main/java/com/tltn/chat/user/application/exception/BusinessException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/src/main/java/com/tltn/chat/user/application/exception/ResourceAlreadyExistsException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/src/main/java/com/tltn/chat/user/application/exception/ResourceNotFoundException.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/src/main/java/com/tltn/chat/user/application/port/in/AuthUseCase.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/src/main/java/com/tltn/chat/user/application/port/in/UserUseCase.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/src/main/java/com/tltn/chat/user/application/port/out/KeycloakPort.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/src/main/java/com/tltn/chat/user/application/port/out/UserPort.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/src/main/java/com/tltn/chat/user/application/service/AuthService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/src/main/java/com/tltn/chat/user/application/service/UserService.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/src/main/java/com/tltn/chat/user/application/usecase/command/LoginCommand.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/src/main/java/com/tltn/chat/user/application/usecase/command/RegisterCommand.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/src/main/java/com/tltn/chat/user/application/usecase/command/UserActivateCommand.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/src/main/java/com/tltn/chat/user/application/usecase/command/UserCreateCommand.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/src/main/java/com/tltn/chat/user/application/usecase/command/UserUpdateCommand.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/src/main/java/com/tltn/chat/user/domain/enums/UserStatus.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/src/main/java/com/tltn/chat/user/domain/enums/UserType.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/src/main/java/com/tltn/chat/user/domain/model/User.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/src/main/java/com/tltn/chat/user/domain/valueobject/Email.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/src/main/java/com/tltn/chat/user/domain/valueobject/FullName.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/src/main/java/com/tltn/chat/user/domain/valueobject/KeycloakUserId.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/src/main/java/com/tltn/chat/user/domain/valueobject/PhoneNumber.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/src/main/java/com/tltn/chat/user/infrastructure/keycloak/KeycloakAdapter.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/src/main/java/com/tltn/chat/user/infrastructure/keycloak/KeycloakFeignClient.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/src/main/java/com/tltn/chat/user/infrastructure/keycloak/config/KeycloakConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/src/main/java/com/tltn/chat/user/infrastructure/keycloak/config/RestTemplateConfig.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/src/main/java/com/tltn/chat/user/infrastructure/keycloak/dto/KeycloakCredential.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/src/main/java/com/tltn/chat/user/infrastructure/keycloak/dto/KeycloakTokenResponse.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/src/main/java/com/tltn/chat/user/infrastructure/keycloak/dto/KeycloakUserRequest.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/src/main/java/com/tltn/chat/user/infrastructure/persistence/adapter/UserPersistenceAdapter.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/src/main/java/com/tltn/chat/user/infrastructure/persistence/entity/UserEntity.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/src/main/java/com/tltn/chat/user/infrastructure/persistence/mapper/UserEntityMapper.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/src/main/java/com/tltn/chat/user/infrastructure/persistence/repository/UserRepository.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../user-service/src/main/resources/application.yml" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="EmbeddingIndexingInfo">
+    <option name="cachedIndexableFilesCount" value="55" />
+    <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
+  </component>
+  <component name="ExternalProjectsData">
+    <projectState path="$PROJECT_DIR$">
+      <ProjectState />
+    </projectState>
+  </component>
+  <component name="ExternalProjectsManager">
+    <system id="GRADLE">
+      <state>
+        <task path="$PROJECT_DIR$">
+          <activation />
+        </task>
+        <projects_view>
+          <tree_state>
+            <expand>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="api-gateway" type="f1a62948:ProjectNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="api-gateway" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+              </path>
+            </expand>
+            <select />
+          </tree_state>
+        </projects_view>
+      </state>
+    </system>
+  </component>
+  <component name="Git.Rebase.Settings">
+    <option name="NEW_BASE" value="feat/user-service" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$/../.." value="chat-service" />
+        <entry key="$PROJECT_DIR$/.." value="feat/user-service" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="McpProjectServerCommands">
+    <commands />
+    <urls />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="AISelfReview" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 6
+}</component>
+  <component name="ProjectId" id="3EF882UDPyD77BUPdT5OgrD6qZB" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="1" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Gradle.Build api-gateway.executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
+    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
+    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
+    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
+    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;Spring Boot.ApiGatewayApplication.executor&quot;: &quot;Run&quot;,
+    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;feat/chat-service&quot;,
+    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/phuongnha/Final/TLTN/api-gateway&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;project.propVCSSupport.DirectoryMappings&quot;,
+    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="RunManager">
+    <configuration name="ApiGatewayApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="api-gateway.main" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.tltn.chat.gateway.ApiGatewayApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-30f59d01ecdd-2fc7cc6b9a17-intellij.indexing.shared.core-IU-253.31033.145" />
+        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-IU-253.31033.145" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="a440b8e4-b689-4182-a084-1223884310db" name="Changes" comment="" />
+      <created>1779762793344</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1779762793344</updated>
+      <workItem from="1779762794481" duration="1353000" />
+      <workItem from="1779803729269" duration="4033000" />
+      <workItem from="1779850393483" duration="3314000" />
+      <workItem from="1779863191694" duration="1130000" />
+      <workItem from="1779866823198" duration="1017000" />
+      <workItem from="1779887846499" duration="2854000" />
+      <workItem from="1779936489905" duration="3282000" />
+      <workItem from="1780378982388" duration="2007000" />
+      <workItem from="1780556882498" duration="2230000" />
+      <workItem from="1780563485551" duration="11943000" />
+      <workItem from="1780594740383" duration="62000" />
+      <workItem from="1780595024420" duration="321000" />
+      <workItem from="1780595849498" duration="4456000" />
+      <workItem from="1780637901943" duration="5454000" />
+      <workItem from="1780647748248" duration="1109000" />
+      <workItem from="1780676473103" duration="1628000" />
+      <workItem from="1780679138127" duration="819000" />
+      <workItem from="1780679975835" duration="1013000" />
+      <workItem from="1780681015455" duration="14000" />
+      <workItem from="1780681817826" duration="269000" />
+      <workItem from="1780682096599" duration="1510000" />
+      <workItem from="1780714207805" duration="1301000" />
+      <workItem from="1780720262910" duration="4254000" />
+      <workItem from="1780727603780" duration="6099000" />
+      <workItem from="1780751617691" duration="5486000" />
+      <workItem from="1780808063245" duration="1236000" />
+      <workItem from="1780850694616" duration="937000" />
+      <workItem from="1780882959539" duration="4095000" />
+    </task>
+    <task id="LOCAL-00001" summary="Remove `must_change_password` field from database schema, entities, mappers, and services">
+      <option name="closed" value="true" />
+      <created>1779856432628</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1779856432628</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Update VCS mappings in .idea configuration files.">
+      <option name="closed" value="true" />
+      <created>1780594785176</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1780594785176</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Update VCS mappings in .idea configuration files.">
+      <option name="closed" value="true" />
+      <created>1780647921010</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1780647921010</updated>
+    </task>
+    <task id="LOCAL-00004" summary="Update `.gitignore` to include common file exclusions for Node.js, TypeScript, and development/debug environments">
+      <option name="closed" value="true" />
+      <created>1780679198876</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1780679198876</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Add `.gitignore` with common exclusions for Java, IntelliJ, Gradle, logs, and OS-specific files">
+      <option name="closed" value="true" />
+      <created>1780679269316</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1780679269317</updated>
+    </task>
+    <task id="LOCAL-00006" summary="Update `.gitignore` to exclude `.env` files">
+      <option name="closed" value="true" />
+      <created>1780679293070</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1780679293070</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Update `.gitignore` to exclude all `.env`-related files">
+      <option name="closed" value="true" />
+      <created>1780679328995</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1780679328995</updated>
+    </task>
+    <task id="LOCAL-00008" summary="Remove `env.example` files from `chat-service` and `user-service` directories">
+      <option name="closed" value="true" />
+      <created>1780679563936</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1780679563936</updated>
+    </task>
+    <task id="LOCAL-00009" summary="Update `.gitignore` to exclude all `.env` files">
+      <option name="closed" value="true" />
+      <created>1780679638130</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1780679638130</updated>
+    </task>
+    <task id="LOCAL-00010" summary="Update `.gitignore` to exclude all `.env` files">
+      <option name="closed" value="true" />
+      <created>1780679867345</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1780679867345</updated>
+    </task>
+    <task id="LOCAL-00011" summary="Implement `login` method in `AuthService` with `LoginCommand` and placeholder response">
+      <option name="closed" value="true" />
+      <created>1780682161882</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1780682161882</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <ignored-roots>
+      <path value="$PROJECT_DIR$/../.." />
+    </ignored-roots>
+    <MESSAGE value="Remove `must_change_password` field from database schema, entities, mappers, and services" />
+    <MESSAGE value="Update VCS mappings in .idea configuration files." />
+    <MESSAGE value="Update `.gitignore` to include common file exclusions for Node.js, TypeScript, and development/debug environments" />
+    <MESSAGE value="Add `.gitignore` with common exclusions for Java, IntelliJ, Gradle, logs, and OS-specific files" />
+    <MESSAGE value="Update `.gitignore` to exclude `.env` files" />
+    <MESSAGE value="Update `.gitignore" />
+    <MESSAGE value="Update `.gitignore` to exclude all `.env`-related files" />
+    <MESSAGE value="Remove `env.example` files from `chat-service` and `user-service` directories" />
+    <MESSAGE value="Update `.gitignore` to exclude all `.env` files" />
+    <MESSAGE value="Implement `login` method in `AuthService` with `LoginCommand` and placeholder response" />
+    <option name="LAST_COMMIT_MESSAGE" value="Implement `login` method in `AuthService` with `LoginCommand` and placeholder response" />
+  </component>
+</project>

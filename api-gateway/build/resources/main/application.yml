@@ -1,0 +1,49 @@
+server:
+  port: ${SERVER_PORT}
+
+spring:
+  config:
+    import: optional:file:.env[.properties]
+
+  application:
+    name: api-gateway
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${KEYCLOAK_SERVER_URL}/realms/${KEYCLOAK_REALM}
+
+  cloud:
+    gateway:
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins:
+              - ${FRONTEND_URL}
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
+
+      routes:
+        - id: user-service-api
+          uri: http://${USER_SERVICE_HOST}:${USER_SERVICE_PORT}
+          predicates:
+            - Path=/api/users/**
+
+        - id: chat-service-api
+          uri: http://${CHAT_SERVICE_HOST}:${CHAT_SERVICE_PORT}
+          predicates:
+            - Path=/api/user/**,/api/conversations/**,/api/groups/**,/api/messages/**,/api/friends/**
+
+        - id: chat-service-websocket
+          uri: ws://${CHAT_SERVICE_HOST}:${CHAT_SERVICE_PORT}
+          predicates:
+            - Path=/ws/**
+
+app:
+  internal-secret: ${INTERNAL_SECRET_KEY}

@@ -1,0 +1,274 @@
+<changelist name="Uncommitted_changes_before_rebase_[Changes]" date="1780714404299" recycled="false" toDelete="true">
+  <option name="PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_rebase_[Changes]/shelved.patch" />
+  <option name="DESCRIPTION" value="Uncommitted changes before rebase [Changes]" />
+  <binary>
+    <option name="BEFORE_PATH" value="../user-service/bin/main/com/tltn/chat/user/application/service/UserService.class" />
+    <option name="AFTER_PATH" value="../user-service/bin/main/com/tltn/chat/user/application/service/UserService.class" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_rebase_[Changes]/UserService.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../user-service/build/classes/java/main/com/tltn/chat/user/infrastructure/keycloak/KeycloakAdapter.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../user-service/bin/main/com/tltn/chat/user/application/dto/RegisterResult$RegisterResultBuilder.class" />
+    <option name="AFTER_PATH" value="../user-service/bin/main/com/tltn/chat/user/application/dto/RegisterResult$RegisterResultBuilder.class" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_rebase_[Changes]/RegisterResult$RegisterResultBuilder.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../user-service/build/tmp/compileJava/compileTransaction/stash-dir/AuthController.class.uniqueId0" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../user-service/build/classes/java/main/com/tltn/chat/user/api/request/RegisterRequest.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../chat-service/build/tmp/compileJava/previous-compilation-data.bin" />
+    <option name="AFTER_PATH" value="../chat-service/build/tmp/compileJava/previous-compilation-data.bin" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_rebase_[Changes]/previous-compilation-data.bin" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../user-service/build/classes/java/main/com/tltn/chat/user/api/mapper/AuthApiMapper.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../chat-service/.gradle/9.5.1/fileHashes/fileHashes.bin" />
+    <option name="AFTER_PATH" value="../chat-service/.gradle/9.5.1/fileHashes/fileHashes.bin" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_rebase_[Changes]/fileHashes.bin" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../chat-service/.gradle/9.5.1/executionHistory/executionHistory.bin" />
+    <option name="AFTER_PATH" value="../chat-service/.gradle/9.5.1/executionHistory/executionHistory.bin" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_rebase_[Changes]/executionHistory.bin" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../user-service/build/classes/java/main/com/tltn/chat/user/infrastructure/keycloak/KeycloakFeignClient.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../user-service/build/classes/java/main/com/tltn/chat/user/api/exception/GlobalExceptionHandler.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../user-service/build/classes/java/main/com/tltn/chat/user/application/exception/BusinessException.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../user-service/.gradle/9.0.0/fileHashes/fileHashes.bin" />
+    <option name="AFTER_PATH" value="../user-service/.gradle/9.0.0/fileHashes/fileHashes.bin" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_rebase_[Changes]/fileHashes1.bin" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../user-service/.gradle/buildOutputCleanup/buildOutputCleanup.lock" />
+    <option name="AFTER_PATH" value="../user-service/.gradle/buildOutputCleanup/buildOutputCleanup.lock" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_rebase_[Changes]/buildOutputCleanup.lock" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../user-service/.gradle/9.0.0/fileHashes/resourceHashesCache.bin" />
+    <option name="AFTER_PATH" value="../user-service/.gradle/9.0.0/fileHashes/resourceHashesCache.bin" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_rebase_[Changes]/resourceHashesCache.bin" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../user-service/build/classes/java/main/com/tltn/chat/user/infrastructure/keycloak/dto/KeycloakTokenResponse.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../user-service/build/classes/java/main/com/tltn/chat/user/infrastructure/persistence/entity/UserEntity$UserEntityBuilder.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../user-service/build/classes/java/main/com/tltn/chat/user/api/response/RegisterResponse.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../user-service/build/classes/java/main/com/tltn/chat/user/UserServiceApplication.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../user-service/build/classes/java/main/com/tltn/chat/user/infrastructure/keycloak/dto/KeycloakCredential$KeycloakCredentialBuilder.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../user-service/.gradle/9.0.0/fileHashes/fileHashes.lock" />
+    <option name="AFTER_PATH" value="../user-service/.gradle/9.0.0/fileHashes/fileHashes.lock" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_rebase_[Changes]/fileHashes.lock" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../user-service/build/classes/java/main/com/tltn/chat/user/application/usecase/command/UserActivateCommand.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../user-service/build/classes/java/main/com/tltn/chat/user/api/request/LogoutRequest.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../user-service/build/classes/java/main/com/tltn/chat/user/api/request/UserCreateRequest.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../user-service/build/tmp/compileJava/previous-compilation-data.bin" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../user-service/.gradle/9.0.0/executionHistory/executionHistory.bin" />
+    <option name="AFTER_PATH" value="../user-service/.gradle/9.0.0/executionHistory/executionHistory.bin" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_rebase_[Changes]/executionHistory1.bin" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../user-service/build/classes/java/main/com/tltn/chat/user/application/service/AuthService.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../user-service/build/classes/java/main/com/tltn/chat/user/api/controller/UserController.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../user-service/build/classes/java/main/com/tltn/chat/user/infrastructure/keycloak/dto/KeycloakUserRequest$KeycloakUserRequestBuilder.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../user-service/build/classes/java/main/com/tltn/chat/user/api/mapper/UserApiMapper.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../user-service/bin/main/com/tltn/chat/user/application/service/AuthService.class" />
+    <option name="AFTER_PATH" value="../user-service/bin/main/com/tltn/chat/user/application/service/AuthService.class" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_rebase_[Changes]/AuthService.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../user-service/build/classes/java/main/com/tltn/chat/user/infrastructure/keycloak/config/KeycloakConfig.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../user-service/bin/main/com/tltn/chat/user/infrastructure/config/JpaConfiguration.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../user-service/build/classes/java/main/com/tltn/chat/user/application/dto/RegisterResult$RegisterResultBuilder.class" />
+    <option name="AFTER_PATH" value="../user-service/build/classes/java/main/com/tltn/chat/user/application/dto/RegisterResult$RegisterResultBuilder.class" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_rebase_[Changes]/RegisterResult$RegisterResultBuilder1.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../user-service/bin/main/com/tltn/chat/user/api/controller/AuthController.class" />
+    <option name="AFTER_PATH" value="../user-service/bin/main/com/tltn/chat/user/api/controller/AuthController.class" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_rebase_[Changes]/AuthController.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../user-service/bin/main/com/tltn/chat/user/api/mapper/AuthApiMapper.class" />
+    <option name="AFTER_PATH" value="../user-service/bin/main/com/tltn/chat/user/api/mapper/AuthApiMapper.class" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_rebase_[Changes]/AuthApiMapper.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../chat-service/.gradle/buildOutputCleanup/buildOutputCleanup.lock" />
+    <option name="AFTER_PATH" value="../chat-service/.gradle/buildOutputCleanup/buildOutputCleanup.lock" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_rebase_[Changes]/buildOutputCleanup1.lock" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../user-service/build/classes/java/main/com/tltn/chat/user/infrastructure/keycloak/config/RestTemplateConfig.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../chat-service/.gradle/9.5.1/fileHashes/fileHashes.lock" />
+    <option name="AFTER_PATH" value="../chat-service/.gradle/9.5.1/fileHashes/fileHashes.lock" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_rebase_[Changes]/fileHashes1.lock" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../user-service/build/classes/java/main/com/tltn/chat/user/infrastructure/persistence/mapper/UserEntityMapper.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../user-service/build/classes/java/main/com/tltn/chat/user/api/request/LoginRequest$LoginRequestBuilder.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../user-service/bin/main/com/tltn/chat/user/api/controller/UserController.class" />
+    <option name="AFTER_PATH" value="../user-service/bin/main/com/tltn/chat/user/api/controller/UserController.class" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_rebase_[Changes]/UserController.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../chat-service/.gradle/file-system.probe" />
+    <option name="AFTER_PATH" value="../chat-service/.gradle/file-system.probe" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_rebase_[Changes]/file-system.probe" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../user-service/build/classes/java/main/com/tltn/chat/user/application/exception/ResourceAlreadyExistsException.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../user-service/bin/main/com/tltn/chat/user/application/port/in/UserUseCase.class" />
+    <option name="AFTER_PATH" value="../user-service/bin/main/com/tltn/chat/user/application/port/in/UserUseCase.class" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_rebase_[Changes]/UserUseCase.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../user-service/build/classes/java/main/com/tltn/chat/user/api/controller/AuthController.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../user-service/bin/main/com/tltn/chat/user/api/response/LoginResponse.class" />
+    <option name="AFTER_PATH" value="../user-service/bin/main/com/tltn/chat/user/api/response/LoginResponse.class" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_rebase_[Changes]/LoginResponse.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../user-service/build/classes/java/main/com/tltn/chat/user/api/request/UserUpdateRequest.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../user-service/bin/main/com/tltn/chat/user/application/dto/RegisterResult.class" />
+    <option name="AFTER_PATH" value="../user-service/bin/main/com/tltn/chat/user/application/dto/RegisterResult.class" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_rebase_[Changes]/RegisterResult.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../user-service/build/classes/java/main/com/tltn/chat/user/infrastructure/persistence/repository/UserRepository.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../chat-service/.gradle/9.5.1/executionHistory/executionHistory.lock" />
+    <option name="AFTER_PATH" value="../chat-service/.gradle/9.5.1/executionHistory/executionHistory.lock" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_rebase_[Changes]/executionHistory.lock" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../user-service/.gradle/file-system.probe" />
+    <option name="AFTER_PATH" value="../user-service/.gradle/file-system.probe" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_rebase_[Changes]/file-system1.probe" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../user-service/build/classes/java/main/com/tltn/chat/user/api/response/LoginResponse$LoginResponseBuilder.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../user-service/build/classes/java/main/com/tltn/chat/user/application/service/UserService.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../user-service/bin/main/com/tltn/chat/user/api/response/LoginResponse$LoginResponseBuilder.class" />
+    <option name="AFTER_PATH" value="../user-service/bin/main/com/tltn/chat/user/api/response/LoginResponse$LoginResponseBuilder.class" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_rebase_[Changes]/LoginResponse$LoginResponseBuilder.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../user-service/build/classes/java/main/com/tltn/chat/user/api/exception/ErrorResponse$ErrorResponseBuilder.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../user-service/build/classes/java/main/com/tltn/chat/user/application/exception/ResourceNotFoundException.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../user-service/bin/main/com/tltn/chat/user/api/response/RegisterResponse.class" />
+    <option name="AFTER_PATH" value="../user-service/bin/main/com/tltn/chat/user/api/response/RegisterResponse.class" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_rebase_[Changes]/RegisterResponse.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../user-service/build/classes/java/main/com/tltn/chat/user/api/exception/ErrorResponse.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../user-service/build/classes/java/main/com/tltn/chat/user/infrastructure/persistence/adapter/UserPersistenceAdapter.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../user-service/build/classes/java/main/com/tltn/chat/user/api/request/UserActivateRequest.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../user-service/build/classes/java/main/com/tltn/chat/user/api/response/RegisterResponse$RegisterResponseBuilder.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../user-service/build/classes/java/main/com/tltn/chat/user/infrastructure/keycloak/dto/KeycloakUserRequest.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../user-service/bin/main/com/tltn/chat/user/api/response/RegisterResponse$RegisterResponseBuilder.class" />
+    <option name="AFTER_PATH" value="../user-service/bin/main/com/tltn/chat/user/api/response/RegisterResponse$RegisterResponseBuilder.class" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_rebase_[Changes]/RegisterResponse$RegisterResponseBuilder.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../user-service/bin/main/com/tltn/chat/user/infrastructure/config/WebConfiguration.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../user-service/build/classes/java/main/com/tltn/chat/user/infrastructure/keycloak/config/KeycloakConfig$AdminCli.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../user-service/build/classes/java/main/com/tltn/chat/user/api/response/LoginResponse.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../user-service/build/classes/java/main/com/tltn/chat/user/infrastructure/keycloak/dto/KeycloakCredential.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../user-service/build/classes/java/main/com/tltn/chat/user/application/usecase/command/UserActivateCommand$UserActivateCommandBuilder.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../user-service/build/classes/java/main/com/tltn/chat/user/api/request/LoginRequest.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../user-service/build/classes/java/main/com/tltn/chat/user/infrastructure/persistence/entity/UserEntity.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="../user-service/.gradle/9.0.0/executionHistory/executionHistory.lock" />
+    <option name="AFTER_PATH" value="../user-service/.gradle/9.0.0/executionHistory/executionHistory.lock" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_rebase_[Changes]/executionHistory1.lock" />
+  </binary>
+</changelist>
