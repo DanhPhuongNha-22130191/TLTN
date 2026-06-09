@@ -2,6 +2,7 @@ package secretchat.chatservice.api.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import secretchat.chatservice.api.mapper.MessageApiMapper;
@@ -10,6 +11,9 @@ import secretchat.chatservice.api.response.MessageResponse;
 import secretchat.chatservice.application.port.in.MessageUseCase;
 import secretchat.chatservice.domain.model.Message;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,6 +21,8 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/messages")
 @RequiredArgsConstructor
 public class MessageController {
+
+    private static final Path UPLOAD_DIR = Paths.get("uploads").toAbsolutePath().normalize();
 
     private final MessageUseCase messageUseCase;
 
@@ -29,13 +35,14 @@ public class MessageController {
     @PostMapping("/upload")
     public ResponseEntity<String> uploadFile(@RequestParam("file") org.springframework.web.multipart.MultipartFile file) {
         try {
-            java.io.File dir = new java.io.File("uploads");
-            if (!dir.exists()) {
-                dir.mkdirs();
+            if (!Files.exists(UPLOAD_DIR)) {
+                Files.createDirectories(UPLOAD_DIR);
             }
+
             String fileName = java.util.UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
-            java.nio.file.Path filePath = java.nio.file.Paths.get("uploads", fileName);
-            java.nio.file.Files.copy(file.getInputStream(), filePath, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+            Path filePath = UPLOAD_DIR.resolve(fileName).normalize();
+            Files.copy(file.getInputStream(), filePath, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+
             // Return a relative path using forward slashes to avoid backslash escaping issues on Windows
             return ResponseEntity.ok("uploads/" + fileName);
         } catch (Exception e) {
@@ -76,49 +83,67 @@ public class MessageController {
         }
         try {
             org.springframework.core.io.Resource resource = null;
-            if (message.getFileUrl().startsWith("http://") || message.getFileUrl().startsWith("https://")) {
-                resource = new org.springframework.core.io.UrlResource(new java.net.URL(message.getFileUrl()));
+            String fileUrl = message.getFileUrl();
+
+            if (fileUrl.startsWith("http://") || fileUrl.startsWith("https://")) {
+                resource = new org.springframework.core.io.UrlResource(new java.net.URL(fileUrl));
             } else {
-                // Try the path as stored first
-                try {
-                    java.nio.file.Path filePath = java.nio.file.Paths.get(message.getFileUrl());
+                Path filePath = resolveUploadPath(fileUrl);
+                if (filePath != null) {
                     org.springframework.core.io.Resource r = new org.springframework.core.io.UrlResource(filePath.toUri());
                     if (r.exists() && r.isReadable()) {
                         resource = r;
                     }
-                } catch (Exception ex) {
-                    // Ignore and try fallback
                 }
-                
-                // Fallback: If it's a file path but didn't exist/read or failed to parse (e.g. OS path mismatches),
-                // extract only the filename and look it up directly in the "uploads" directory
+
                 if (resource == null) {
-                    String fileUrl = message.getFileUrl();
-                    String filename = fileUrl;
-                    int lastSlash = fileUrl.lastIndexOf('/');
-                    int lastBackslash = fileUrl.lastIndexOf('\\');
-                    int maxIdx = Math.max(lastSlash, lastBackslash);
-                    if (maxIdx >= 0 && maxIdx < fileUrl.length() - 1) {
-                        filename = fileUrl.substring(maxIdx + 1);
+                    String normalized = fileUrl.replace('\\', '/');
+                    if (normalized.startsWith("uploads/")) {
+                        normalized = normalized.substring("uploads/".length());
                     }
-                    java.nio.file.Path localPath = java.nio.file.Paths.get("uploads", filename);
-                    org.springframework.core.io.Resource r = new org.springframework.core.io.UrlResource(localPath.toUri());
-                    if (r.exists() && r.isReadable()) {
-                        resource = r;
+                    Path localPath = UPLOAD_DIR.resolve(normalized).normalize();
+                    if (localPath.startsWith(UPLOAD_DIR)) {
+                        org.springframework.core.io.Resource r = new org.springframework.core.io.UrlResource(localPath.toUri());
+                        if (r.exists() && r.isReadable()) {
+                            resource = r;
+                        }
                     }
                 }
             }
-            
+
             if (resource == null || !resource.exists() || !resource.isReadable()) {
                 return ResponseEntity.notFound().build();
             }
-            
+
             return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
                     .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + message.getFileName() + "\"")
                     .body(resource);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.internalServerError().build();
         }
+    }
+
+    private Path resolveUploadPath(String fileUrl) {
+        try {
+            Path path = Paths.get(fileUrl);
+            if (path.isAbsolute()) {
+                return path;
+            }
+
+            String normalized = fileUrl.replace('\\', '/');
+            if (normalized.startsWith("uploads/")) {
+                normalized = normalized.substring("uploads/".length());
+            }
+
+            Path resolved = UPLOAD_DIR.resolve(normalized).normalize();
+            if (resolved.startsWith(UPLOAD_DIR)) {
+                return resolved;
+            }
+        } catch (Exception ignored) {
+            // ignore invalid path and fallback
+        }
+        return null;
     }
 }
