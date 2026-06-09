@@ -28,7 +28,12 @@ jobs:
 
       - name: Create Native Executable
         working-directory: ./gitlab-handbook-chat
-        run: jpackage --type app-image --name SecretChat --module secretchat.secrectchat/secretchat.ChatApplication --runtime-image target/app --dest target/dist
+        shell: pwsh
+        run: |
+          jpackage --type app-image --name SecretChat --module secretchat.secrectchat/secretchat.ChatApplication --runtime-image target/app --dest target/dist
+          Copy-Item .env.example target/dist/SecretChat/.env.example
+          Copy-Item .env.example target/dist/SecretChat/.env
+          Copy-Item README-CONFIG.txt target/dist/SecretChat/README-CONFIG.txt
 
       - name: Upload Windows Standalone App
         uses: actions/upload-artifact@v4

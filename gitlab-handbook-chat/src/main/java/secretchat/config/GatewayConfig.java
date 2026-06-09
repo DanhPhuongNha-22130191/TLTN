@@ -2,6 +2,8 @@ package secretchat.config;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Properties;
 
 public class GatewayConfig {
@@ -14,10 +16,9 @@ public class GatewayConfig {
     }
 
     private void loadConfig() {
-        io.github.cdimascio.dotenv.Dotenv dotenv = io.github.cdimascio.dotenv.Dotenv.configure().ignoreIfMissing()
-                .load();
+        io.github.cdimascio.dotenv.Dotenv dotenv = loadDotenv();
 
-        // Ưu tiên 1: Environment variable (Docker/K8s/Dotenv)
+        // Priority 1: OS environment variables.
         String port = System.getenv("GATEWAY_PORT");
         if (port == null)
             port = dotenv.get("GATEWAY_PORT");
@@ -26,7 +27,7 @@ public class GatewayConfig {
         if (host == null)
             host = dotenv.get("GATEWAY_HOST");
 
-        // Ưu tiên 2: System property (java -Dgateway.port=...)
+        // Priority 2: System properties (java -Dgateway.port=...).
         if (port == null) {
             port = System.getProperty("gateway.port");
         }
@@ -34,18 +35,49 @@ public class GatewayConfig {
             host = System.getProperty("gateway.host");
         }
 
-        // Ưu tiên 3: Config file (gateway-config.properties)
+        // Priority 3: Packaged defaults.
         if (port == null || host == null) {
             Properties props = loadProperties();
             port = port != null ? port : props.getProperty("gateway.port");
             host = host != null ? host : props.getProperty("gateway.host");
         }
 
-        // Fallback mặc định
+        // Final fallback.
         String finalHost = host != null ? host : "localhost";
         String finalPort = port != null ? port : "8088";
 
         this.gatewayUrl = "http://" + finalHost + ":" + finalPort;
+    }
+
+    private io.github.cdimascio.dotenv.Dotenv loadDotenv() {
+        Path envDirectory = findEnvDirectory();
+        if (envDirectory != null) {
+            LOGGER.log(System.Logger.Level.INFO, "Loading gateway configuration from {0}",
+                    envDirectory.resolve(".env"));
+            return io.github.cdimascio.dotenv.Dotenv.configure()
+                    .directory(envDirectory.toString())
+                    .ignoreIfMissing()
+                    .load();
+        }
+        return io.github.cdimascio.dotenv.Dotenv.configure()
+                .ignoreIfMissing()
+                .load();
+    }
+
+    private Path findEnvDirectory() {
+        String launcherPath = System.getProperty("jpackage.app-path");
+        if (launcherPath != null && !launcherPath.isBlank()) {
+            Path launcherDirectory = Path.of(launcherPath).toAbsolutePath().normalize().getParent();
+            if (launcherDirectory != null && Files.isRegularFile(launcherDirectory.resolve(".env"))) {
+                return launcherDirectory;
+            }
+        }
+
+        Path workingDirectory = Path.of("").toAbsolutePath().normalize();
+        if (Files.isRegularFile(workingDirectory.resolve(".env"))) {
+            return workingDirectory;
+        }
+        return null;
     }
 
     private Properties loadProperties() {
