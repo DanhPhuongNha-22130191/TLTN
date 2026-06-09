@@ -81,9 +81,15 @@ public class KeycloakUserAdapter implements KeycloakUserPort {
             UserRepresentation user = keycloak.realm(realm).users().get(keycloakUserId).toRepresentation();
             if (username != null && !username.isBlank()) user.setUsername(username);
             if (fullName != null) {
-                String[] parts = fullName.split(" ", 2);
-                user.setFirstName(parts[0]);
-                user.setLastName(parts.length > 1 ? parts[1] : "");
+                String normalized = fullName.trim();
+                if (normalized.isEmpty()) {
+                    user.setFirstName("");
+                    user.setLastName("");
+                } else {
+                    String[] parts = normalized.split(" ", 2);
+                    user.setFirstName(parts[0]);
+                    user.setLastName(parts.length > 1 ? parts[1] : "");
+                }
             }
             keycloak.realm(realm).users().get(keycloakUserId).update(user);
             if (newPassword != null && !newPassword.isBlank()) {

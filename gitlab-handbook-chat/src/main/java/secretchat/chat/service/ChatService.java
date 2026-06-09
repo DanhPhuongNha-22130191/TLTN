@@ -29,7 +29,9 @@ public class ChatService {
 
     public UserResponse getUserByUsername(String username, String token) throws Exception {
         try {
-            return apiClient.get("/api/user/username/" + username, token, UserResponse.class);
+            return apiClient.get("/api/users/username/"
+                    + java.net.URLEncoder.encode(username, java.nio.charset.StandardCharsets.UTF_8),
+                    token, UserResponse.class);
         } catch (Exception e) {
             throw GlobalExceptionHandler.handle(e);
         }

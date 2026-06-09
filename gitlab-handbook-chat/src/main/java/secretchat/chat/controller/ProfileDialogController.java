@@ -31,14 +31,17 @@ public class ProfileDialogController {
 
     public void setViewModel(ChatViewModel viewModel) {
         this.viewModel = viewModel;
+        UserResponse snapshot = viewModel.getCurrentUserProfileSnapshot();
+        if (snapshot != null) populate(snapshot);
         setLoading(true);
         viewModel.loadCurrentUserProfile()
                 .whenComplete((profile, error) -> Platform.runLater(() -> {
                     setLoading(false);
                     if (error != null) {
-                        showError(rootMessage(error));
+                        showError("Không thể đồng bộ hồ sơ mới nhất. Bạn vẫn có thể chỉnh sửa và lưu.");
                         return;
                     }
+                    hideError();
                     populate(profile);
                 }));
     }
@@ -82,11 +85,7 @@ public class ProfileDialogController {
             showError("Username phải từ 3-50 ký tự, chỉ gồm chữ, số và dấu gạch dưới.");
             return false;
         }
-        if (fullName.isBlank()) {
-            showError("Họ và tên không được để trống.");
-            return false;
-        }
-        if (!PHONE_PATTERN.matcher(phone).matches()) {
+        if (!phone.isBlank() && !PHONE_PATTERN.matcher(phone).matches()) {
             showError("Số điện thoại phải từ 9 đến 11 chữ số.");
             return false;
         }

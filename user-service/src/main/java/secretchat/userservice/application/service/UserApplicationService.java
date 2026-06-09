@@ -102,9 +102,9 @@ public class UserApplicationService implements UserUseCase {
                 .keycloakUserId(existing.getKeycloakUserId())
                 .username(username)
                 .email(existing.getEmail())
-                .fullName(command.fullName() != null ? new FullName(command.fullName()) : existing.getFullName())
+                .fullName(command.fullName() != null ? FullName.of(command.fullName()) : existing.getFullName())
                 .avatar(command.avatar() != null ? command.avatar() : existing.getAvatar())
-                .phoneNumber(command.phoneNumber() != null ? new PhoneNumber(command.phoneNumber()) : existing.getPhoneNumber())
+                .phoneNumber(command.phoneNumber() != null ? PhoneNumber.of(command.phoneNumber()) : existing.getPhoneNumber())
                 .status(existing.getStatus())
                 .createdAt(existing.getCreatedAt())
                 .build();

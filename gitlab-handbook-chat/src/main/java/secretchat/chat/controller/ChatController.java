@@ -68,6 +68,7 @@ public class ChatController extends BaseChatController {
     private Popup activeToast;
     private boolean pinnedCollapsed = true;
     private boolean pinnedExpandedByUser;
+    private boolean pinnedContextMenuOpen;
 
     @FXML
     public void initialize() {
@@ -331,10 +332,18 @@ public class ChatController extends BaseChatController {
                 more.getStyleClass().add("pinned-more-button");
                 ContextMenu menu = new ContextMenu();
                 MenuItem goTo = new MenuItem("Đi tới tin nhắn gốc");
-                goTo.setOnAction(event -> goToPinnedMessage(item));
+                goTo.setOnAction(event -> {
+                    goToPinnedMessage(item);
+                    collapsePinnedPanel();
+                });
                 MenuItem unpin = new MenuItem("Bỏ ghim");
-                unpin.setOnAction(event -> viewModel.unpinMessage(item));
+                unpin.setOnAction(event -> {
+                    viewModel.unpinMessage(item);
+                    collapsePinnedPanel();
+                });
                 menu.getItems().addAll(goTo, unpin);
+                menu.setOnShowing(event -> pinnedContextMenuOpen = true);
+                menu.setOnHidden(event -> pinnedContextMenuOpen = false);
                 more.setOnMouseClicked(event -> event.consume());
                 more.setOnAction(event -> {
                     menu.show(more, javafx.geometry.Side.BOTTOM, 0, 0);
@@ -377,6 +386,7 @@ public class ChatController extends BaseChatController {
 
     private void collapsePinnedWhenPointerLeaves() {
         if (!pinnedArea.isHover() && !pinnedContent.isHover()
+                && !pinnedContextMenuOpen
                 && pinnedExpandedByUser && !pinnedCollapsed) {
             pinnedCollapsed = true;
             pinnedExpandedByUser = false;
@@ -388,17 +398,18 @@ public class ChatController extends BaseChatController {
         boolean hasConversation = viewModel != null
                 && viewModel.activeConversationProperty().get() != null;
         int count = viewModel == null ? 0 : viewModel.getPinnedMessageList().size();
-        pinnedArea.setVisible(hasConversation);
-        pinnedArea.setManaged(hasConversation);
+        boolean showPinnedArea = hasConversation && count > 0;
+        pinnedArea.setVisible(showPinnedArea);
+        pinnedArea.setManaged(showPinnedArea);
         pinnedTitleLabel.setText("Danh sách ghim (" + count + ")");
-        pinnedContent.setVisible(hasConversation && !pinnedCollapsed);
-        pinnedContent.setManaged(hasConversation && !pinnedCollapsed);
+        pinnedContent.setVisible(showPinnedArea && !pinnedCollapsed);
+        pinnedContent.setManaged(showPinnedArea && !pinnedCollapsed);
         pinnedMessageList.setVisible(count > 0);
         pinnedMessageList.setManaged(count > 0);
         pinnedEmptyLabel.setVisible(count == 0);
         pinnedEmptyLabel.setManaged(count == 0);
         pinnedCollapseButton.setText(pinnedCollapsed ? "Mở rộng" : "Thu gọn");
-        if (hasConversation && !pinnedCollapsed) {
+        if (showPinnedArea && !pinnedCollapsed) {
             Platform.runLater(() -> {
                 pinnedMessageList.refresh();
                 pinnedContent.applyCss();

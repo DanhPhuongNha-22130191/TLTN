@@ -1506,12 +1506,26 @@ public class ChatViewModel {
             try {
                 return chatService.getUserById(keycloakUserId, token);
             } catch (Exception e) {
-                throw new java.util.concurrent.CompletionException(e);
+                String username = currentUserResponse == null
+                        ? null : currentUserResponse.getUsername();
+                if (username == null || username.isBlank()) {
+                    throw new java.util.concurrent.CompletionException(e);
+                }
+                try {
+                    return chatService.getUserByUsername(username, token);
+                } catch (Exception fallbackError) {
+                    fallbackError.addSuppressed(e);
+                    throw new java.util.concurrent.CompletionException(fallbackError);
+                }
             }
         }).thenApply(profile -> {
             currentUserResponse = profile;
             return profile;
         });
+    }
+
+    public UserResponse getCurrentUserProfileSnapshot() {
+        return currentUserResponse;
     }
 
     public CompletableFuture<UserResponse> loadGroupMemberProfile(String userId) {
