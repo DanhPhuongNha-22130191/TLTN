@@ -1,0 +1,572 @@
+{
+  "info": {
+    "_postman_id": "c1f7b8d4-539c-4628-9831-29471b80c551",
+    "name": "Secret Chat Service API Collection",
+    "description": "Collection containing all endpoints for Chat Service (Messages, Conversations, and Groups)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Groups",
+      "item": [
+        {
+          "name": "Create Group",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Đội dự án TLTN\",\n  \"description\": \"Nhóm thảo luận về đồ án tốt nghiệp\",\n  \"creatorId\": 1,\n  \"avatarUrl\": \"http://example.com/avatars/tltn.png\",\n  \"memberIds\": [1, 2, 3]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/groups",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "groups"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Group Details",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Đội dự án TLTN - Updated\",\n  \"description\": \"Nhóm thảo luận về đồ án tốt nghiệp - Mô tả mới\",\n  \"avatarUrl\": \"http://example.com/avatars/tltn_updated.png\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/groups/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "groups",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Group Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/groups/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "groups",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add Group Member",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": 4,\n  \"invitedBy\": 1,\n  \"role\": \"MEMBER\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/groups/1/members",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "groups",
+                "1",
+                "members"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Member Nickname",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nickname\": \"Nha Phuong Dev\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/groups/1/members/4/nickname",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "groups",
+                "1",
+                "members",
+                "4",
+                "nickname"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Group Members List",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/groups/1/members",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "groups",
+                "1",
+                "members"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Remove Group Member",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/groups/1/members/4",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "groups",
+                "1",
+                "members",
+                "4"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Group",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/groups/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "groups",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Create or Update User Profile",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": 1,\n  \"username\": \"phuongnhadev\",\n  \"externalSub\": \"sub-123\",\n  \"email\": \"phuong@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/profile",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "profile"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get User Profile by User ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/profile/user/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "profile",
+                "user",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get User Profile by Username",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/username/phuongnhadev",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "username",
+                "phuongnhadev"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get User Profile by External Sub",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/external/sub-123",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "external",
+                "sub-123"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Friends",
+      "item": [
+        {
+          "name": "Add Friend",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"1\",\n  \"username\": \"frienduser\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/friends",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "friends"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Friends List",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/friends/user/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "friends",
+                "user",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Conversations",
+      "item": [
+        {
+          "name": "Create Personal Conversation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"senderId\": 1,\n  \"receiverId\": 2\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/conversations/personal",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "conversations",
+                "personal"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Group Conversation",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/conversations/group/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "conversations",
+                "group",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Conversation Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/conversations/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "conversations",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get User Conversations",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/conversations/user/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "conversations",
+                "user",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Mark Conversation as Read",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/conversations/1/read",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "conversations",
+                "1",
+                "read"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Conversation",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/conversations/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "conversations",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Messages",
+      "item": [
+        {
+          "name": "Send Message",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"conversationId\": 1,\n  \"senderId\": 1,\n  \"content\": \"Xin chào, đây là tin nhắn đầu tiên!\",\n  \"messageType\": \"TEXT\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/messages",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "messages"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Send Message with File attachment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"conversationId\": 1,\n  \"senderId\": 1,\n  \"content\": \"Gửi bạn tài liệu tham khảo.\",\n  \"fileUrl\": \"http://example.com/files/document.pdf\",\n  \"fileName\": \"document.pdf\",\n  \"fileSize\": 1048576,\n  \"fileType\": \"application/pdf\",\n  \"messageType\": \"FILE\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/messages",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "messages"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Conversation Chat History",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/messages/history/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "messages",
+                "history",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8083",
+      "type": "string"
+    }
+  ]
+}
