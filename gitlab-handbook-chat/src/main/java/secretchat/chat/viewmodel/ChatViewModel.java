@@ -157,7 +157,7 @@ public class ChatViewModel {
             nameToUserMap.clear();
             displayNameToUserId.clear();
             
-            privateChatList.add("TRỢ LÝ AI");
+            // Setup AI Assistant in maps but don't add to list (it has dedicated button now)
             UserResponse aiUser = new UserResponse();
             aiUser.setId("AI_ASSISTANT");
             aiUser.setUsername("TRỢ LÝ AI");
@@ -429,7 +429,6 @@ public class ChatViewModel {
                 MessageResponse[] history = chatService.getConversationChatHistory(IdUtils.parseLongId(conversationId), token);
                 if (history != null) {
                     List<MessageItem> newMessages = new ArrayList<>();
-                    List<PinnedMessageItem> pinnedMessages = new ArrayList<>();
                     List<String> files = new ArrayList<>();
                     List<String> links = new ArrayList<>();
 
@@ -451,9 +450,6 @@ public class ChatViewModel {
 
                         MessageItem item = new MessageItem(msg, senderName, content, timeStr, isMe, isFile, isDeleted, isDeletedForMe);
                         newMessages.add(item);
-                        if (msg.isPinned() && content != null) {
-                            pinnedMessages.add(new PinnedMessageItem(item));
-                        }
 
                         if (isFile && !isDeleted && !isDeletedForMe) {
                             files.add(msg.getFileName() != null ? msg.getFileName() : "file");
@@ -471,12 +467,12 @@ public class ChatViewModel {
                             return;
                         }
                         messages.addAll(newMessages);
-                        pinnedMessageList.setAll(pinnedMessages);
                         if (messages.isEmpty() && "TRỢ LÝ AI".equals(currentChatName.get())) {
                             messages.add(new MessageItem(null, "TRỢ LÝ AI", "Xin chào! Tôi là Trợ lý AI. Tôi có thể giúp gì cho bạn hôm nay?", getCurrentTime(), false, false, false, false));
                         }
                         sentFileList.addAll(files);
                         sentLinkList.addAll(links);
+                        refreshPinnedMessages();
                     });
                 }
             } catch (Exception e) {
@@ -1204,12 +1200,30 @@ public class ChatViewModel {
     }
 
     private void refreshPinnedMessages() {
+        // Only refresh if a conversation is active
+        if (activeConversation.get() == null) {
+            pinnedMessageList.clear();
+            return;
+        }
         pinnedMessageList.clear();
         for (MessageItem item : messages) {
             if (item.isPinned() && !item.isDeleted() && !item.isDeletedForMe()) {
                 pinnedMessageList.add(new PinnedMessageItem(item));
             }
         }
+    }
+
+    public void clearConversationData() {
+        Platform.runLater(() -> {
+            messages.clear();
+            memberList.clear();
+            sentFileList.clear();
+            sentLinkList.clear();
+            pinnedMessageList.clear();
+            currentChatName.set(null);
+            currentChatIsGroup.set(false);
+            activeConversation.set(null);
+        });
     }
 
     public byte[] downloadFile(MessageResponse msg) throws Exception {
@@ -1220,6 +1234,8 @@ public class ChatViewModel {
         Platform.runLater(() -> {
             privateChatList.clear();
             for (String key : nameToUserMap.keySet()) {
+                // Skip AI Assistant in search results
+                if ("TRỢ LÝ AI".equals(key)) continue;
                 if (key.toLowerCase().contains(keyword.toLowerCase())) {
                     privateChatList.add(key);
                 }

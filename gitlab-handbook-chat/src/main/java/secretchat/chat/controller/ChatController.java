@@ -51,6 +51,7 @@ public class ChatController extends BaseChatController {
     @FXML private ProgressIndicator aiProgressIndicator;
     @FXML private Button scrollBottomButton;
     @FXML private Label searchResultLabel;
+    @FXML private Button aiAssistantButton;
 
     private static final System.Logger LOGGER = System.getLogger(ChatController.class.getName());
     private ChatViewModel viewModel;
@@ -164,6 +165,18 @@ public class ChatController extends BaseChatController {
 
         chatTabPane.getSelectionModel().selectedItemProperty().addListener((obs, oldTab, newTab) -> {
             boolean isGroupTab = newTab != null && "Nhóm".equals(newTab.getText());
+            // Clear UI if switching tabs and no conversation selected on new tab
+            if (isGroupTab) {
+                String selectedGroup = groupChatList.getSelectionModel().getSelectedItem();
+                if (selectedGroup == null) {
+                    clearConversationUI();
+                }
+            } else {
+                String selectedUser = privateChatList.getSelectionModel().getSelectedItem();
+                if (selectedUser == null) {
+                    clearConversationUI();
+                }
+            }
             updateRightPanel(isGroupTab);
         });
 
@@ -408,6 +421,20 @@ public class ChatController extends BaseChatController {
         return displayedText;
     }
 
+    private void clearConversationUI() {
+        // Clear all UI elements when no conversation is selected
+        chatTitleLabel.setText("Chọn cuộc trò chuyện");
+        chatStatusLabel.setText("Cá nhân / Nhóm");
+        messageContainer.getChildren().clear();
+        messageInput.clear();
+        clearSelectedFile();
+        messageSearchField.clear();
+        searchResultLabel.setVisible(false);
+        searchResultLabel.setManaged(false);
+        pinnedMessageList.clear();
+        viewModel.clearConversationData();
+    }
+
     private void updateRightPanel(boolean isGroup) {
         boolean hasConversation = viewModel.activeConversationProperty().get() != null;
         chatActionsPanel.setVisible(hasConversation);
@@ -443,10 +470,20 @@ public class ChatController extends BaseChatController {
         if (selectedUserStr == null) return;
 
         chatTitleLabel.setText(selectedUserStr);
-        chatStatusLabel.setText(selectedUserStr.equals("TRỢ LÝ AI") ? "Trợ lý ảo thông minh" : "Chat cá nhân");
+        chatStatusLabel.setText("Chat cá nhân");
         
         viewModel.selectPrivateChat(selectedUserStr);
         privateChatList.refresh();
+    }
+
+    @FXML
+    private void handleSelectAIAssistant() {
+        String aiAssistantName = "TRỢ LÝ AI";
+        chatTitleLabel.setText(aiAssistantName);
+        chatStatusLabel.setText("Trợ lý ảo thông minh");
+        
+        viewModel.selectPrivateChat(aiAssistantName);
+        privateChatList.clearSelection();
     }
 
     @FXML

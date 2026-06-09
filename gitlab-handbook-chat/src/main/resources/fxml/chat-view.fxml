@@ -93,6 +93,18 @@
                 </tabs>
             </TabPane>
 
+            <!-- AI Assistant Button -->
+            <Button fx:id="aiAssistantButton"
+                    text="TRỢ LÝ AI"
+                    maxWidth="Infinity"
+                    onAction="#handleSelectAIAssistant"
+                    styleClass="ai-assistant-button">
+                <graphic>
+                    <FontIcon iconLiteral="fa-magic"
+                              styleClass="btn-icon"/>
+                </graphic>
+            </Button>
+
         </VBox>
     </left>
 
@@ -297,16 +309,6 @@
                                 styleClass="upload-button">
                             <graphic>
                                 <FontIcon iconLiteral="fa-paperclip"
-                                          styleClass="btn-icon"/>
-                            </graphic>
-                        </Button>
-
-                        <Button text="Chọn ảnh"
-                                fx:id="attachImageButton"
-                                onAction="#handleAttachImage"
-                                styleClass="upload-button">
-                            <graphic>
-                                <FontIcon iconLiteral="fa-picture-o"
                                           styleClass="btn-icon"/>
                             </graphic>
                         </Button>

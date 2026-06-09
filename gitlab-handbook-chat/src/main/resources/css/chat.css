@@ -112,10 +112,11 @@
 .conv-list .list-cell {
     -fx-background-color: transparent;
     -fx-text-fill: #374151;
-    -fx-padding: 10 10;
+    -fx-padding: 8 8;
     -fx-background-radius: 4;
     -fx-border-radius: 4;
     -fx-font-size: 13.5px;
+    -fx-cell-size: 45;
 }
 
 .conv-list .list-cell:hover {
@@ -911,6 +912,26 @@
 
 .conv-list .list-cell.ai-list-cell:selected .label {
     -fx-text-fill: #ffffff;
+}
+
+.ai-assistant-button {
+    -fx-background-color: linear-gradient(to right, #8b5cf6, #ec4899);
+    -fx-text-fill: white;
+    -fx-font-weight: 700;
+    -fx-padding: 12 16;
+    -fx-background-radius: 6;
+    -fx-font-size: 13px;
+    -fx-border-color: transparent;
+    -fx-cursor: hand;
+}
+
+.ai-assistant-button:hover {
+    -fx-background-color: linear-gradient(to right, #7c3aed, #db2777);
+    -fx-effect: dropshadow(gaussian, rgba(139, 92, 246, 0.4), 8, 0, 0, 2);
+}
+
+.ai-assistant-button:pressed {
+    -fx-background-color: linear-gradient(to right, #6d28d9, #be185d);
 }
 
 .ai-message {
