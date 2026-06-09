@@ -1,0 +1,10 @@
+.gradle
+.idea
+build
+out
+bin
+.git
+Dockerfile
+docker-compose*
+*.pull*
+.env
