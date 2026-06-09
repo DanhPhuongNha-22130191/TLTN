@@ -209,6 +209,39 @@ public class ApiClient {
         return response.body();
     }
 
+    public String uploadFile(String path, java.io.File file, String accessToken) throws Exception {
+        String url = GatewayConfig.getInstance().getGatewayUrl() + path;
+        
+        byte[] fileBytes = java.nio.file.Files.readAllBytes(file.toPath());
+        String boundary = "---" + java.util.UUID.randomUUID().toString();
+        
+        String header = "--" + boundary + "\r\n" +
+                "Content-Disposition: form-data; name=\"file\"; filename=\"" + file.getName() + "\"\r\n" +
+                "Content-Type: application/octet-stream\r\n\r\n";
+        String footer = "\r\n--" + boundary + "--\r\n";
+        
+        byte[] headerBytes = header.getBytes("UTF-8");
+        byte[] footerBytes = footer.getBytes("UTF-8");
+        
+        byte[] fullBody = new byte[headerBytes.length + fileBytes.length + footerBytes.length];
+        System.arraycopy(headerBytes, 0, fullBody, 0, headerBytes.length);
+        System.arraycopy(fileBytes, 0, fullBody, headerBytes.length, fileBytes.length);
+        System.arraycopy(footerBytes, 0, fullBody, headerBytes.length + fileBytes.length, footerBytes.length);
+
+        HttpRequest.Builder builder = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("Content-Type", "multipart/form-data; boundary=" + boundary)
+                .POST(HttpRequest.BodyPublishers.ofByteArray(fullBody));
+
+        HttpResponse<String> response = sendWithRetry(builder, accessToken);
+
+        if (response.statusCode() >= 400) {
+            throw new RuntimeException("Upload failed: " + response.statusCode());
+        }
+        
+        return response.body(); 
+    }
+
     public void delete(String path, String accessToken) throws Exception {
         String url = GatewayConfig.getInstance().getGatewayUrl() + path;
 

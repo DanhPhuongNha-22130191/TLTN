@@ -520,25 +520,36 @@ public class ChatViewModel {
                     return;
                 }
 
-                SendMessageRequest req = new SendMessageRequest();
-                req.setConversationId(IdUtils.parseLongId(activeConversation.get().getId()));
-                req.setSenderId(currentUserId);
-                req.setFileName(file.getName());
-                req.setFileSize(file.length());
-                req.setFileUrl(file.getAbsolutePath());
-                req.setFileType(FileUtils.getFileExtension(file));
+                CompletableFuture.runAsync(() -> {
+                    try {
+                        String uploadedFileUrl = chatService.uploadFile(file, token);
 
-                String ext = FileUtils.getFileExtension(file).toLowerCase();
-                if (ext.equals("png") || ext.equals("jpg") || ext.equals("jpeg") || ext.equals("gif")) {
-                    req.setMessageType("IMAGE");
-                } else {
-                    req.setMessageType("FILE");
-                }
+                        SendMessageRequest req = new SendMessageRequest();
+                        req.setConversationId(IdUtils.parseLongId(activeConversation.get().getId()));
+                        req.setSenderId(currentUserId);
+                        req.setFileName(file.getName());
+                        req.setFileSize(file.length());
+                        req.setFileUrl(uploadedFileUrl);
+                        req.setFileType(FileUtils.getFileExtension(file));
 
-                MessageResponse response = chatService.sendMessage(req, token);
-                MessageItem item = new MessageItem(response, "Bạn", file.getName(), getCurrentTime(), true, true, false, false);
-                messages.add(item);
-                sentFileList.add(file.getName());
+                        String ext = FileUtils.getFileExtension(file).toLowerCase();
+                        if (ext.equals("png") || ext.equals("jpg") || ext.equals("jpeg") || ext.equals("gif")) {
+                            req.setMessageType("IMAGE");
+                        } else {
+                            req.setMessageType("FILE");
+                        }
+
+                        MessageResponse response = chatService.sendMessage(req, token);
+                        MessageItem item = new MessageItem(response, "Bạn", file.getName(), getCurrentTime(), true, true, false, false);
+                        
+                        Platform.runLater(() -> {
+                            messages.add(item);
+                            sentFileList.add(file.getName());
+                        });
+                    } catch (Exception ex) {
+                        Platform.runLater(() -> errorMessage.set("Không thể gửi file: " + ex.getMessage()));
+                    }
+                });
             }
 
         } catch (Exception e) {

@@ -118,6 +118,10 @@ public class ChatService {
 
     // --- Messages Service Calls ---
 
+    public String uploadFile(java.io.File file, String token) throws Exception {
+        return apiClient.uploadFile("/api/messages/upload", file, token);
+    }
+
     public MessageResponse sendMessage(SendMessageRequest request, String token) throws Exception {
         try {
             return apiClient.post("/api/messages", request, token, MessageResponse.class);
