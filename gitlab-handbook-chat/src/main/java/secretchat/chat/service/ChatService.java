@@ -155,6 +155,60 @@ public class ChatService {
         }
     }
 
+    public MessageResponse editMessage(Long messageId, UpdateMessageRequest request, String token) throws Exception {
+        try {
+            return apiClient.put("/api/messages/" + messageId, request, token, MessageResponse.class);
+        } catch (Exception e) {
+            throw GlobalExceptionHandler.handle(e);
+        }
+    }
+
+    public MessageResponse setMessageStarred(Long messageId, boolean value, String token) throws Exception {
+        try {
+            return apiClient.put("/api/messages/" + messageId + "/star?value=" + value,
+                    token, MessageResponse.class);
+        } catch (Exception e) {
+            throw GlobalExceptionHandler.handle(e);
+        }
+    }
+
+    public MessageResponse setMessagePinned(Long messageId, boolean value, String token) throws Exception {
+        try {
+            return apiClient.put("/api/messages/" + messageId + "/pin?value=" + value,
+                    token, MessageResponse.class);
+        } catch (Exception e) {
+            throw GlobalExceptionHandler.handle(e);
+        }
+    }
+
+    public MessageResponse updateMessageStatus(
+            Long messageId, MessageStatusRequest request, String token) throws Exception {
+        try {
+            return apiClient.put("/api/messages/" + messageId + "/status",
+                    request, token, MessageResponse.class);
+        } catch (Exception e) {
+            throw GlobalExceptionHandler.handle(e);
+        }
+    }
+
+    public MessageResponse[] getPinnedMessages(Long conversationId, String token) throws Exception {
+        try {
+            return apiClient.get("/api/messages/pinned/" + conversationId, token, MessageResponse[].class);
+        } catch (Exception e) {
+            throw GlobalExceptionHandler.handle(e);
+        }
+    }
+
+    public MessageResponse[] searchMessages(Long conversationId, String query, String token) throws Exception {
+        try {
+            return apiClient.get("/api/messages/search/" + conversationId + "?query="
+                    + java.net.URLEncoder.encode(query, java.nio.charset.StandardCharsets.UTF_8),
+                    token, MessageResponse[].class);
+        } catch (Exception e) {
+            throw GlobalExceptionHandler.handle(e);
+        }
+    }
+
     public byte[] downloadMessageFile(Long messageId, String token) throws Exception {
         try {
             return apiClient.getBytes("/api/messages/" + messageId + "/download", token);

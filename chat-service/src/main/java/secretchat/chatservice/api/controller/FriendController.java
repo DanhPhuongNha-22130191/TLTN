@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import secretchat.chatservice.api.mapper.FriendApiMapper;
 import secretchat.chatservice.api.mapper.UserProfileApiMapper;
 import secretchat.chatservice.api.request.AddFriendRequest;
@@ -25,6 +26,7 @@ public class FriendController {
 
     private final FriendUseCase friendUseCase;
     private final UserProfileUseCase userProfileUseCase;
+    private final SimpMessagingTemplate messagingTemplate;
 
     @PostMapping
     public ResponseEntity<FriendResponse> addFriend(@Valid @RequestBody AddFriendRequest request) {
@@ -32,7 +34,20 @@ public class FriendController {
         String friendUsername = userProfileUseCase.getProfileById(friend.getFriendId())
                 .map(UserProfile::getUsername)
                 .orElse(null);
-        return ResponseEntity.ok(FriendApiMapper.toResponse(friend, friendUsername));
+        FriendResponse response = FriendApiMapper.toResponse(friend, friendUsername);
+        messagingTemplate.convertAndSend("/topic/user/" + request.getUserId() + "/friends", response);
+
+        String requesterUsername = userProfileUseCase.getProfileById(request.getUserId())
+                .map(UserProfile::getUsername).orElse(null);
+        Friend reverseFriend = friendUseCase.getFriends(friend.getFriendId()).stream()
+                .filter(item -> request.getUserId().equals(item.getFriendId()))
+                .findFirst().orElse(null);
+        if (reverseFriend != null) {
+            messagingTemplate.convertAndSend(
+                    "/topic/user/" + friend.getFriendId() + "/friends",
+                    FriendApiMapper.toResponse(reverseFriend, requesterUsername));
+        }
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/user/{userId}")

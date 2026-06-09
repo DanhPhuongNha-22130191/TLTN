@@ -57,6 +57,7 @@ public class ChatViewModel {
     private final ObservableList<String> memberList = FXCollections.observableArrayList();
     private final ObservableList<String> sentFileList = FXCollections.observableArrayList();
     private final ObservableList<String> sentLinkList = FXCollections.observableArrayList();
+    private final ObservableList<String> pinnedMessageList = FXCollections.observableArrayList();
 
     private final StringProperty currentChatName = new SimpleStringProperty();
     private final BooleanProperty currentChatIsGroup = new SimpleBooleanProperty(false);
@@ -65,6 +66,9 @@ public class ChatViewModel {
     private final BooleanProperty isLoading = new SimpleBooleanProperty(false);
     private final StringProperty errorMessage = new SimpleStringProperty();
     private final StringProperty notificationMessage = new SimpleStringProperty();
+    private final StringProperty typingText = new SimpleStringProperty();
+    private final BooleanProperty aiLoading = new SimpleBooleanProperty(false);
+    private final IntegerProperty conversationVersion = new SimpleIntegerProperty();
 
     public ChatViewModel() {
         this.chatService = new ChatService(ApiClient.getInstance());
@@ -120,6 +124,7 @@ public class ChatViewModel {
                 return;
             }
 
+            subscribeToRealtimeUpdates();
             loadData();
 
         } catch (Exception e) {
@@ -225,14 +230,7 @@ public class ChatViewModel {
                                 ? friend.getFriendUsername()
                                 : "Người dùng " + friend.getFriendId();
 
-                        if (!displayNameToUserId.containsKey(displayName)) {
-                            UserResponse friendUser = new UserResponse();
-                            friendUser.setUsername(friend.getFriendUsername());
-                            friendUser.setFullName(friend.getFriendUsername());
-                            nameToUserMap.put(displayName, friendUser);
-                            displayNameToUserId.put(displayName, friend.getFriendId());
-                            privateChatList.add(displayName);
-                        }
+                        addFriendToList(friend, displayName);
                     }
                 });
             }
@@ -336,6 +334,7 @@ public class ChatViewModel {
         }
         
         conv.setUnreadCount(0);
+        conversationVersion.set(conversationVersion.get() + 1);
         loadChatInfo(selectedUserStr, false);
         loadMessages(conv.getId(), 0); // Ignore unreadCount for loading as it's just marked 0
         subscribeToConversation(conv.getId());
@@ -380,6 +379,7 @@ public class ChatViewModel {
         }
         
         conv.setUnreadCount(0);
+        conversationVersion.set(conversationVersion.get() + 1);
         loadGroupChatInfo(selectedGroup);
         loadMessages(conv.getId(), 0);
         subscribeToConversation(conv.getId());
@@ -390,6 +390,7 @@ public class ChatViewModel {
             memberList.clear();
             sentFileList.clear();
             sentLinkList.clear();
+            pinnedMessageList.clear();
 
             if (isGroup) {
                 memberList.add("Bạn");
@@ -405,6 +406,7 @@ public class ChatViewModel {
             memberList.clear();
             sentFileList.clear();
             sentLinkList.clear();
+            pinnedMessageList.clear();
         });
 
         CompletableFuture.runAsync(() -> {
@@ -446,6 +448,9 @@ public class ChatViewModel {
                             continue;
                         }
                         boolean isMe = msg.getSenderId() != null && msg.getSenderId().equals(currentUserId);
+                        if (!isMe && !"SEEN".equals(msg.getStatus())) {
+                            updateMessageStatus(msg, "SEEN");
+                        }
                         String timeStr = formatTime(msg.getCreatedAt());
                         String senderName = getUserDisplayName(msg.getSenderId());
                         
@@ -456,6 +461,12 @@ public class ChatViewModel {
 
                         MessageItem item = new MessageItem(msg, senderName, content, timeStr, isMe, isFile, isDeleted, isDeletedForMe);
                         newMessages.add(item);
+                        if (msg.isPinned() && content != null) {
+                            String summary = pinnedSummary(content);
+                            if (!pinnedMessageList.contains(summary)) {
+                                Platform.runLater(() -> pinnedMessageList.add(summary));
+                            }
+                        }
 
                         if (isFile && !isDeleted && !isDeletedForMe) {
                             files.add(msg.getFileName() != null ? msg.getFileName() : "file");
@@ -531,29 +542,97 @@ public class ChatViewModel {
         }
     }
 
+    private void handleRealtimeFriend(FriendResponse friend) {
+        if (friend == null || friend.getFriendId() == null) return;
+        String displayName = friend.getFriendUsername() != null && !friend.getFriendUsername().isBlank()
+                ? friend.getFriendUsername() : "Người dùng " + friend.getFriendId();
+        Platform.runLater(() -> addFriendToList(friend, displayName));
+    }
+
+    private void addFriendToList(FriendResponse friend, String displayName) {
+        if (displayNameToUserId.containsValue(friend.getFriendId())) return;
+        UserResponse friendUser = new UserResponse();
+        friendUser.setId(friend.getFriendId());
+        friendUser.setKeycloakUserId(friend.getFriendId());
+        friendUser.setUsername(friend.getFriendUsername());
+        friendUser.setFullName(friend.getFriendUsername());
+        nameToUserMap.put(displayName, friendUser);
+        displayNameToUserId.put(displayName, friend.getFriendId());
+        privateChatList.add(displayName);
+    }
+
+    private void subscribeToRealtimeUpdates() {
+        realtimeChatService.subscribeUserMessages(currentUserId, this::handleRealtimeMessage)
+                .exceptionally(error -> {
+                    Platform.runLater(() -> errorMessage.set(
+                            "Không thể theo dõi tin nhắn realtime: " + rootMessage(error)));
+                    return null;
+                });
+        realtimeChatService.subscribeFriends(currentUserId, this::handleRealtimeFriend)
+                .exceptionally(error -> {
+                    LOGGER.log(System.Logger.Level.WARNING,
+                            "Không thể theo dõi danh sách bạn bè realtime", error);
+                    return null;
+                });
+    }
+
     public void close() {
         realtimeChatService.close();
     }
 
     private void subscribeToConversation(String conversationId) {
-        realtimeChatService.subscribe(conversationId, this::handleRealtimeMessage)
+        typingText.set(null);
+        realtimeChatService.subscribeTyping(conversationId, event -> {
+                    if (event.getUserId() == null || event.getUserId().equals(currentUserId)) return;
+                    Platform.runLater(() -> typingText.set(event.isTyping()
+                            ? (event.getUsername() == null || event.getUsername().isBlank()
+                                    ? "Đang nhập..." : event.getUsername() + " đang nhập...")
+                            : null));
+                })
                 .exceptionally(error -> {
                     Platform.runLater(() -> errorMessage.set(
-                            "Không thể theo dõi hội thoại realtime: " + rootMessage(error)));
+                            "Không thể theo dõi trạng thái nhập: " + rootMessage(error)));
                     return null;
                 });
     }
 
     private void handleRealtimeMessage(MessageResponse message) {
-        ConversationResponse currentConversation = activeConversation.get();
-        if (currentConversation == null
-                || message.getConversationId() == null
-                || !message.getConversationId().equals(currentConversation.getId())
-                || (message.getId() != null && !displayedMessageIds.add(message.getId()))) {
+        if (message == null || message.getConversationId() == null) {
             return;
         }
 
         boolean isMe = currentUserId.equals(message.getSenderId());
+        ConversationResponse conversation = findConversation(message.getConversationId());
+        if (conversation == null) return;
+
+        ConversationResponse currentConversation = activeConversation.get();
+        boolean isActive = currentConversation != null
+                && message.getConversationId().equals(currentConversation.getId());
+
+        if (!isMe) {
+            updateMessageStatus(message, isActive ? "SEEN" : "DELIVERED");
+        }
+
+        if (!isActive) {
+            if (!isMe && (message.getStatus() == null || "SENT".equals(message.getStatus()))) {
+                Platform.runLater(() -> {
+                    conversation.setUnreadCount(conversation.getUnreadCount() + 1);
+                    conversationVersion.set(conversationVersion.get() + 1);
+                });
+            }
+            return;
+        }
+
+        MessageItem existing = findMessageItem(message.getId());
+        if (existing != null) {
+            Platform.runLater(() -> {
+                existing.update(message);
+                refreshPinnedMessages();
+            });
+            return;
+        }
+        if (message.getId() != null && !displayedMessageIds.add(message.getId())) return;
+
         boolean isFile = !"TEXT".equalsIgnoreCase(message.getMessageType());
         String content = isFile && message.getFileName() != null
                 ? message.getFileName()
@@ -578,7 +657,51 @@ public class ChatViewModel {
             } else if (content != null) {
                 extractAndAddLinks(content);
             }
+            refreshPinnedMessages();
         });
+    }
+
+    private ConversationResponse findConversation(String conversationId) {
+        for (ConversationResponse value : personalConversationMap.values()) {
+            if (conversationId.equals(value.getId())) return value;
+        }
+        for (ConversationResponse value : groupConversationMap.values()) {
+            if (conversationId.equals(value.getId())) return value;
+        }
+        return null;
+    }
+
+    private MessageItem findMessageItem(String messageId) {
+        if (messageId == null) return null;
+        for (MessageItem item : messages) {
+            if (item.getResponse() != null && messageId.equals(item.getResponse().getId())) return item;
+        }
+        return null;
+    }
+
+    private void updateMessageStatus(MessageResponse message, String status) {
+        if (message.getId() == null || status.equals(message.getStatus())) return;
+        CompletableFuture.runAsync(() -> {
+            try {
+                MessageStatusRequest request = new MessageStatusRequest();
+                request.setUserId(currentUserId);
+                request.setStatus(status);
+                chatService.updateMessageStatus(IdUtils.parseLongId(message.getId()), request, token);
+            } catch (Exception e) {
+                LOGGER.log(System.Logger.Level.WARNING, "Không thể cập nhật trạng thái tin nhắn", e);
+            }
+        });
+    }
+
+    public void sendTyping(boolean typing) {
+        ConversationResponse conversation = activeConversation.get();
+        if (conversation == null || conversation.getId() == null) return;
+        TypingRequest request = new TypingRequest();
+        request.setConversationId(IdUtils.parseLongId(conversation.getId()));
+        request.setUserId(currentUserId);
+        request.setUsername(currentUserResponse == null ? null : currentUserResponse.getUsername());
+        request.setTyping(typing);
+        realtimeChatService.sendTyping(request);
     }
 
     private SendMessageRequest createTextMessage(Long conversationId, String senderId, String content) {
@@ -591,9 +714,11 @@ public class ChatViewModel {
     }
 
     private void sendAiResponse(Long conversationId, String question) {
+        Platform.runLater(() -> aiLoading.set(true));
         CompletableFuture.runAsync(() -> {
             String answer = aiService.callAIAssistant(question);
             realtimeChatService.sendMessage(createTextMessage(conversationId, "AI_ASSISTANT", answer))
+                    .whenComplete((ignored, error) -> Platform.runLater(() -> aiLoading.set(false)))
                     .exceptionally(error -> {
                         Platform.runLater(() -> errorMessage.set(
                                 "Không thể gửi phản hồi AI qua WebSocket: " + rootMessage(error)));
@@ -685,16 +810,7 @@ public class ChatViewModel {
                     ? friend.getFriendUsername() : "Người dùng " + friend.getFriendId();
 
             Platform.runLater(() -> {
-                if (!displayNameToUserId.containsKey(displayName)) {
-                    UserResponse friendUser = new UserResponse();
-                    friendUser.setId(friend.getFriendId());
-                    friendUser.setKeycloakUserId(friend.getFriendId());
-                    friendUser.setUsername(friend.getFriendUsername());
-                    friendUser.setFullName(friend.getFriendUsername());
-                    nameToUserMap.put(displayName, friendUser);
-                    displayNameToUserId.put(displayName, friend.getFriendId());
-                    privateChatList.add(displayName);
-                }
+                addFriendToList(friend, displayName);
             });
 
             notificationMessage.set("Đã thêm bạn: " + displayName);
@@ -837,6 +953,85 @@ public class ChatViewModel {
         }
     }
 
+    public void editMessage(MessageItem item, String content) {
+        if (item == null || item.getResponse() == null) return;
+        CompletableFuture.runAsync(() -> {
+            try {
+                UpdateMessageRequest request = new UpdateMessageRequest();
+                request.setUserId(currentUserId);
+                request.setContent(content);
+                chatService.editMessage(IdUtils.parseLongId(item.getResponse().getId()), request, token);
+            } catch (Exception e) {
+                Platform.runLater(() -> errorMessage.set("Không thể chỉnh sửa tin nhắn: " + e.getMessage()));
+            }
+        });
+    }
+
+    public void toggleStar(MessageItem item) {
+        if (item == null || item.getResponse() == null) return;
+        CompletableFuture.runAsync(() -> {
+            try {
+                chatService.setMessageStarred(IdUtils.parseLongId(item.getResponse().getId()),
+                        !item.isStarred(), token);
+            } catch (Exception e) {
+                Platform.runLater(() -> errorMessage.set("Không thể đánh dấu sao: " + e.getMessage()));
+            }
+        });
+    }
+
+    public void togglePin(MessageItem item) {
+        if (item == null || item.getResponse() == null) return;
+        CompletableFuture.runAsync(() -> {
+            try {
+                chatService.setMessagePinned(IdUtils.parseLongId(item.getResponse().getId()),
+                        !item.isPinned(), token);
+            } catch (Exception e) {
+                Platform.runLater(() -> errorMessage.set("Không thể ghim tin nhắn: " + e.getMessage()));
+            }
+        });
+    }
+
+    public String searchConversationMessages(String query) {
+        ConversationResponse conversation = activeConversation.get();
+        if (conversation == null || query == null || query.isBlank()) return null;
+        try {
+            MessageResponse[] results = chatService.searchMessages(
+                    IdUtils.parseLongId(conversation.getId()), query, token);
+            if (results != null && results.length > 0) {
+                return results[0].getContent();
+            }
+            notificationMessage.set("Không tìm thấy tin nhắn phù hợp.");
+        } catch (Exception e) {
+            errorMessage.set("Không thể tìm kiếm tin nhắn: " + e.getMessage());
+        }
+        return null;
+    }
+
+    public void openPrivateChatForMember(String displayedName) {
+        String memberName = displayedName;
+        if (memberName == null || "Bạn".equals(memberName)) return;
+        memberName = memberName.replace(" (Chủ nhóm)", "").replace(" (Phó nhóm)", "");
+        if (!nameToUserMap.containsKey(memberName)) {
+            String userId = displayNameToUserId.get(memberName);
+            if (userId == null) return;
+        }
+        selectPrivateChat(memberName);
+    }
+
+    private void refreshPinnedMessages() {
+        pinnedMessageList.clear();
+        for (MessageItem item : messages) {
+            if (item.isPinned() && !item.isDeleted() && !item.isDeletedForMe()) {
+                pinnedMessageList.add(pinnedSummary(item.getContent()));
+            }
+        }
+    }
+
+    private String pinnedSummary(String content) {
+        String normalized = content == null ? "" : content.replaceAll("\\s+", " ").trim();
+        return normalized.length() > 55 ? normalized.substring(0, 55) + "..." : normalized;
+    }
+
     public byte[] downloadFile(MessageResponse msg) throws Exception {
         return chatService.downloadMessageFile(IdUtils.parseLongId(msg.getId()), token);
     }
@@ -882,6 +1077,7 @@ public class ChatViewModel {
     public ObservableList<String> getMemberList() { return memberList; }
     public ObservableList<String> getSentFileList() { return sentFileList; }
     public ObservableList<String> getSentLinkList() { return sentLinkList; }
+    public ObservableList<String> getPinnedMessageList() { return pinnedMessageList; }
 
     public StringProperty currentChatNameProperty() { return currentChatName; }
     public BooleanProperty currentChatIsGroupProperty() { return currentChatIsGroup; }
@@ -889,6 +1085,9 @@ public class ChatViewModel {
     public BooleanProperty isLoadingProperty() { return isLoading; }
     public StringProperty errorMessageProperty() { return errorMessage; }
     public StringProperty notificationMessageProperty() { return notificationMessage; }
+    public StringProperty typingTextProperty() { return typingText; }
+    public BooleanProperty aiLoadingProperty() { return aiLoading; }
+    public IntegerProperty conversationVersionProperty() { return conversationVersion; }
 
     public String getCurrentUserId() { return currentUserId; }
     public String getToken() { return token; }
@@ -919,27 +1118,36 @@ public class ChatViewModel {
     public static class MessageItem {
         private final MessageResponse response;
         private final String senderName;
-        private final String content;
+        private final StringProperty content = new SimpleStringProperty();
         private final String time;
         private final boolean isMe;
         private final boolean isFile;
         private final BooleanProperty isDeleted = new SimpleBooleanProperty();
         private final BooleanProperty isDeletedForMe = new SimpleBooleanProperty();
+        private final StringProperty status = new SimpleStringProperty("SENT");
+        private final BooleanProperty starred = new SimpleBooleanProperty();
+        private final BooleanProperty pinned = new SimpleBooleanProperty();
 
         public MessageItem(MessageResponse response, String senderName, String content, String time, boolean isMe, boolean isFile, boolean isDeleted, boolean isDeletedForMe) {
             this.response = response;
             this.senderName = senderName;
-            this.content = content;
+            this.content.set(content);
             this.time = time;
             this.isMe = isMe;
             this.isFile = isFile;
             this.isDeleted.set(isDeleted);
             this.isDeletedForMe.set(isDeletedForMe);
+            if (response != null) {
+                this.status.set(response.getStatus() == null ? "SENT" : response.getStatus());
+                this.starred.set(response.isStarred());
+                this.pinned.set(response.isPinned());
+            }
         }
 
         public MessageResponse getResponse() { return response; }
         public String getSenderName() { return senderName; }
-        public String getContent() { return content; }
+        public String getContent() { return content.get(); }
+        public StringProperty contentProperty() { return content; }
         public String getTime() { return time; }
         public boolean isMe() { return isMe; }
         public boolean isFile() { return isFile; }
@@ -951,5 +1159,26 @@ public class ChatViewModel {
         public boolean isDeletedForMe() { return isDeletedForMe.get(); }
         public void setDeletedForMe(boolean value) { this.isDeletedForMe.set(value); }
         public BooleanProperty isDeletedForMeProperty() { return isDeletedForMe; }
+        public String getStatus() { return status.get(); }
+        public StringProperty statusProperty() { return status; }
+        public boolean isStarred() { return starred.get(); }
+        public BooleanProperty starredProperty() { return starred; }
+        public boolean isPinned() { return pinned.get(); }
+        public BooleanProperty pinnedProperty() { return pinned; }
+
+        public void update(MessageResponse updated) {
+            response.setContent(updated.getContent());
+            response.setDeleted(updated.isDeleted());
+            response.setDeletedForUsers(updated.getDeletedForUsers());
+            response.setStatus(updated.getStatus());
+            response.setStarred(updated.isStarred());
+            response.setPinned(updated.isPinned());
+            response.setEditedAt(updated.getEditedAt());
+            if (!isFile) content.set(updated.getContent());
+            isDeleted.set(updated.isDeleted());
+            status.set(updated.getStatus() == null ? "SENT" : updated.getStatus());
+            starred.set(updated.isStarred());
+            pinned.set(updated.isPinned());
+        }
     }
 }

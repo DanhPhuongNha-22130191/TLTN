@@ -145,19 +145,54 @@
 
             <!-- MESSAGES -->
             <center>
-                <ScrollPane fx:id="messageScrollPane"
-                            fitToWidth="true"
-                            styleClass="message-scroll">
-                    <content>
-                        <VBox fx:id="messageContainer"
-                              spacing="10"
-                              styleClass="message-container">
-                            <padding>
-                                <Insets top="18" right="22" bottom="18" left="22"/>
-                            </padding>
-                        </VBox>
-                    </content>
-                </ScrollPane>
+                <VBox>
+                    <HBox alignment="CENTER_LEFT" spacing="8" styleClass="conversation-search-bar">
+                        <TextField fx:id="messageSearchField"
+                                   promptText="Tìm trong cuộc trò chuyện..."
+                                   onAction="#handleSearchMessages"
+                                   HBox.hgrow="ALWAYS"/>
+                        <Button text="Tìm" onAction="#handleSearchMessages" styleClass="secondary-button"/>
+                    </HBox>
+
+                    <VBox fx:id="pinnedArea" visible="false" managed="false" styleClass="pinned-area">
+                        <Label text="TIN NHẮN ĐÃ GHIM" styleClass="section-label"/>
+                        <ListView fx:id="pinnedMessageList" prefHeight="72" styleClass="panel-list"/>
+                    </VBox>
+
+                    <StackPane VBox.vgrow="ALWAYS">
+                        <ScrollPane fx:id="messageScrollPane"
+                                    fitToWidth="true"
+                                    styleClass="message-scroll">
+                            <content>
+                                <VBox fx:id="messageContainer"
+                                      spacing="10"
+                                      styleClass="message-container">
+                                    <padding>
+                                        <Insets top="18" right="22" bottom="18" left="22"/>
+                                    </padding>
+                                </VBox>
+                            </content>
+                        </ScrollPane>
+                        <Button fx:id="scrollBottomButton"
+                                text="↓"
+                                visible="false"
+                                managed="false"
+                                onAction="#handleScrollToBottom"
+                                StackPane.alignment="BOTTOM_RIGHT"
+                                styleClass="scroll-bottom-button">
+                            <StackPane.margin>
+                                <Insets right="24" bottom="18"/>
+                            </StackPane.margin>
+                        </Button>
+                    </StackPane>
+
+                    <HBox alignment="CENTER_LEFT" spacing="8" styleClass="typing-area">
+                        <ProgressIndicator fx:id="aiProgressIndicator"
+                                           prefWidth="18" prefHeight="18"
+                                           visible="false" managed="false"/>
+                        <Label fx:id="typingLabel" visible="false" managed="false" styleClass="typing-label"/>
+                    </HBox>
+                </VBox>
             </center>
 
             <!-- RIGHT INFO PANEL -->

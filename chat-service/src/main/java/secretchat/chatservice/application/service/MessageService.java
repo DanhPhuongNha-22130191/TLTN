@@ -6,6 +6,7 @@ import secretchat.chatservice.application.port.in.MessageUseCase;
 import secretchat.chatservice.application.port.out.MessageRepositoryPort;
 import secretchat.chatservice.application.usecase.command.SendMessageCommand;
 import secretchat.chatservice.domain.enums.MessageType;
+import secretchat.chatservice.domain.enums.MessageStatus;
 import secretchat.chatservice.domain.model.Message;
 
 import java.time.LocalDateTime;
@@ -32,6 +33,7 @@ public class MessageService implements MessageUseCase {
                 .isDeleted(false)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
+                .status(MessageStatus.SENT)
                 .build();
         return messageRepositoryPort.save(message);
     }
@@ -73,6 +75,10 @@ public class MessageService implements MessageUseCase {
                 .createdAt(message.getCreatedAt())
                 .updatedAt(LocalDateTime.now())
                 .deletedForUsers(message.getDeletedForUsers())
+                .status(message.getStatus())
+                .starred(message.isStarred())
+                .pinned(message.isPinned())
+                .editedAt(message.getEditedAt())
                 .build();
 
         return messageRepositoryPort.save(updatedMessage);
@@ -104,8 +110,95 @@ public class MessageService implements MessageUseCase {
                 .createdAt(message.getCreatedAt())
                 .updatedAt(LocalDateTime.now())
                 .deletedForUsers(currentDeletedFor)
+                .status(message.getStatus())
+                .starred(message.isStarred())
+                .pinned(message.isPinned())
+                .editedAt(message.getEditedAt())
                 .build();
 
         messageRepositoryPort.save(updatedMessage);
+    }
+
+    @Override
+    public Message editMessage(Long messageId, String userId, String content) {
+        Message message = messageRepositoryPort.findById(messageId);
+        if (!message.getSenderId().equals(userId)) {
+            throw new secretchat.chatservice.application.exception.BusinessException(
+                    "You can only edit your own messages");
+        }
+        if (message.isDeleted() || message.getMessageType() != MessageType.TEXT) {
+            throw new secretchat.chatservice.application.exception.BusinessException(
+                    "Only active text messages can be edited");
+        }
+        if (content == null || content.isBlank()) {
+            throw new secretchat.chatservice.application.exception.BusinessException(
+                    "Message content is required");
+        }
+        return messageRepositoryPort.save(copy(message)
+                .content(content.trim())
+                .updatedAt(LocalDateTime.now())
+                .editedAt(LocalDateTime.now())
+                .build());
+    }
+
+    @Override
+    public Message setStarred(Long messageId, boolean starred) {
+        Message message = messageRepositoryPort.findById(messageId);
+        return messageRepositoryPort.save(copy(message).starred(starred).updatedAt(LocalDateTime.now()).build());
+    }
+
+    @Override
+    public Message setPinned(Long messageId, boolean pinned) {
+        Message message = messageRepositoryPort.findById(messageId);
+        return messageRepositoryPort.save(copy(message).pinned(pinned).updatedAt(LocalDateTime.now()).build());
+    }
+
+    @Override
+    public Message updateStatus(Long messageId, String userId, MessageStatus status) {
+        Message message = messageRepositoryPort.findById(messageId);
+        if (message.getSenderId().equals(userId)) {
+            return message;
+        }
+        if (status.ordinal() <= message.getStatus().ordinal()) {
+            return message;
+        }
+        return messageRepositoryPort.save(copy(message).status(status).updatedAt(LocalDateTime.now()).build());
+    }
+
+    @Override
+    public List<Message> getPinnedMessages(Long conversationId) {
+        return messageRepositoryPort.findPinnedByConversationId(conversationId);
+    }
+
+    @Override
+    public List<Message> searchMessages(Long conversationId, String query) {
+        if (query == null || query.isBlank()) {
+            return List.of();
+        }
+        return messageRepositoryPort.searchByConversationId(conversationId, query.trim());
+    }
+
+    private Message.Builder copy(Message message) {
+        return Message.builder()
+                .id(message.getId())
+                .conversationId(message.getConversationId())
+                .senderId(message.getSenderId())
+                .content(message.getContent())
+                .fileUrl(message.getFileUrl())
+                .fileName(message.getFileName())
+                .fileSize(message.getFileSize())
+                .fileType(message.getFileType())
+                .messageType(message.getMessageType())
+                .replyToId(message.getReplyToId())
+                .isDeleted(message.isDeleted())
+                .deletedAt(message.getDeletedAt())
+                .deletedBy(message.getDeletedBy())
+                .createdAt(message.getCreatedAt())
+                .updatedAt(message.getUpdatedAt())
+                .deletedForUsers(message.getDeletedForUsers())
+                .status(message.getStatus())
+                .starred(message.isStarred())
+                .pinned(message.isPinned())
+                .editedAt(message.getEditedAt());
     }
 }

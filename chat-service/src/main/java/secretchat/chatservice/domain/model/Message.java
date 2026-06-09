@@ -2,6 +2,7 @@ package secretchat.chatservice.domain.model;
 
 
 import secretchat.chatservice.domain.enums.MessageType;
+import secretchat.chatservice.domain.enums.MessageStatus;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -27,6 +28,10 @@ public class Message {
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
     private final String deletedForUsers;
+    private final MessageStatus status;
+    private final boolean starred;
+    private final boolean pinned;
+    private final LocalDateTime editedAt;
 
     // Private constructor - bắt buộc dùng Builder
     private Message(Builder builder) {
@@ -46,6 +51,10 @@ public class Message {
         this.createdAt = builder.createdAt;
         this.updatedAt = builder.updatedAt;
         this.deletedForUsers = builder.deletedForUsers;
+        this.status = builder.status;
+        this.starred = builder.starred;
+        this.pinned = builder.pinned;
+        this.editedAt = builder.editedAt;
     }
 
     // Getters (không có setters - immutable)
@@ -65,6 +74,10 @@ public class Message {
     public LocalDateTime getCreatedAt() { return createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public String getDeletedForUsers() { return deletedForUsers; }
+    public MessageStatus getStatus() { return status; }
+    public boolean isStarred() { return starred; }
+    public boolean isPinned() { return pinned; }
+    public LocalDateTime getEditedAt() { return editedAt; }
 
     // Business methods
     public boolean hasContent() {
@@ -147,6 +160,10 @@ public class Message {
         private LocalDateTime createdAt;
         private LocalDateTime updatedAt;
         private String deletedForUsers;
+        private MessageStatus status = MessageStatus.SENT;
+        private boolean starred;
+        private boolean pinned;
+        private LocalDateTime editedAt;
 
         public Builder id(Long id) {
             this.id = id;
@@ -225,6 +242,26 @@ public class Message {
 
         public Builder deletedForUsers(String deletedForUsers) {
             this.deletedForUsers = deletedForUsers;
+            return this;
+        }
+
+        public Builder status(MessageStatus status) {
+            this.status = status;
+            return this;
+        }
+
+        public Builder starred(boolean starred) {
+            this.starred = starred;
+            return this;
+        }
+
+        public Builder pinned(boolean pinned) {
+            this.pinned = pinned;
+            return this;
+        }
+
+        public Builder editedAt(LocalDateTime editedAt) {
+            this.editedAt = editedAt;
             return this;
         }
 

@@ -38,4 +38,19 @@ public class MessageRepositoryAdapter implements MessageRepositoryPort {
                 .map(messageMapper::toDomain)
                 .orElseThrow(() -> new secretchat.chatservice.application.exception.BusinessException("Message not found"));
     }
+
+    @Override
+    public List<Message> findPinnedByConversationId(Long conversationId) {
+        return messageRepository
+                .findByConversationIdAndPinnedTrueAndIsDeletedFalseOrderByCreatedAtAsc(conversationId)
+                .stream().map(messageMapper::toDomain).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Message> searchByConversationId(Long conversationId, String query) {
+        return messageRepository
+                .findByConversationIdAndContentContainingIgnoreCaseAndIsDeletedFalseOrderByCreatedAtAsc(
+                        conversationId, query)
+                .stream().map(messageMapper::toDomain).collect(Collectors.toList());
+    }
 }

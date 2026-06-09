@@ -64,4 +64,19 @@ public class MessageEntity {
 
     @Column(name = "deleted_for_users")
     private String deletedForUsers;
+
+    @Builder.Default
+    @Column(name = "status", nullable = false, columnDefinition = "varchar(255) default 'SENT'")
+    private String status = "SENT";
+
+    @Builder.Default
+    @Column(name = "is_starred", nullable = false, columnDefinition = "boolean default false")
+    private boolean starred = false;
+
+    @Builder.Default
+    @Column(name = "is_pinned", nullable = false, columnDefinition = "boolean default false")
+    private boolean pinned = false;
+
+    @Column(name = "edited_at")
+    private LocalDateTime editedAt;
 }

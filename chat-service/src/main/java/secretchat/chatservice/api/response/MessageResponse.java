@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import secretchat.chatservice.domain.enums.MessageType;
+import secretchat.chatservice.domain.enums.MessageStatus;
 
 import java.time.LocalDateTime;
 
@@ -29,4 +30,8 @@ public class MessageResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private String deletedForUsers;
+    private MessageStatus status;
+    private boolean starred;
+    private boolean pinned;
+    private LocalDateTime editedAt;
 }

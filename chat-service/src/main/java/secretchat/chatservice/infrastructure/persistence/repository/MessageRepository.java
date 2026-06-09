@@ -19,4 +19,9 @@ public interface MessageRepository extends JpaRepository<MessageEntity, Long> {
     List<MessageEntity> findByConversationIdOrderByCreatedAtAsc(Long conversationId);
 
     boolean existsByIdAndIsDeletedFalse(Long id);
+
+    List<MessageEntity> findByConversationIdAndPinnedTrueAndIsDeletedFalseOrderByCreatedAtAsc(Long conversationId);
+
+    List<MessageEntity> findByConversationIdAndContentContainingIgnoreCaseAndIsDeletedFalseOrderByCreatedAtAsc(
+            Long conversationId, String content);
 }

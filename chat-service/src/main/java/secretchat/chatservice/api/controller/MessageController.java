@@ -6,10 +6,13 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import secretchat.chatservice.api.mapper.MessageApiMapper;
+import secretchat.chatservice.api.request.MessageStatusRequest;
 import secretchat.chatservice.api.request.SendMessageRequest;
+import secretchat.chatservice.api.request.UpdateMessageRequest;
 import secretchat.chatservice.api.response.MessageResponse;
 import secretchat.chatservice.application.port.in.MessageUseCase;
 import secretchat.chatservice.domain.model.Message;
+import secretchat.chatservice.api.realtime.MessageRealtimePublisher;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -25,16 +28,21 @@ public class MessageController {
     private static final Path UPLOAD_DIR = Paths.get("uploads").toAbsolutePath().normalize();
 
     private final MessageUseCase messageUseCase;
+    private final MessageRealtimePublisher realtimePublisher;
 
     @PostMapping
     public ResponseEntity<MessageResponse> sendMessage(@Valid @RequestBody SendMessageRequest request) {
         Message message = messageUseCase.sendMessage(MessageApiMapper.toCommand(request));
-        return ResponseEntity.ok(MessageApiMapper.toResponse(message));
+        return ResponseEntity.ok(publish(message));
     }
 
     @PostMapping("/upload")
     public ResponseEntity<String> uploadFile(@RequestParam("file") org.springframework.web.multipart.MultipartFile file) {
         try {
+            if (file.getSize() > 104857600L) {
+                return ResponseEntity.badRequest().body(
+                        "{\"error\":\"Kích thước file không được vượt quá 100 MB\"}");
+            }
             if (!Files.exists(UPLOAD_DIR)) {
                 Files.createDirectories(UPLOAD_DIR);
             }
@@ -67,13 +75,53 @@ public class MessageController {
     @PutMapping("/{id}/recall")
     public ResponseEntity<MessageResponse> recallMessage(@PathVariable Long id, @RequestParam String userId) {
         Message message = messageUseCase.recallMessage(id, userId);
-        return ResponseEntity.ok(MessageApiMapper.toResponse(message));
+        return ResponseEntity.ok(publish(message));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteMessageForUser(@PathVariable Long id, @RequestParam String userId) {
         messageUseCase.deleteMessageForUser(id, userId);
+        publish(messageUseCase.getMessage(id));
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<MessageResponse> editMessage(
+            @PathVariable Long id, @Valid @RequestBody UpdateMessageRequest request) {
+        return ResponseEntity.ok(publish(
+                messageUseCase.editMessage(id, request.getUserId(), request.getContent())));
+    }
+
+    @PutMapping("/{id}/star")
+    public ResponseEntity<MessageResponse> setStarred(
+            @PathVariable Long id, @RequestParam boolean value) {
+        return ResponseEntity.ok(publish(messageUseCase.setStarred(id, value)));
+    }
+
+    @PutMapping("/{id}/pin")
+    public ResponseEntity<MessageResponse> setPinned(
+            @PathVariable Long id, @RequestParam boolean value) {
+        return ResponseEntity.ok(publish(messageUseCase.setPinned(id, value)));
+    }
+
+    @PutMapping("/{id}/status")
+    public ResponseEntity<MessageResponse> updateStatus(
+            @PathVariable Long id, @Valid @RequestBody MessageStatusRequest request) {
+        return ResponseEntity.ok(publish(
+                messageUseCase.updateStatus(id, request.getUserId(), request.getStatus())));
+    }
+
+    @GetMapping("/pinned/{conversationId}")
+    public ResponseEntity<List<MessageResponse>> getPinnedMessages(@PathVariable Long conversationId) {
+        return ResponseEntity.ok(messageUseCase.getPinnedMessages(conversationId).stream()
+                .map(MessageApiMapper::toResponse).collect(Collectors.toList()));
+    }
+
+    @GetMapping("/search/{conversationId}")
+    public ResponseEntity<List<MessageResponse>> searchMessages(
+            @PathVariable Long conversationId, @RequestParam String query) {
+        return ResponseEntity.ok(messageUseCase.searchMessages(conversationId, query).stream()
+                .map(MessageApiMapper::toResponse).collect(Collectors.toList()));
     }
 
     @GetMapping("/{id}/download")
@@ -146,5 +194,9 @@ public class MessageController {
             // ignore invalid path and fallback
         }
         return null;
+    }
+
+    private MessageResponse publish(Message message) {
+        return realtimePublisher.publish(message);
     }
 }

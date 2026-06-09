@@ -48,6 +48,10 @@ public final class MessageApiMapper {
                 .createdAt(message.getCreatedAt())
                 .updatedAt(message.getUpdatedAt())
                 .deletedForUsers(message.getDeletedForUsers())
+                .status(message.getStatus())
+                .starred(message.isStarred())
+                .pinned(message.isPinned())
+                .editedAt(message.getEditedAt())
                 .build();
     }
 }

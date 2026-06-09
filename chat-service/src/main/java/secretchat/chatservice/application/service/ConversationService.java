@@ -73,6 +73,7 @@ public class ConversationService implements ConversationUseCase {
         Conversation updatedConversation = Conversation.builder()
                 .id(conversation.getId())
                 .type(conversation.getType())
+                .senderId(conversation.getSenderId())
                 .receiverId(conversation.getReceiverId())
                 .groupId(conversation.getGroupId())
                 .lastMessageId(conversation.getLastMessageId())

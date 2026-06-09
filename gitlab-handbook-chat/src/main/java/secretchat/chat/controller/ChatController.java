@@ -13,6 +13,10 @@ import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.animation.PauseTransition;
+import javafx.animation.Timeline;
+import javafx.animation.KeyFrame;
+import javafx.util.Duration;
 import org.kordamp.ikonli.javafx.FontIcon;
 import secretchat.chat.viewmodel.ChatViewModel;
 import secretchat.chat.viewmodel.MainViewModel;
@@ -42,10 +46,19 @@ public class ChatController extends BaseChatController {
     @FXML private ListView<String> sentLinkList;
     @FXML private Button addMemberButton;
     @FXML private Button leaveGroupButton;
+    @FXML private TextField messageSearchField;
+    @FXML private ListView<String> pinnedMessageList;
+    @FXML private VBox pinnedArea;
+    @FXML private Label typingLabel;
+    @FXML private ProgressIndicator aiProgressIndicator;
+    @FXML private Button scrollBottomButton;
 
     private static final System.Logger LOGGER = System.getLogger(ChatController.class.getName());
     private ChatViewModel viewModel;
     private File selectedFile;
+    private final PauseTransition typingPause = new PauseTransition(Duration.millis(900));
+    private final Timeline typingAnimation = new Timeline();
+    private String typingBaseText = "Đang nhập";
 
     @FXML
     public void initialize() {
@@ -57,6 +70,29 @@ public class ChatController extends BaseChatController {
         memberList.setItems(viewModel.getMemberList());
         sentFileList.setItems(viewModel.getSentFileList());
         sentLinkList.setItems(viewModel.getSentLinkList());
+        pinnedMessageList.setItems(viewModel.getPinnedMessageList());
+        pinnedArea.visibleProperty().bind(javafx.beans.binding.Bindings.isNotEmpty(viewModel.getPinnedMessageList()));
+        pinnedArea.managedProperty().bind(pinnedArea.visibleProperty());
+        typingLabel.textProperty().bind(viewModel.typingTextProperty());
+        typingLabel.visibleProperty().bind(viewModel.typingTextProperty().isNotNull());
+        typingLabel.managedProperty().bind(typingLabel.visibleProperty());
+        aiProgressIndicator.visibleProperty().bind(viewModel.aiLoadingProperty());
+        aiProgressIndicator.managedProperty().bind(aiProgressIndicator.visibleProperty());
+        typingLabel.textProperty().unbind();
+        typingAnimation.setCycleCount(Timeline.INDEFINITE);
+        typingAnimation.getKeyFrames().setAll(
+                new KeyFrame(Duration.ZERO, event -> typingLabel.setText(typingBaseText + ".")),
+                new KeyFrame(Duration.millis(300), event -> typingLabel.setText(typingBaseText + "..")),
+                new KeyFrame(Duration.millis(600), event -> typingLabel.setText(typingBaseText + "...")));
+        viewModel.typingTextProperty().addListener((obs, oldValue, newValue) -> {
+            if (newValue == null || newValue.isBlank()) {
+                typingAnimation.stop();
+                typingLabel.setText("");
+            } else {
+                typingBaseText = newValue.replace("...", "");
+                typingAnimation.playFromStart();
+            }
+        });
 
         // Listen for messages updates
         viewModel.getMessages().addListener((ListChangeListener<ChatViewModel.MessageItem>) change -> {
@@ -96,8 +132,26 @@ public class ChatController extends BaseChatController {
         setupCellFactories();
 
         // Auto scroll to bottom
-        messageContainer.heightProperty().addListener((obs, oldVal, newVal) -> {
-            messageScrollPane.setVvalue(1.0);
+        messageScrollPane.vvalueProperty().addListener((obs, oldVal, newVal) -> {
+            boolean awayFromBottom = newVal.doubleValue() < 0.97;
+            scrollBottomButton.setVisible(awayFromBottom);
+            scrollBottomButton.setManaged(awayFromBottom);
+        });
+        viewModel.conversationVersionProperty().addListener((obs, oldVal, newVal) -> {
+            privateChatList.refresh();
+            groupChatList.refresh();
+        });
+
+        messageInput.textProperty().addListener((obs, oldText, newText) -> {
+            viewModel.sendTyping(newText != null && !newText.isBlank());
+            typingPause.stop();
+            typingPause.setOnFinished(event -> viewModel.sendTyping(false));
+            typingPause.playFromStart();
+        });
+
+        pinnedMessageList.setOnMouseClicked(event -> {
+            String selected = pinnedMessageList.getSelectionModel().getSelectedItem();
+            if (selected != null) scrollToMessage(selected.replace("...", ""));
         });
 
         chatTabPane.getSelectionModel().selectedItemProperty().addListener((obs, oldTab, newTab) -> {
@@ -171,6 +225,18 @@ public class ChatController extends BaseChatController {
                         }
                     } else {
                         cell.setContextMenu(null);
+                    }
+                }
+            });
+            cell.setOnMouseClicked(event -> {
+                if (!cell.isEmpty() && event.getButton() == javafx.scene.input.MouseButton.PRIMARY) {
+                    String memberName = extractMemberName(cell.getItem());
+                    if (!"Bạn".equals(memberName)) {
+                        chatTabPane.getSelectionModel().select(0);
+                        chatTitleLabel.setText(memberName);
+                        chatStatusLabel.setText("Chat cá nhân");
+                        viewModel.openPrivateChatForMember(memberName);
+                        privateChatList.getSelectionModel().select(memberName);
                     }
                 }
             });
@@ -331,9 +397,21 @@ public class ChatController extends BaseChatController {
     private void handleSendMessage() {
         String text = messageInput.getText();
         viewModel.sendMessage(text, selectedFile);
+        viewModel.sendTyping(false);
         
         messageInput.clear();
         clearSelectedFile();
+    }
+
+    @FXML
+    private void handleSearchMessages() {
+        String content = viewModel.searchConversationMessages(messageSearchField.getText());
+        if (content != null) scrollToMessage(content);
+    }
+
+    @FXML
+    private void handleScrollToBottom() {
+        scrollToBottom();
     }
 
     @FXML
@@ -341,7 +419,7 @@ public class ChatController extends BaseChatController {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Chọn file");
         selectedFile = fileChooser.showOpenDialog(messageInput.getScene().getWindow());
-        if (selectedFile != null) showSelectedFile(selectedFile);
+        validateAndShowSelectedFile();
     }
 
     @FXML
@@ -352,7 +430,18 @@ public class ChatController extends BaseChatController {
                 new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.gif")
         );
         selectedFile = fileChooser.showOpenDialog(messageInput.getScene().getWindow());
-        if (selectedFile != null) showSelectedFile(selectedFile);
+        validateAndShowSelectedFile();
+    }
+
+    private void validateAndShowSelectedFile() {
+        if (selectedFile == null) return;
+        if (selectedFile.length() > 104857600L) {
+            showAlert("Lỗi", "Kích thước file không được vượt quá 100 MB.");
+            selectedFile = null;
+            clearSelectedFile();
+            return;
+        }
+        showSelectedFile(selectedFile);
     }
 
     @FXML
@@ -563,6 +652,7 @@ public class ChatController extends BaseChatController {
                 bubble.getStyleClass().addAll("chat-message-bubble", item.isMe() ? "my-message" : "other-message");
             }
             contentNode = bubble;
+            item.contentProperty().addListener((obs, oldText, newText) -> bubble.setText(newText));
         }
 
         // Apply delete/recall styling initially
@@ -579,7 +669,12 @@ public class ChatController extends BaseChatController {
                 contentNode = fallback;
             }
         } else {
-            attachContextMenu(contentNode, item, wrapper);
+            ContextMenu messageMenu = attachContextMenu(contentNode, item, wrapper);
+            Button moreButton = new Button("⋮");
+            moreButton.getStyleClass().add("message-more-button");
+            moreButton.setOnAction(event -> messageMenu.show(
+                    moreButton, javafx.geometry.Side.BOTTOM, 0, 0));
+            box.getChildren().add(moreButton);
         }
 
         // Listen for future deletes/recalls
@@ -615,12 +710,32 @@ public class ChatController extends BaseChatController {
         timeLabel.setStyle("-fx-font-size: 10px; -fx-text-fill: #9ca3af;");
         box.getChildren().add(timeLabel);
 
+        if (item.isMe()) {
+            Label statusLabel = new Label();
+            statusLabel.getStyleClass().add("message-status");
+            Runnable refreshStatus = () -> {
+                String text = switch (item.getStatus()) {
+                    case "SEEN" -> "Đã xem";
+                    case "DELIVERED" -> "Đã nhận";
+                    default -> "Đã gửi";
+                };
+                if (item.isStarred()) text += "  ★";
+                if (item.isPinned()) text += "  📌";
+                statusLabel.setText(text);
+            };
+            item.statusProperty().addListener((obs, oldValue, newValue) -> refreshStatus.run());
+            item.starredProperty().addListener((obs, oldValue, newValue) -> refreshStatus.run());
+            item.pinnedProperty().addListener((obs, oldValue, newValue) -> refreshStatus.run());
+            refreshStatus.run();
+            box.getChildren().add(statusLabel);
+        }
+
         wrapper.getChildren().add(box);
         messageContainer.getChildren().add(wrapper);
         scrollToBottom();
     }
 
-    private void attachContextMenu(javafx.scene.Node node, ChatViewModel.MessageItem item, HBox wrapper) {
+    private ContextMenu attachContextMenu(javafx.scene.Node node, ChatViewModel.MessageItem item, HBox wrapper) {
         ContextMenu contextMenu = new ContextMenu();
         
         if (node instanceof Label && !item.isFile()) {
@@ -638,6 +753,27 @@ public class ChatController extends BaseChatController {
         }
 
         if (item.getResponse() != null && item.getResponse().getId() != null) {
+            if (item.isMe() && !item.isFile()) {
+                MenuItem editItem = new MenuItem("Chỉnh sửa");
+                editItem.setOnAction(e -> {
+                    TextInputDialog dialog = new TextInputDialog(item.getContent());
+                    dialog.setTitle("Chỉnh sửa tin nhắn");
+                    dialog.setHeaderText(null);
+                    dialog.setContentText("Nội dung:");
+                    dialog.showAndWait().filter(text -> !text.isBlank())
+                            .ifPresent(text -> viewModel.editMessage(item, text));
+                });
+                contextMenu.getItems().add(editItem);
+            }
+
+            MenuItem starItem = new MenuItem(item.isStarred() ? "Bỏ đánh dấu sao" : "Đánh dấu sao");
+            starItem.setOnAction(e -> viewModel.toggleStar(item));
+            contextMenu.getItems().add(starItem);
+
+            MenuItem pinItem = new MenuItem(item.isPinned() ? "Bỏ ghim" : "Ghim tin nhắn");
+            pinItem.setOnAction(e -> viewModel.togglePin(item));
+            contextMenu.getItems().add(pinItem);
+
             MenuItem deleteItem = new MenuItem("Xóa");
             deleteItem.setOnAction(e -> {
                 try {
@@ -692,6 +828,7 @@ public class ChatController extends BaseChatController {
                 contextMenu.show(node, e.getScreenX(), e.getScreenY());
             });
         }
+        return contextMenu;
     }
 
     private void attachFileClickHandler(javafx.scene.Node node, ChatViewModel.MessageItem item) {

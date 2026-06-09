@@ -445,6 +445,54 @@
 .upload-button .btn-icon { -fx-icon-color: #6366f1; }
 .upload-button:hover { -fx-background-color: #eef0ff; -fx-border-color: #c7d2fe; }
 
+.conversation-search-bar {
+    -fx-padding: 8 18;
+    -fx-background-color: #f8f9ff;
+    -fx-border-color: transparent transparent #e5e7eb transparent;
+}
+
+.pinned-area {
+    -fx-padding: 8 18;
+    -fx-background-color: #fffbea;
+    -fx-border-color: transparent transparent #fde68a transparent;
+}
+
+.typing-area {
+    -fx-padding: 5 22;
+    -fx-min-height: 28;
+}
+
+.typing-label {
+    -fx-text-fill: #6b7280;
+    -fx-font-style: italic;
+}
+
+.scroll-bottom-button {
+    -fx-background-color: #6366f1;
+    -fx-text-fill: white;
+    -fx-background-radius: 24;
+    -fx-min-width: 42;
+    -fx-min-height: 42;
+    -fx-font-size: 20;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.22), 10, 0.2, 0, 3);
+}
+
+.message-more-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #9ca3af;
+    -fx-padding: 0 5;
+    -fx-font-size: 17;
+}
+
+.message-more-button:hover {
+    -fx-background-color: #eef0ff;
+}
+
+.message-status {
+    -fx-font-size: 10px;
+    -fx-text-fill: #7c83a1;
+}
+
 /* Icon-only */
 .icon-only-button {
     -fx-background-color: transparent;

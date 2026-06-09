@@ -17,6 +17,10 @@ public class MessageResponse {
     private boolean isDeleted;
     private String createdAt;
     private String deletedForUsers;
+    private String status;
+    private boolean starred;
+    private boolean pinned;
+    private String editedAt;
 
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
@@ -56,4 +60,12 @@ public class MessageResponse {
 
     public String getDeletedForUsers() { return deletedForUsers; }
     public void setDeletedForUsers(String deletedForUsers) { this.deletedForUsers = deletedForUsers; }
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
+    public boolean isStarred() { return starred; }
+    public void setStarred(boolean starred) { this.starred = starred; }
+    public boolean isPinned() { return pinned; }
+    public void setPinned(boolean pinned) { this.pinned = pinned; }
+    public String getEditedAt() { return editedAt; }
+    public void setEditedAt(String editedAt) { this.editedAt = editedAt; }
 }

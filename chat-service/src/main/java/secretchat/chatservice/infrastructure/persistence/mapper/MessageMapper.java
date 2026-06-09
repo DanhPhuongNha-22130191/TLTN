@@ -27,6 +27,10 @@ public class MessageMapper {
                 .createdAt(domain.getCreatedAt())
                 .updatedAt(domain.getUpdatedAt())
                 .deletedForUsers(domain.getDeletedForUsers())
+                .status(domain.getStatus().name())
+                .starred(domain.isStarred())
+                .pinned(domain.isPinned())
+                .editedAt(domain.getEditedAt())
                 .build();
     }
 
@@ -48,6 +52,12 @@ public class MessageMapper {
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .deletedForUsers(entity.getDeletedForUsers())
+                .status(entity.getStatus() == null
+                        ? secretchat.chatservice.domain.enums.MessageStatus.SENT
+                        : secretchat.chatservice.domain.enums.MessageStatus.valueOf(entity.getStatus()))
+                .starred(entity.isStarred())
+                .pinned(entity.isPinned())
+                .editedAt(entity.getEditedAt())
                 .build();
     }
 }
