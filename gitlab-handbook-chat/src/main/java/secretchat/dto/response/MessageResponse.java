@@ -16,6 +16,7 @@ public class MessageResponse {
     private String replyToId;
     private boolean isDeleted;
     private String createdAt;
+    private String updatedAt;
     private String deletedForUsers;
     private String status;
     private boolean starred;
@@ -57,6 +58,8 @@ public class MessageResponse {
 
     public String getCreatedAt() { return createdAt; }
     public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
+    public String getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(String updatedAt) { this.updatedAt = updatedAt; }
 
     public String getDeletedForUsers() { return deletedForUsers; }
     public void setDeletedForUsers(String deletedForUsers) { this.deletedForUsers = deletedForUsers; }

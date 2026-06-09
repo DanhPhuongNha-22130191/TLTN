@@ -17,5 +17,6 @@ public interface MessageUseCase {
     Message setPinned(Long messageId, boolean pinned);
     Message updateStatus(Long messageId, String userId, MessageStatus status);
     List<Message> getPinnedMessages(Long conversationId);
+    List<Message> getMessagesAround(Long messageId, int limit);
     List<Message> searchMessages(Long conversationId, String query);
 }

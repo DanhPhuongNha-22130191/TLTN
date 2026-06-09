@@ -214,6 +214,15 @@ public class ChatService {
         }
     }
 
+    public MessageResponse[] getMessagesAround(Long messageId, int limit, String token) throws Exception {
+        try {
+            return apiClient.get("/api/messages/" + messageId + "/around?limit=" + limit,
+                    token, MessageResponse[].class);
+        } catch (Exception e) {
+            throw GlobalExceptionHandler.handle(e);
+        }
+    }
+
     public MessageResponse[] searchMessages(Long conversationId, String query, String token) throws Exception {
         try {
             return apiClient.get("/api/messages/search/" + conversationId + "?query="

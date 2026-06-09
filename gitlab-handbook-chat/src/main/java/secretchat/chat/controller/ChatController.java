@@ -47,6 +47,10 @@ public class ChatController extends BaseChatController {
     @FXML private TextField messageSearchField;
     @FXML private ListView<ChatViewModel.PinnedMessageItem> pinnedMessageList;
     @FXML private VBox pinnedArea;
+    @FXML private StackPane pinnedContent;
+    @FXML private Label pinnedTitleLabel;
+    @FXML private Label pinnedEmptyLabel;
+    @FXML private Button pinnedCollapseButton;
     @FXML private Label typingLabel;
     @FXML private ProgressIndicator aiProgressIndicator;
     @FXML private Button scrollBottomButton;
@@ -61,6 +65,7 @@ public class ChatController extends BaseChatController {
     private String typingBaseText = "Đang nhập";
     private final DesktopNotificationService desktopNotifications = new DesktopNotificationService();
     private Popup activeToast;
+    private boolean pinnedCollapsed;
 
     @FXML
     public void initialize() {
@@ -70,8 +75,9 @@ public class ChatController extends BaseChatController {
         privateChatList.setItems(viewModel.getPrivateChatList());
         groupChatList.setItems(viewModel.getGroupChatList());
         pinnedMessageList.setItems(viewModel.getPinnedMessageList());
-        pinnedArea.visibleProperty().bind(javafx.beans.binding.Bindings.isNotEmpty(viewModel.getPinnedMessageList()));
-        pinnedArea.managedProperty().bind(pinnedArea.visibleProperty());
+        updatePinnedPanel();
+        viewModel.getPinnedMessageList().addListener(
+                (ListChangeListener<ChatViewModel.PinnedMessageItem>) change -> updatePinnedPanel());
         typingLabel.textProperty().bind(viewModel.typingTextProperty());
         typingLabel.visibleProperty().bind(viewModel.typingTextProperty().isNotNull());
         typingLabel.managedProperty().bind(typingLabel.visibleProperty());
@@ -96,18 +102,22 @@ public class ChatController extends BaseChatController {
         // Listen for messages updates
         viewModel.getMessages().addListener((ListChangeListener<ChatViewModel.MessageItem>) change -> {
             boolean added = false;
+            boolean rebuild = false;
             while (change.next()) {
+                if (change.wasRemoved() || change.wasReplaced() || change.wasPermutated()) {
+                    rebuild = true;
+                }
                 if (change.wasAdded()) {
                     added = true;
-                    for (ChatViewModel.MessageItem item : change.getAddedSubList()) {
-                        renderMessageItem(item);
+                    if (!rebuild) {
+                        for (ChatViewModel.MessageItem item : change.getAddedSubList()) {
+                            renderMessageItem(item);
+                        }
                     }
                 }
-                if (change.wasRemoved() && change.getRemovedSize() > 0) {
-                    if (viewModel.getMessages().isEmpty()) {
-                        messageContainer.getChildren().clear();
-                    }
-                }
+            }
+            if (rebuild) {
+                renderAllMessages();
             }
             if (added) {
                 scrollToBottomAfterLayout();
@@ -120,6 +130,7 @@ public class ChatController extends BaseChatController {
         viewModel.activeConversationProperty().addListener((obs, oldVal, newVal) ->
         {
             updateRightPanel(viewModel.currentChatIsGroupProperty().get());
+            updatePinnedPanel();
             searchResultLabel.setVisible(false);
             searchResultLabel.setManaged(false);
         });
@@ -165,16 +176,12 @@ public class ChatController extends BaseChatController {
 
         chatTabPane.getSelectionModel().selectedItemProperty().addListener((obs, oldTab, newTab) -> {
             boolean isGroupTab = newTab != null && "Nhóm".equals(newTab.getText());
-            // Clear UI if switching tabs and no conversation selected on new tab
-            if (isGroupTab) {
-                String selectedGroup = groupChatList.getSelectionModel().getSelectedItem();
-                if (selectedGroup == null) {
-                    clearConversationUI();
-                }
-            } else {
-                String selectedUser = privateChatList.getSelectionModel().getSelectedItem();
-                if (selectedUser == null) {
-                    clearConversationUI();
+            if (oldTab != null && oldTab != newTab) {
+                clearConversationUI();
+                if (isGroupTab) {
+                    groupChatList.getSelectionModel().clearSelection();
+                } else {
+                    privateChatList.getSelectionModel().clearSelection();
                 }
             }
             updateRightPanel(isGroupTab);
@@ -291,8 +298,9 @@ public class ChatController extends BaseChatController {
                     setGraphic(null);
                     return;
                 }
-                Label content = new Label(item.content());
-                content.setMaxWidth(430);
+                StackPane typeIcon = createPinnedTypeIcon(item.type());
+                Label content = new Label(item.preview());
+                content.setMaxWidth(520);
                 content.setTextOverrun(OverrunStyle.ELLIPSIS);
                 content.getStyleClass().add("pinned-message-content");
 
@@ -303,18 +311,75 @@ public class ChatController extends BaseChatController {
 
                 VBox text = new VBox(2, content, meta);
                 HBox.setHgrow(text, Priority.ALWAYS);
-                Button unpin = new Button("Bỏ ghim");
-                unpin.getStyleClass().add("pinned-unpin-button");
-                unpin.setOnAction(event -> {
-                    viewModel.unpinMessage(item);
+                Button more = new Button();
+                more.setGraphic(new FontIcon("fa-ellipsis-h"));
+                more.getStyleClass().add("pinned-more-button");
+                ContextMenu menu = new ContextMenu();
+                MenuItem goTo = new MenuItem("Đi tới tin nhắn gốc");
+                goTo.setOnAction(event -> goToPinnedMessage(item));
+                MenuItem unpin = new MenuItem("Bỏ ghim");
+                unpin.setOnAction(event -> viewModel.unpinMessage(item));
+                menu.getItems().addAll(goTo, unpin);
+                more.setOnAction(event -> {
+                    menu.show(more, javafx.geometry.Side.BOTTOM, 0, 0);
                     event.consume();
                 });
-                HBox row = new HBox(10, text, unpin);
+                HBox row = new HBox(10, typeIcon, text, more);
+                row.getStyleClass().add("pinned-message-row");
                 row.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
-                row.setOnMouseClicked(event -> scrollToMessage(item.message()));
                 setGraphic(row);
             }
         });
+    }
+
+    private StackPane createPinnedTypeIcon(String type) {
+        String literal = switch (type) {
+            case "IMAGE" -> "fa-picture-o";
+            case "FILE", "VIDEO" -> "fa-file-o";
+            case "LINK" -> "fa-link";
+            default -> "fa-comment-o";
+        };
+        FontIcon icon = new FontIcon(literal);
+        icon.getStyleClass().add("pinned-type-icon");
+        StackPane wrapper = new StackPane(icon);
+        wrapper.getStyleClass().add("pinned-type-icon-wrap");
+        return wrapper;
+    }
+
+    private void goToPinnedMessage(ChatViewModel.PinnedMessageItem pinned) {
+        viewModel.ensureMessageLoaded(pinned.messageId())
+                .thenAccept(item -> {
+                    if (item != null) Platform.runLater(() -> scrollToMessage(item));
+                });
+    }
+
+    private void updatePinnedPanel() {
+        boolean hasConversation = viewModel != null
+                && viewModel.activeConversationProperty().get() != null;
+        int count = viewModel == null ? 0 : viewModel.getPinnedMessageList().size();
+        pinnedArea.setVisible(hasConversation);
+        pinnedArea.setManaged(hasConversation);
+        pinnedTitleLabel.setText("Danh sách ghim (" + count + ")");
+        pinnedContent.setVisible(hasConversation && !pinnedCollapsed);
+        pinnedContent.setManaged(hasConversation && !pinnedCollapsed);
+        pinnedMessageList.setVisible(count > 0);
+        pinnedMessageList.setManaged(count > 0);
+        pinnedEmptyLabel.setVisible(count == 0);
+        pinnedEmptyLabel.setManaged(count == 0);
+        pinnedCollapseButton.setText(pinnedCollapsed ? "Mở rộng" : "Thu gọn");
+    }
+
+    @FXML
+    private void handleTogglePinned() {
+        pinnedCollapsed = !pinnedCollapsed;
+        updatePinnedPanel();
+    }
+
+    private void renderAllMessages() {
+        messageContainer.getChildren().clear();
+        for (ChatViewModel.MessageItem item : viewModel.getMessages()) {
+            renderMessageItem(item);
+        }
     }
 
     private void handleNewMessageNotification(ChatViewModel.NewMessageEvent event) {
@@ -1119,7 +1184,7 @@ public class ChatController extends BaseChatController {
         if (!node.getStyleClass().contains("message-search-match")) {
             node.getStyleClass().add("message-search-match");
         }
-        PauseTransition pause = new PauseTransition(Duration.seconds(2));
+        PauseTransition pause = new PauseTransition(Duration.seconds(3));
         pause.setOnFinished(event -> node.getStyleClass().remove("message-search-match"));
         pause.play();
     }

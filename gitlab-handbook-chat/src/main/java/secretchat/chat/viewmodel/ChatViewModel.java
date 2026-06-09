@@ -26,6 +26,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -74,6 +75,7 @@ public class ChatViewModel {
     private final BooleanProperty aiLoading = new SimpleBooleanProperty(false);
     private final IntegerProperty conversationVersion = new SimpleIntegerProperty();
     private final ObjectProperty<NewMessageEvent> newMessageEvent = new SimpleObjectProperty<>();
+    private final AtomicLong pinnedLoadVersion = new AtomicLong();
 
     public ChatViewModel() {
         this.chatService = new ChatService(ApiClient.getInstance());
@@ -277,6 +279,8 @@ public class ChatViewModel {
         UserResponse selectedUser = nameToUserMap.get(selectedUserStr);
         if (selectedUser == null) return;
 
+        pinnedLoadVersion.incrementAndGet();
+        pinnedMessageList.clear();
         currentChatName.set(selectedUserStr);
         currentChatIsGroup.set(false);
 
@@ -326,6 +330,7 @@ public class ChatViewModel {
         conversationVersion.set(conversationVersion.get() + 1);
         loadChatInfo(selectedUserStr, false);
         loadMessages(conv.getId(), 0); // Ignore unreadCount for loading as it's just marked 0
+        loadPinnedMessages(conv.getId());
         subscribeToConversation(conv.getId());
     }
 
@@ -333,6 +338,8 @@ public class ChatViewModel {
         GroupResponse selectedGroup = nameToGroupMap.get(selectedGroupStr);
         if (selectedGroup == null) return;
 
+        pinnedLoadVersion.incrementAndGet();
+        pinnedMessageList.clear();
         currentChatName.set(selectedGroupStr);
         currentChatIsGroup.set(true);
 
@@ -371,6 +378,7 @@ public class ChatViewModel {
         conversationVersion.set(conversationVersion.get() + 1);
         loadGroupChatInfo(selectedGroup);
         loadMessages(conv.getId(), 0);
+        loadPinnedMessages(conv.getId());
         subscribeToConversation(conv.getId());
     }
 
@@ -472,7 +480,6 @@ public class ChatViewModel {
                         }
                         sentFileList.addAll(files);
                         sentLinkList.addAll(links);
-                        refreshPinnedMessages();
                     });
                 }
             } catch (Exception e) {
@@ -480,6 +487,23 @@ public class ChatViewModel {
                 Platform.runLater(() -> errorMessage.set("Không thể tải lịch sử tin nhắn: " + e.getMessage()));
             }
         });
+    }
+
+    private MessageItem toMessageItem(MessageResponse message) {
+        boolean isMe = message.getSenderId() != null && message.getSenderId().equals(currentUserId);
+        boolean isFile = !"TEXT".equalsIgnoreCase(message.getMessageType());
+        String content = isFile && message.getFileName() != null
+                ? message.getFileName() : message.getContent();
+        return new MessageItem(
+                message,
+                getUserDisplayName(message.getSenderId()),
+                content,
+                formatTime(message.getCreatedAt()),
+                isMe,
+                isFile,
+                message.isDeleted(),
+                message.getDeletedForUsers() != null
+                        && message.getDeletedForUsers().contains(currentUserId));
     }
 
     public void sendMessage(String text, File file) {
@@ -658,7 +682,7 @@ public class ChatViewModel {
             MessageItem target = existing;
             Platform.runLater(() -> {
                 target.update(message);
-                refreshPinnedMessages();
+                applyPinnedRealtime(message, target);
             });
             return;
         }
@@ -688,7 +712,7 @@ public class ChatViewModel {
             } else if (content != null) {
                 extractAndAddLinks(content);
             }
-            refreshPinnedMessages();
+            applyPinnedRealtime(message, findMessageItem(message.getId()));
         });
     }
 
@@ -1149,7 +1173,7 @@ public class ChatViewModel {
         boolean target = !previous;
         Platform.runLater(() -> {
             item.setPinned(target);
-            refreshPinnedMessages();
+            applyPinnedState(item);
         });
         CompletableFuture.runAsync(() -> {
             try {
@@ -1157,12 +1181,12 @@ public class ChatViewModel {
                         IdUtils.parseLongId(item.getResponse().getId()), target, token);
                 Platform.runLater(() -> {
                     item.setPinned(target);
-                    refreshPinnedMessages();
+                    applyPinnedState(item);
                 });
             } catch (Exception e) {
                 Platform.runLater(() -> {
                     item.setPinned(previous);
-                    refreshPinnedMessages();
+                    applyPinnedState(item);
                     errorMessage.set("Không thể cập nhật ghim tin nhắn: " + e.getMessage());
                 });
             }
@@ -1170,9 +1194,23 @@ public class ChatViewModel {
     }
 
     public void unpinMessage(PinnedMessageItem pinned) {
-        if (pinned != null && pinned.message() != null && pinned.message().isPinned()) {
-            togglePin(pinned.message());
-        }
+        if (pinned == null || pinned.message() == null || !pinned.message().isPinned()) return;
+        MessageItem item = pinned.message();
+        CompletableFuture.runAsync(() -> {
+            try {
+                chatService.setMessagePinned(
+                        IdUtils.parseLongId(pinned.messageId()), false, token);
+                Platform.runLater(() -> {
+                    item.setPinned(false);
+                    applyPinnedState(item);
+                    MessageItem loaded = findMessageItem(pinned.messageId());
+                    if (loaded != null) loaded.setPinned(false);
+                });
+            } catch (Exception e) {
+                Platform.runLater(() -> errorMessage.set(
+                        "Không thể bỏ ghim tin nhắn: " + e.getMessage()));
+            }
+        });
     }
 
     public MessageItem searchConversationMessage(String query) {
@@ -1199,21 +1237,80 @@ public class ChatViewModel {
         selectPrivateChat(memberName);
     }
 
-    private void refreshPinnedMessages() {
-        // Only refresh if a conversation is active
-        if (activeConversation.get() == null) {
-            pinnedMessageList.clear();
+    private void loadPinnedMessages(String conversationId) {
+        loadPinnedMessages(conversationId, true);
+    }
+
+    private void loadPinnedMessages(String conversationId, boolean clearFirst) {
+        long version = pinnedLoadVersion.incrementAndGet();
+        if (clearFirst) Platform.runLater(pinnedMessageList::clear);
+        if (conversationId == null) return;
+
+        CompletableFuture.runAsync(() -> {
+            try {
+                MessageResponse[] responses = chatService.getPinnedMessages(
+                        IdUtils.parseLongId(conversationId), token);
+                java.util.LinkedHashMap<String, PinnedMessageItem> unique = new java.util.LinkedHashMap<>();
+                if (responses != null) {
+                    for (MessageResponse response : responses) {
+                        if (!conversationId.equals(response.getConversationId())
+                                || response.getId() == null || !response.isPinned()
+                                || response.isDeleted()
+                                || response.getDeletedForUsers() != null
+                                && response.getDeletedForUsers().contains(currentUserId)) {
+                            continue;
+                        }
+                        MessageItem item = toMessageItem(response);
+                        item.setPinned(true);
+                        unique.put(response.getId(), new PinnedMessageItem(item));
+                    }
+                }
+                Platform.runLater(() -> {
+                    ConversationResponse current = activeConversation.get();
+                    if (version != pinnedLoadVersion.get()
+                            || current == null
+                            || !conversationId.equals(current.getId())) {
+                        return;
+                    }
+                    pinnedMessageList.setAll(unique.values());
+                });
+            } catch (Exception e) {
+                LOGGER.log(System.Logger.Level.WARNING,
+                        "Không thể tải danh sách tin nhắn ghim", e);
+                Platform.runLater(() -> {
+                    if (version == pinnedLoadVersion.get()) pinnedMessageList.clear();
+                });
+            }
+        });
+    }
+
+    private void applyPinnedRealtime(MessageResponse response, MessageItem item) {
+        ConversationResponse current = activeConversation.get();
+        if (current == null || response == null
+                || !current.getId().equals(response.getConversationId())
+                || response.getId() == null) {
             return;
         }
-        pinnedMessageList.clear();
-        for (MessageItem item : messages) {
-            if (item.isPinned() && !item.isDeleted() && !item.isDeletedForMe()) {
-                pinnedMessageList.add(new PinnedMessageItem(item));
-            }
+        boolean currentlyPinned = pinnedMessageList.stream()
+                .anyMatch(pinned -> response.getId().equals(pinned.messageId()));
+        if (currentlyPinned == response.isPinned()) return;
+        MessageItem resolved = item != null ? item : toMessageItem(response);
+        resolved.setPinned(response.isPinned());
+        applyPinnedState(resolved);
+        loadPinnedMessages(current.getId(), false);
+    }
+
+    private void applyPinnedState(MessageItem item) {
+        if (item == null || item.getResponse() == null || item.getResponse().getId() == null) return;
+        String messageId = item.getResponse().getId();
+        pinnedMessageList.removeIf(pinned -> messageId.equals(pinned.messageId()));
+        if (item.isPinned() && !item.isDeleted() && !item.isDeletedForMe()) {
+            pinnedMessageList.add(new PinnedMessageItem(item));
         }
     }
 
     public void clearConversationData() {
+        pinnedLoadVersion.incrementAndGet();
         Platform.runLater(() -> {
             messages.clear();
             memberList.clear();
@@ -1228,6 +1325,61 @@ public class ChatViewModel {
 
     public byte[] downloadFile(MessageResponse msg) throws Exception {
         return chatService.downloadMessageFile(IdUtils.parseLongId(msg.getId()), token);
+    }
+
+    public CompletableFuture<MessageItem> ensureMessageLoaded(String messageId) {
+        MessageItem existing = findMessageItem(messageId);
+        if (existing != null) return CompletableFuture.completedFuture(existing);
+        ConversationResponse conversation = activeConversation.get();
+        if (conversation == null || messageId == null) {
+            return CompletableFuture.completedFuture(null);
+        }
+        String conversationId = conversation.getId();
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                return chatService.getMessagesAround(IdUtils.parseLongId(messageId), 20, token);
+            } catch (Exception e) {
+                throw new java.util.concurrent.CompletionException(e);
+            }
+        }).thenCompose(responses -> {
+            CompletableFuture<MessageItem> result = new CompletableFuture<>();
+            Platform.runLater(() -> {
+                ConversationResponse current = activeConversation.get();
+                if (current == null || !conversationId.equals(current.getId())) {
+                    result.complete(null);
+                    return;
+                }
+                java.util.LinkedHashMap<String, MessageItem> merged = new java.util.LinkedHashMap<>();
+                int transientIndex = 0;
+                for (MessageItem currentItem : messages) {
+                    if (currentItem.getResponse() != null && currentItem.getResponse().getId() != null) {
+                        merged.put(currentItem.getResponse().getId(), currentItem);
+                    } else {
+                        merged.put("transient-" + transientIndex++, currentItem);
+                    }
+                }
+                if (responses != null) {
+                    for (MessageResponse response : responses) {
+                        if (conversationId.equals(response.getConversationId())
+                                && response.getId() != null) {
+                            merged.putIfAbsent(response.getId(), toMessageItem(response));
+                        }
+                    }
+                }
+                List<MessageItem> ordered = new ArrayList<>(merged.values());
+                ordered.sort(java.util.Comparator.comparing(
+                        value -> value.getResponse() == null
+                                ? null : value.getResponse().getCreatedAt(),
+                        java.util.Comparator.nullsLast(String::compareTo)));
+                messages.setAll(ordered);
+                result.complete(findMessageItem(messageId));
+            });
+            return result;
+        }).exceptionally(error -> {
+            Platform.runLater(() -> errorMessage.set(
+                    "Không thể tải tin nhắn gốc: " + rootMessage(error)));
+            return null;
+        });
     }
 
     public void performSearch(String keyword) {
@@ -1422,6 +1574,7 @@ public class ChatViewModel {
             response.setFileSize(updated.getFileSize());
             response.setFileType(updated.getFileType());
             response.setMessageType(updated.getMessageType());
+            response.setUpdatedAt(updated.getUpdatedAt());
             response.setDeleted(updated.isDeleted());
             response.setDeletedForUsers(updated.getDeletedForUsers());
             response.setStatus(updated.getStatus());
@@ -1438,9 +1591,44 @@ public class ChatViewModel {
 
     public record GroupMemberView(String userId, String displayName, String role) {}
     public record PinnedMessageItem(MessageItem message) {
+        public String messageId() { return message.getResponse().getId(); }
         public String content() { return message.getContent(); }
         public String sender() { return message.getSenderName(); }
-        public String time() { return message.getTime(); }
+        public String time() {
+            String pinnedAt = message.getResponse().getUpdatedAt();
+            return pinnedAt == null || pinnedAt.isBlank()
+                    ? message.getTime()
+                    : formatDisplayTime(pinnedAt);
+        }
+        public String type() {
+            String type = message.getResponse().getMessageType();
+            String normalized = type == null ? "TEXT" : type.toUpperCase();
+            if ("TEXT".equals(normalized) && message.getContent() != null
+                    && LINK_PATTERN.matcher(message.getContent()).find()) {
+                return "LINK";
+            }
+            return normalized;
+        }
+        public String preview() {
+            String type = type();
+            if ("IMAGE".equals(type)) return "[Hình ảnh]";
+            if ("FILE".equals(type) || "VIDEO".equals(type)) {
+                String name = message.getResponse().getFileName();
+                return "[Tệp đính kèm]" + (name == null || name.isBlank() ? "" : " " + name);
+            }
+            String content = message.getContent() == null ? "" : message.getContent();
+            Matcher matcher = LINK_PATTERN.matcher(content);
+            if (matcher.find()) return "[Liên kết] " + matcher.group();
+            return content;
+        }
+        private static String formatDisplayTime(String value) {
+            if (value == null || value.isBlank()) return "";
+            int separator = value.indexOf('T');
+            if (separator >= 0 && value.length() >= separator + 6) {
+                return value.substring(separator + 1, separator + 6);
+            }
+            return value;
+        }
     }
     public record NewMessageEvent(String conversationId, String chatName, boolean group, String preview) {}
 }

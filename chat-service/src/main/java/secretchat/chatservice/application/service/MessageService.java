@@ -171,6 +171,24 @@ public class MessageService implements MessageUseCase {
     }
 
     @Override
+    public List<Message> getMessagesAround(Long messageId, int limit) {
+        Message target = messageRepositoryPort.findById(messageId);
+        List<Message> history = messageRepositoryPort.findByConversationId(target.getConversationId());
+        int targetIndex = -1;
+        for (int index = 0; index < history.size(); index++) {
+            if (history.get(index).getId().equals(messageId)) {
+                targetIndex = index;
+                break;
+            }
+        }
+        if (targetIndex < 0) return List.of(target);
+        int radius = Math.max(1, Math.min(limit, 50));
+        int from = Math.max(0, targetIndex - radius);
+        int to = Math.min(history.size(), targetIndex + radius + 1);
+        return history.subList(from, to);
+    }
+
+    @Override
     public List<Message> searchMessages(Long conversationId, String query) {
         if (query == null || query.isBlank()) {
             return List.of();

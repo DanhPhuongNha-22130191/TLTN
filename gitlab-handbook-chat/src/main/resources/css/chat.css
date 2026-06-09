@@ -534,38 +534,117 @@
 }
 
 .pinned-area {
-    -fx-padding: 8 18 10 18;
-    -fx-background-color: #fff8d8;
-    -fx-border-color: transparent transparent #e7c85a transparent;
+    -fx-padding: 7 14 9 14;
+    -fx-background-color: #f7f8ff;
+    -fx-border-color: transparent transparent #cfd4ef transparent;
     -fx-border-width: 0 0 1 0;
+    -fx-spacing: 6;
 }
 
-.pinned-message-content {
-    -fx-font-size: 12.5px;
-    -fx-font-weight: 700;
-    -fx-text-fill: #3c3457;
+.pinned-header {
+    -fx-min-height: 28;
 }
 
-.pinned-message-meta {
-    -fx-font-size: 10.5px;
-    -fx-text-fill: #79718d;
+.pinned-title {
+    -fx-font-size: 12px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #30375c;
 }
 
-.pinned-unpin-button {
-    -fx-background-color: #ffffff;
-    -fx-text-fill: #a33a4f;
-    -fx-border-color: #d9a1ad;
-    -fx-border-width: 1;
-    -fx-background-radius: 3;
-    -fx-border-radius: 3;
-    -fx-padding: 5 9;
+.pinned-collapse-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #575be8;
     -fx-font-size: 11px;
     -fx-font-weight: 700;
+    -fx-padding: 4 7;
+    -fx-background-radius: 3;
     -fx-cursor: hand;
 }
 
-.pinned-unpin-button:hover {
-    -fx-background-color: #fff0f2;
+.pinned-collapse-button:hover {
+    -fx-background-color: #e8eaff;
+}
+
+.pinned-message-list {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #d7dbef;
+    -fx-border-width: 1;
+    -fx-background-radius: 4;
+    -fx-border-radius: 4;
+}
+
+.pinned-message-list .list-cell {
+    -fx-padding: 0;
+    -fx-background-color: #ffffff;
+    -fx-border-color: transparent transparent #eceefa transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.pinned-message-list .list-cell:filled:hover {
+    -fx-background-color: #f2f3ff;
+}
+
+.pinned-message-row {
+    -fx-padding: 7 9;
+    -fx-min-height: 48;
+}
+
+.pinned-type-icon-wrap {
+    -fx-min-width: 30;
+    -fx-pref-width: 30;
+    -fx-min-height: 30;
+    -fx-pref-height: 30;
+    -fx-background-color: #e9ebff;
+    -fx-border-color: #c7ccf4;
+    -fx-border-width: 1;
+    -fx-background-radius: 4;
+    -fx-border-radius: 4;
+}
+
+.pinned-type-icon {
+    -fx-icon-size: 14;
+    -fx-icon-color: #575be8;
+}
+
+.pinned-message-content {
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #30375c;
+}
+
+.pinned-message-meta {
+    -fx-font-size: 10px;
+    -fx-text-fill: #7b829f;
+}
+
+.pinned-more-button {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-min-width: 28;
+    -fx-pref-width: 28;
+    -fx-min-height: 28;
+    -fx-pref-height: 28;
+    -fx-background-radius: 3;
+    -fx-border-radius: 3;
+    -fx-padding: 0;
+    -fx-opacity: 0.72;
+    -fx-cursor: hand;
+}
+
+.pinned-more-button .ikonli-font-icon {
+    -fx-icon-size: 13;
+    -fx-icon-color: #697193;
+}
+
+.pinned-more-button:hover {
+    -fx-background-color: #e2e5ff;
+    -fx-opacity: 1;
+}
+
+.pinned-empty {
+    -fx-font-size: 11.5px;
+    -fx-text-fill: #858daa;
+    -fx-padding: 14;
 }
 
 .file-upload-progress-wrap {

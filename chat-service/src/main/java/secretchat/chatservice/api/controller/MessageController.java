@@ -117,6 +117,14 @@ public class MessageController {
                 .map(MessageApiMapper::toResponse).collect(Collectors.toList()));
     }
 
+    @GetMapping("/{id}/around")
+    public ResponseEntity<List<MessageResponse>> getMessagesAround(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "20") int limit) {
+        return ResponseEntity.ok(messageUseCase.getMessagesAround(id, limit).stream()
+                .map(MessageApiMapper::toResponse).collect(Collectors.toList()));
+    }
+
     @GetMapping("/search/{conversationId}")
     public ResponseEntity<List<MessageResponse>> searchMessages(
             @PathVariable Long conversationId, @RequestParam String query) {

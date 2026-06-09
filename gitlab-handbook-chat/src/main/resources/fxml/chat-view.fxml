@@ -177,8 +177,24 @@
                     </VBox>
 
                     <VBox fx:id="pinnedArea" visible="false" managed="false" styleClass="pinned-area">
-                        <Label text="TIN NHẮN ĐÃ GHIM" styleClass="section-label"/>
-                        <ListView fx:id="pinnedMessageList" prefHeight="108" styleClass="panel-list, pinned-message-list"/>
+                        <HBox alignment="CENTER_LEFT" styleClass="pinned-header">
+                            <Label fx:id="pinnedTitleLabel"
+                                   text="Danh sách ghim (0)"
+                                   styleClass="pinned-title"/>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Button fx:id="pinnedCollapseButton"
+                                    text="Thu gọn"
+                                    onAction="#handleTogglePinned"
+                                    styleClass="pinned-collapse-button"/>
+                        </HBox>
+                        <StackPane fx:id="pinnedContent">
+                            <ListView fx:id="pinnedMessageList"
+                                      prefHeight="116"
+                                      styleClass="panel-list, pinned-message-list"/>
+                            <Label fx:id="pinnedEmptyLabel"
+                                   text="Chưa có tin nhắn ghim"
+                                   styleClass="pinned-empty"/>
+                        </StackPane>
                     </VBox>
 
                     <StackPane VBox.vgrow="ALWAYS">
