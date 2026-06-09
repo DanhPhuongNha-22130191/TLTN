@@ -1,0 +1,240 @@
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<HBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="secretchat.auth.controller.RegisterController"
+      spacing="0"
+      prefWidth="1100"
+      prefHeight="700"
+      styleClass="root"
+      stylesheets="@../css/register.css">
+
+    <!-- ================= LEFT ================= -->
+    <VBox fx:id="leftPanel"
+          HBox.hgrow="ALWAYS"
+          alignment="CENTER"
+          spacing="24"
+          styleClass="left-panel">
+
+        <StackPane styleClass="logo-box">
+            <Label text="S" styleClass="logo-text"/>
+        </StackPane>
+
+        <VBox alignment="CENTER" spacing="10">
+            <Label text="The GitLab Handbook Chat" styleClass="hero-title"/>
+            <Label text="Private • Secure • Fast" styleClass="hero-subtitle"/>
+        </VBox>
+
+        <fx:include source="connection-status.fxml"/>
+
+    </VBox>
+
+    <!-- ================= RIGHT ================= -->
+    <StackPane fx:id="rightPanel"
+               HBox.hgrow="ALWAYS"
+               alignment="CENTER"
+               styleClass="right-panel">
+
+        <ScrollPane fitToWidth="true"
+                    fitToHeight="true"
+                    hbarPolicy="NEVER"
+                    vbarPolicy="AS_NEEDED"
+                    styleClass="form-scroll">
+
+            <VBox alignment="CENTER">
+
+                <VBox spacing="14"
+                      styleClass="form-card">
+
+                    <!-- TITLE -->
+                    <VBox spacing="4">
+                        <Label text="Đăng ký tài khoản"
+                               styleClass="form-title"/>
+
+                        <Label text="Tạo tài khoản mới để bắt đầu sử dụng The GitLab Handbook Chat"
+                               styleClass="form-caption"/>
+                    </VBox>
+
+                    <!-- FULL NAME -->
+                    <VBox spacing="5">
+                        <Label text="Họ và tên"
+                               styleClass="field-label"/>
+
+                        <TextField fx:id="fullNameField"
+                                   promptText="Nhập họ và tên"
+                                   styleClass="input-field"/>
+
+                        <Label fx:id="fullNameError"
+                               styleClass="error-label"
+                               visible="false"
+                               managed="false"/>
+                    </VBox>
+
+                    <!-- USERNAME -->
+                    <VBox spacing="5">
+                        <Label text="Tên đăng nhập"
+                               styleClass="field-label"/>
+
+                        <TextField fx:id="usernameField"
+                                   promptText="Nhập tên đăng nhập"
+                                   styleClass="input-field"/>
+
+                        <Label fx:id="usernameError"
+                               styleClass="error-label"
+                               visible="false"
+                               managed="false"/>
+                    </VBox>
+
+                    <!-- EMAIL -->
+                    <VBox spacing="5">
+                        <Label text="Email"
+                               styleClass="field-label"/>
+
+                        <TextField fx:id="emailField"
+                                   promptText="Nhập email"
+                                   styleClass="input-field"/>
+
+                        <Label fx:id="emailError"
+                               styleClass="error-label"
+                               visible="false"
+                               managed="false"/>
+                    </VBox>
+
+                    <!-- PHONE -->
+                    <VBox spacing="5">
+                        <Label text="Số điện thoại"
+                               styleClass="field-label"/>
+
+                        <TextField fx:id="phoneNumberField"
+                                   promptText="Nhập số điện thoại"
+                                   styleClass="input-field"/>
+
+                        <Label fx:id="phoneError"
+                               styleClass="error-label"
+                               visible="false"
+                               managed="false"/>
+                    </VBox>
+
+                    <!-- PASSWORD -->
+                    <VBox spacing="5">
+                        <Label text="Mật khẩu"
+                               styleClass="field-label"/>
+
+                        <HBox spacing="8"
+                              alignment="CENTER_LEFT">
+
+                            <StackPane HBox.hgrow="ALWAYS">
+
+                                <PasswordField fx:id="passwordField"
+                                               promptText="Nhập mật khẩu"
+                                               styleClass="input-field"/>
+
+                                <TextField fx:id="passwordTextField"
+                                           promptText="Nhập mật khẩu"
+                                           styleClass="input-field"
+                                           visible="false"
+                                           managed="false"/>
+                            </StackPane>
+
+                            <Button fx:id="togglePasswordBtn"
+                                    text="Show"
+                                    onAction="#togglePasswordVisibility"
+                                    styleClass="toggle-btn"/>
+                        </HBox>
+
+                        <Label fx:id="passwordError"
+                               styleClass="error-label"
+                               visible="false"
+                               managed="false"/>
+                    </VBox>
+
+                    <!-- CONFIRM PASSWORD -->
+                    <VBox spacing="5">
+                        <Label text="Xác nhận mật khẩu"
+                               styleClass="field-label"/>
+
+                        <HBox spacing="8"
+                              alignment="CENTER_LEFT">
+
+                            <StackPane HBox.hgrow="ALWAYS">
+
+                                <PasswordField fx:id="confirmPasswordField"
+                                               promptText="Nhập lại mật khẩu"
+                                               styleClass="input-field"/>
+
+                                <TextField fx:id="confirmPasswordTextField"
+                                           promptText="Nhập lại mật khẩu"
+                                           styleClass="input-field"
+                                           visible="false"
+                                           managed="false"/>
+                            </StackPane>
+
+                            <Button fx:id="toggleConfirmPasswordBtn"
+                                    text="Show"
+                                    onAction="#toggleConfirmPasswordVisibility"
+                                    styleClass="toggle-btn"/>
+                        </HBox>
+
+                        <Label fx:id="confirmPasswordError"
+                               styleClass="error-label"
+                               visible="false"
+                               managed="false"/>
+                    </VBox>
+
+                    <!-- TERMS -->
+                    <CheckBox fx:id="termsCheckBox"
+                              text="Tôi đồng ý với điều khoản sử dụng"
+                              styleClass="terms-checkbox"/>
+
+                    <!-- GLOBAL MESSAGE -->
+                    <Label fx:id="lblMessage"
+                           wrapText="true"
+                           visible="false"
+                           managed="false"
+                           styleClass="message-label"/>
+
+                    <!-- REGISTER BUTTON -->
+                    <Button fx:id="registerButton"
+                            text="Tạo tài khoản"
+                            prefHeight="48"
+                            maxWidth="Infinity"
+                            onAction="#handleRegister"
+                            styleClass="primary-btn"/>
+
+                    <!-- LOADING -->
+                    <HBox fx:id="loadingBox"
+                          alignment="CENTER"
+                          spacing="8"
+                          visible="false"
+                          managed="false">
+
+                        <ProgressIndicator prefWidth="18"
+                                           prefHeight="18"/>
+
+                        <Label text="Đang xử lý..."
+                               styleClass="loading-label"/>
+                    </HBox>
+
+                    <!-- LOGIN -->
+                    <HBox alignment="CENTER"
+                          spacing="6">
+
+                        <Label text="Đã có tài khoản?"
+                               styleClass="login-hint"/>
+
+                        <Button fx:id="goToLoginBtn"
+                                text="Đăng nhập"
+                                onAction="#goToLogin"
+                                styleClass="link-btn"/>
+                    </HBox>
+
+                </VBox>
+
+            </VBox>
+
+        </ScrollPane>
+
+    </StackPane>
+
+</HBox>
