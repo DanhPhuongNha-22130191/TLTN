@@ -54,6 +54,22 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @PutMapping("/me")
+    public ResponseEntity<UserResponse> updateCurrentUser(
+            @AuthenticationPrincipal Jwt jwt,
+            @Valid @RequestBody UpdateUserRequest request
+    ) {
+        if (jwt == null || jwt.getSubject() == null) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        String authenticatedUserId = jwt.getSubject();
+        UserResponse response = UserResponse.from(userUseCase.update(
+                new UpdateUserCommand(authenticatedUserId, request.username(), request.fullName(),
+                        request.avatar(), request.phoneNumber(), request.newPassword())
+        ));
+        return ResponseEntity.ok(response);
+    }
+
     @PutMapping("/{keycloakUserId}")
     public ResponseEntity<UserResponse> update(
             @PathVariable String keycloakUserId,

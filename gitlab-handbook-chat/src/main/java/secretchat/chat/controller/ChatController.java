@@ -161,12 +161,18 @@ public class ChatController extends BaseChatController {
         setupPinnedMessageList();
         pinnedCollapsePause.setOnFinished(event -> collapsePinnedWhenPointerLeaves());
         pinnedArea.hoverProperty().addListener((obs, wasHovered, isHovered) -> {
-            if (isHovered) pinnedCollapsePause.stop();
-            else pinnedCollapsePause.playFromStart();
+            if (isHovered) {
+                pinnedCollapsePause.stop();
+            } else if (!pinnedContextMenuOpen) {
+                pinnedCollapsePause.playFromStart();
+            }
         });
         pinnedContent.hoverProperty().addListener((obs, wasHovered, isHovered) -> {
-            if (isHovered) pinnedCollapsePause.stop();
-            else pinnedCollapsePause.playFromStart();
+            if (isHovered) {
+                pinnedCollapsePause.stop();
+            } else if (!pinnedContextMenuOpen) {
+                pinnedCollapsePause.playFromStart();
+            }
         });
 
         // Auto scroll to bottom
@@ -342,11 +348,18 @@ public class ChatController extends BaseChatController {
                     collapsePinnedPanel();
                 });
                 menu.getItems().addAll(goTo, unpin);
-                menu.setOnShowing(event -> pinnedContextMenuOpen = true);
-                menu.setOnHidden(event -> pinnedContextMenuOpen = false);
+                menu.setOnShowing(event -> {
+                    pinnedContextMenuOpen = true;
+                    pinnedCollapsePause.stop();
+                });
+                menu.setOnHidden(event -> {
+                    pinnedContextMenuOpen = false;
+                    if (!pinnedArea.isHover() && !pinnedContent.isHover()) {
+                        pinnedCollapsePause.playFromStart();
+                    }
+                });
                 more.setOnMouseClicked(event -> event.consume());
                 more.setOnAction(event -> {
-                    pinnedContextMenuOpen = true;
                     menu.show(more, javafx.geometry.Side.BOTTOM, 0, 0);
                     event.consume();
                 });

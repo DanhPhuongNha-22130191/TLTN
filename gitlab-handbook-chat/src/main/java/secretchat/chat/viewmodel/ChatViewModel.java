@@ -1565,15 +1565,14 @@ public class ChatViewModel {
     }
 
     public CompletableFuture<UserResponse> updateCurrentUserProfile(UpdateUserProfileRequest request) {
-        String keycloakUserId = currentUserResponse == null
-                ? null : currentUserResponse.getKeycloakUserId();
-        if (keycloakUserId == null || keycloakUserId.isBlank()) {
+        if (currentUserResponse == null || currentUserResponse.getKeycloakUserId() == null
+                || currentUserResponse.getKeycloakUserId().isBlank()) {
             return CompletableFuture.failedFuture(
                     new IllegalStateException("Không tìm thấy thông tin tài khoản hiện tại."));
         }
         return CompletableFuture.supplyAsync(() -> {
             try {
-                return chatService.updateUserProfile(keycloakUserId, request, token);
+                return chatService.updateCurrentUserProfile(request, token);
             } catch (Exception e) {
                 throw new java.util.concurrent.CompletionException(e);
             }

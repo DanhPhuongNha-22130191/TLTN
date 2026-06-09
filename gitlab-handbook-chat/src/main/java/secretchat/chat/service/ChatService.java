@@ -143,6 +143,14 @@ public class ChatService {
         }
     }
 
+    public UserResponse updateCurrentUserProfile(UpdateUserProfileRequest request, String token) throws Exception {
+        try {
+            return apiClient.put("/api/users/me", request, token, UserResponse.class);
+        } catch (Exception e) {
+            throw GlobalExceptionHandler.handle(e);
+        }
+    }
+
     public String uploadFile(java.io.File file, String token, DoubleConsumer progressListener) throws Exception {
         return apiClient.uploadFile("/api/messages/upload", file, token, progressListener);
     }
