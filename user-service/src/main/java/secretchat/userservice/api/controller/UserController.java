@@ -3,6 +3,8 @@ package secretchat.userservice.api.controller;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import secretchat.userservice.api.dto.*;
 import secretchat.userservice.application.dto.ChangeRoleCommand;
@@ -55,10 +57,15 @@ public class UserController {
     @PutMapping("/{keycloakUserId}")
     public ResponseEntity<UserResponse> update(
             @PathVariable String keycloakUserId,
-            @RequestBody UpdateUserRequest request
+            @AuthenticationPrincipal Jwt jwt,
+            @Valid @RequestBody UpdateUserRequest request
     ) {
+        if (jwt == null || !keycloakUserId.equals(jwt.getSubject())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
         UserResponse response = UserResponse.from(userUseCase.update(
-                new UpdateUserCommand(keycloakUserId, request.fullName(), request.avatar(), request.phoneNumber())
+                new UpdateUserCommand(keycloakUserId, request.username(), request.fullName(),
+                        request.avatar(), request.phoneNumber(), request.newPassword())
         ));
         return ResponseEntity.ok(response);
     }

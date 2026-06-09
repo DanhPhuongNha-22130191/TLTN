@@ -123,6 +123,24 @@ public class ChatService {
         return apiClient.uploadFile("/api/messages/upload", file, token);
     }
 
+    public UserResponse getUserById(String keycloakUserId, String token) throws Exception {
+        try {
+            return apiClient.get("/api/users/" + keycloakUserId, token, UserResponse.class);
+        } catch (Exception e) {
+            throw GlobalExceptionHandler.handle(e);
+        }
+    }
+
+    public UserResponse updateUserProfile(
+            String keycloakUserId, UpdateUserProfileRequest request, String token) throws Exception {
+        try {
+            return apiClient.put("/api/users/" + keycloakUserId,
+                    request, token, UserResponse.class);
+        } catch (Exception e) {
+            throw GlobalExceptionHandler.handle(e);
+        }
+    }
+
     public String uploadFile(java.io.File file, String token, DoubleConsumer progressListener) throws Exception {
         return apiClient.uploadFile("/api/messages/upload", file, token, progressListener);
     }

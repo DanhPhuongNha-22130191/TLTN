@@ -92,10 +92,15 @@ public class UserApplicationService implements UserUseCase {
     public UserResult update(UpdateUserCommand command) {
         User existing = userRepository.findByKeycloakUserId(new KeycloakUserId(command.keycloakUserId()))
                 .orElseThrow(() -> new UserNotFoundException("User not found: " + command.keycloakUserId()));
+        String username = command.username() == null || command.username().isBlank()
+                ? existing.getUsername() : command.username().trim();
+        if (!username.equals(existing.getUsername()) && userRepository.existsByUsername(username)) {
+            throw new UserAlreadyExistsException("Username already exists: " + username);
+        }
 
         User updated = User.builder()
                 .keycloakUserId(existing.getKeycloakUserId())
-                .username(existing.getUsername())
+                .username(username)
                 .email(existing.getEmail())
                 .fullName(command.fullName() != null ? new FullName(command.fullName()) : existing.getFullName())
                 .avatar(command.avatar() != null ? command.avatar() : existing.getAvatar())
@@ -104,7 +109,8 @@ public class UserApplicationService implements UserUseCase {
                 .createdAt(existing.getCreatedAt())
                 .build();
 
-        keycloakUserPort.updateUser(command.keycloakUserId(), command.fullName());
+        keycloakUserPort.updateUser(command.keycloakUserId(), username,
+                command.fullName(), command.newPassword());
         return UserResult.from(userRepository.save(updated));
     }
 

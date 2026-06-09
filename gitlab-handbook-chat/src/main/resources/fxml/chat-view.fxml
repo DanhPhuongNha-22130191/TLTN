@@ -59,6 +59,17 @@
                                   styleClass="btn-icon"/>
                     </graphic>
                 </Button>
+
+                <Button text="Hồ sơ"
+                        maxWidth="Infinity"
+                        HBox.hgrow="ALWAYS"
+                        onAction="#handleProfile"
+                        styleClass="sidebar-action-button, secondary-button">
+                    <graphic>
+                        <FontIcon iconLiteral="fa-user"
+                                  styleClass="btn-icon"/>
+                    </graphic>
+                </Button>
             </HBox>
 
             <!-- Search -->
@@ -80,7 +91,7 @@
                      tabClosingPolicy="UNAVAILABLE"
                      styleClass="chat-tab-pane">
                 <tabs>
-                    <Tab text="Cá nhân">
+                    <Tab text="">
                         <ListView fx:id="privateChatList"
                                   onMouseClicked="#handleSelectPrivateChat"
                                   styleClass="conv-list"/>
@@ -187,14 +198,6 @@
                                     onAction="#handleTogglePinned"
                                     styleClass="pinned-collapse-button"/>
                         </HBox>
-                        <StackPane fx:id="pinnedContent">
-                            <ListView fx:id="pinnedMessageList"
-                                      prefHeight="116"
-                                      styleClass="panel-list, pinned-message-list"/>
-                            <Label fx:id="pinnedEmptyLabel"
-                                   text="Chưa có tin nhắn ghim"
-                                   styleClass="pinned-empty"/>
-                        </StackPane>
                     </VBox>
 
                     <StackPane VBox.vgrow="ALWAYS">
@@ -211,6 +214,26 @@
                                 </VBox>
                             </content>
                         </ScrollPane>
+                        <StackPane fx:id="pinnedContent"
+                                   visible="false"
+                                   managed="false"
+                                   minHeight="116"
+                                   prefHeight="116"
+                                   maxHeight="116"
+                                   StackPane.alignment="TOP_CENTER"
+                                   styleClass="pinned-overlay">
+                            <ListView fx:id="pinnedMessageList"
+                                      minHeight="116"
+                                      prefHeight="116"
+                                      maxHeight="116"
+                                      styleClass="panel-list, pinned-message-list"/>
+                            <Label fx:id="pinnedEmptyLabel"
+                                   text="Chưa có tin nhắn ghim"
+                                   styleClass="pinned-empty"/>
+                            <StackPane.margin>
+                                <Insets right="14" left="14"/>
+                            </StackPane.margin>
+                        </StackPane>
                         <Button fx:id="scrollBottomButton"
                                 text="↓"
                                 visible="false"

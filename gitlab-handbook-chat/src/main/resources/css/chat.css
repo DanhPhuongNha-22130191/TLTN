@@ -534,11 +534,10 @@
 }
 
 .pinned-area {
-    -fx-padding: 7 14 9 14;
+    -fx-padding: 7 14;
     -fx-background-color: #f7f8ff;
     -fx-border-color: transparent transparent #cfd4ef transparent;
     -fx-border-width: 0 0 1 0;
-    -fx-spacing: 6;
 }
 
 .pinned-header {
@@ -571,6 +570,13 @@
     -fx-border-width: 1;
     -fx-background-radius: 4;
     -fx-border-radius: 4;
+}
+
+.pinned-overlay {
+    -fx-background-color: #f7f8ff;
+    -fx-border-color: #cfd4ef;
+    -fx-border-width: 0 1 1 1;
+    -fx-effect: dropshadow(gaussian, rgba(40, 45, 90, 0.18), 12, 0.12, 0, 4);
 }
 
 .pinned-message-list .list-cell {
@@ -1052,6 +1058,18 @@
     -fx-background-radius: 4;
     -fx-padding: 5 8;
     -fx-cursor: hand;
+}
+
+.conversation-unread-badge {
+    -fx-min-width: 20;
+    -fx-min-height: 20;
+    -fx-alignment: center;
+    -fx-padding: 1 6;
+    -fx-background-color: #e11d48;
+    -fx-background-radius: 10;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
 }
 
 .conversation-more-button:hover {

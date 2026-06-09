@@ -123,3 +123,13 @@
     -fx-font-size: 11px;
     -fx-font-weight: 900;
 }
+
+.profile-dialog .dialog-body {
+    -fx-min-height: 455;
+}
+
+.profile-section-title {
+    -fx-font-size: 14px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #242957;
+}

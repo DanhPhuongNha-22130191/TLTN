@@ -27,3 +27,40 @@
 .details-action-button:hover { -fx-background-color: #4f52e8; }
 .details-secondary-button { -fx-background-color: white; -fx-text-fill: #4f52e8; -fx-border-color: #959dc8; }
 .details-danger-button { -fx-background-color: #fff0f2; -fx-text-fill: #c81e4d; -fx-border-color: #e7a3b4; }
+
+.details-member-row { -fx-cursor: hand; }
+
+.member-profile-dialog {
+    -fx-background-color: #eef0ff;
+    -fx-background-radius: 6;
+    -fx-border-color: #6265f5;
+    -fx-border-width: 2;
+    -fx-border-radius: 6;
+    -fx-effect: dropshadow(three-pass-box, rgba(30,27,75,0.26), 18, 0, 0, 6);
+}
+
+.member-profile-header {
+    -fx-padding: 20;
+    -fx-background-color: #dfe3ff;
+    -fx-border-color: transparent transparent #aeb6ff transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.member-profile-avatar {
+    -fx-min-width: 54;
+    -fx-min-height: 54;
+    -fx-alignment: center;
+    -fx-background-color: #6265f5;
+    -fx-text-fill: white;
+    -fx-font-size: 20px;
+    -fx-font-weight: 800;
+    -fx-background-radius: 4;
+}
+
+.member-profile-title { -fx-font-size: 19px; -fx-font-weight: 800; -fx-text-fill: #17144c; }
+.member-profile-role { -fx-font-size: 12px; -fx-text-fill: #636b91; }
+.member-profile-content { -fx-padding: 20 24; -fx-background-color: #f9f9ff; }
+.member-profile-footer { -fx-padding: 16 20; -fx-border-color: #c5caff transparent transparent transparent; }
+.member-profile-field-label { -fx-font-size: 11px; -fx-font-weight: 700; -fx-text-fill: #73789a; }
+.member-profile-field-value { -fx-font-size: 14px; -fx-font-weight: 600; -fx-text-fill: #242957; }
+.member-profile-error { -fx-text-fill: #c81e4d; -fx-font-weight: 700; }

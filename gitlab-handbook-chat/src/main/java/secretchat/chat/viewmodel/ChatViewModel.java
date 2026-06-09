@@ -76,6 +76,7 @@ public class ChatViewModel {
     private final IntegerProperty conversationVersion = new SimpleIntegerProperty();
     private final ObjectProperty<NewMessageEvent> newMessageEvent = new SimpleObjectProperty<>();
     private final AtomicLong pinnedLoadVersion = new AtomicLong();
+    private final AtomicLong messageLoadVersion = new AtomicLong();
 
     public ChatViewModel() {
         this.chatService = new ChatService(ApiClient.getInstance());
@@ -279,10 +280,7 @@ public class ChatViewModel {
         UserResponse selectedUser = nameToUserMap.get(selectedUserStr);
         if (selectedUser == null) return;
 
-        pinnedLoadVersion.incrementAndGet();
-        pinnedMessageList.clear();
-        currentChatName.set(selectedUserStr);
-        currentChatIsGroup.set(false);
+        beginConversationSwitch(selectedUserStr, false);
 
         String targetUserId = displayNameToUserId.get(selectedUserStr);
         if (targetUserId == null && selectedUser.getKeycloakUserId() != null) {
@@ -320,12 +318,7 @@ public class ChatViewModel {
             return;
         }
 
-        if (conv.getUnreadCount() > 0) {
-            try {
-                chatService.markConversationAsRead(IdUtils.parseLongId(conv.getId()), token);
-            } catch (Exception e) {}
-        }
-        
+        markConversationReadAsync(conv);
         conv.setUnreadCount(0);
         conversationVersion.set(conversationVersion.get() + 1);
         loadChatInfo(selectedUserStr, false);
@@ -338,10 +331,7 @@ public class ChatViewModel {
         GroupResponse selectedGroup = nameToGroupMap.get(selectedGroupStr);
         if (selectedGroup == null) return;
 
-        pinnedLoadVersion.incrementAndGet();
-        pinnedMessageList.clear();
-        currentChatName.set(selectedGroupStr);
-        currentChatIsGroup.set(true);
+        beginConversationSwitch(selectedGroupStr, true);
 
         Long groupId = IdUtils.parseLongId(selectedGroup.getId());
         if (groupId == null) {
@@ -368,18 +358,40 @@ public class ChatViewModel {
             return;
         }
 
-        if (conv.getUnreadCount() > 0) {
-            try {
-                chatService.markConversationAsRead(IdUtils.parseLongId(conv.getId()), token);
-            } catch (Exception e) {}
-        }
-        
+        markConversationReadAsync(conv);
         conv.setUnreadCount(0);
         conversationVersion.set(conversationVersion.get() + 1);
         loadGroupChatInfo(selectedGroup);
         loadMessages(conv.getId(), 0);
         loadPinnedMessages(conv.getId());
         subscribeToConversation(conv.getId());
+    }
+
+    private void beginConversationSwitch(String chatName, boolean isGroup) {
+        messageLoadVersion.incrementAndGet();
+        pinnedLoadVersion.incrementAndGet();
+        activeConversation.set(null);
+        currentChatName.set(chatName);
+        currentChatIsGroup.set(isGroup);
+        typingText.set(null);
+        displayedMessageIds.clear();
+        messages.clear();
+        memberList.clear();
+        sentFileList.clear();
+        sentLinkList.clear();
+        pinnedMessageList.clear();
+    }
+
+    private void markConversationReadAsync(ConversationResponse conversation) {
+        if (conversation == null || conversation.getId() == null || conversation.getUnreadCount() <= 0) return;
+        CompletableFuture.runAsync(() -> {
+            try {
+                chatService.markConversationAsRead(IdUtils.parseLongId(conversation.getId()), token);
+            } catch (Exception e) {
+                LOGGER.log(System.Logger.Level.WARNING,
+                        "Không thể đánh dấu cuộc trò chuyện đã đọc: " + conversation.getId(), e);
+            }
+        });
     }
 
     private void loadChatInfo(String chatName, boolean isGroup) {
@@ -411,6 +423,8 @@ public class ChatViewModel {
                 GroupMemberResponse[] members = chatService.getGroupMembersList(IdUtils.parseLongId(group.getId()), token);
                 if (members != null) {
                     Platform.runLater(() -> {
+                        ConversationResponse current = activeConversation.get();
+                        if (current == null || !group.getId().equals(current.getGroupId())) return;
                         for (GroupMemberResponse m : members) {
                             String dName = getUserDisplayName(m.getUserId());
                             if ("OWNER".equals(m.getRole())) {
@@ -429,8 +443,9 @@ public class ChatViewModel {
     }
 
     private void loadMessages(String conversationId, int unreadCount) {
+        long version = messageLoadVersion.incrementAndGet();
         displayedMessageIds.clear();
-        Platform.runLater(messages::clear);
+        messages.clear();
 
         CompletableFuture.runAsync(() -> {
             try {
@@ -439,9 +454,10 @@ public class ChatViewModel {
                     List<MessageItem> newMessages = new ArrayList<>();
                     List<String> files = new ArrayList<>();
                     List<String> links = new ArrayList<>();
+                    Set<String> historyMessageIds = ConcurrentHashMap.newKeySet();
 
                     for (MessageResponse msg : history) {
-                        if (msg.getId() != null && !displayedMessageIds.add(msg.getId())) {
+                        if (msg.getId() != null && !historyMessageIds.add(msg.getId())) {
                             continue;
                         }
                         boolean isMe = msg.getSenderId() != null && msg.getSenderId().equals(currentUserId);
@@ -471,20 +487,43 @@ public class ChatViewModel {
 
                     Platform.runLater(() -> {
                         ConversationResponse current = activeConversation.get();
-                        if (current == null || !conversationId.equals(current.getId())) {
+                        if (version != messageLoadVersion.get()
+                                || current == null || !conversationId.equals(current.getId())) {
                             return;
                         }
-                        messages.addAll(newMessages);
+                        java.util.LinkedHashMap<String, MessageItem> merged = new java.util.LinkedHashMap<>();
+                        int transientIndex = 0;
+                        for (MessageItem item : newMessages) {
+                            String id = item.getResponse() == null ? null : item.getResponse().getId();
+                            merged.put(id == null ? "history-" + transientIndex++ : id, item);
+                        }
+                        for (MessageItem item : messages) {
+                            String id = item.getResponse() == null ? null : item.getResponse().getId();
+                            merged.put(id == null ? "current-" + transientIndex++ : id, item);
+                        }
+                        messages.setAll(merged.values());
+                        displayedMessageIds.clear();
+                        for (MessageItem item : messages) {
+                            if (item.getResponse() != null && item.getResponse().getId() != null) {
+                                displayedMessageIds.add(item.getResponse().getId());
+                            }
+                        }
                         if (messages.isEmpty() && "TRỢ LÝ AI".equals(currentChatName.get())) {
                             messages.add(new MessageItem(null, "TRỢ LÝ AI", "Xin chào! Tôi là Trợ lý AI. Tôi có thể giúp gì cho bạn hôm nay?", getCurrentTime(), false, false, false, false));
                         }
-                        sentFileList.addAll(files);
-                        sentLinkList.addAll(links);
+                        sentFileList.setAll(files);
+                        sentLinkList.setAll(links);
                     });
                 }
             } catch (Exception e) {
                 LOGGER.log(System.Logger.Level.ERROR, "Lỗi khi tải lịch sử tin nhắn", e);
-                Platform.runLater(() -> errorMessage.set("Không thể tải lịch sử tin nhắn: " + e.getMessage()));
+                Platform.runLater(() -> {
+                    ConversationResponse current = activeConversation.get();
+                    if (version == messageLoadVersion.get()
+                            && current != null && conversationId.equals(current.getId())) {
+                        errorMessage.set("Không thể tải lịch sử tin nhắn: " + e.getMessage());
+                    }
+                });
             }
         });
     }
@@ -660,12 +699,20 @@ public class ChatViewModel {
         if (!isMe) {
             updateMessageStatus(message, isActivelyViewed ? "SEEN" : "DELIVERED");
             if (firstRealtimeDelivery) {
-                Platform.runLater(() -> newMessageEvent.set(createNewMessageEvent(message, conversation)));
-            }
-            if (!isActivelyViewed && firstRealtimeDelivery) {
                 Platform.runLater(() -> {
-                    conversation.setUnreadCount(conversation.getUnreadCount() + 1);
-                    conversationVersion.set(conversationVersion.get() + 1);
+                    ConversationResponse current = activeConversation.get();
+                    boolean currentlyOpen = current != null
+                            && message.getConversationId().equals(current.getId());
+                    if (currentlyOpen) {
+                        if (conversation.getUnreadCount() != 0) {
+                            conversation.setUnreadCount(0);
+                            conversationVersion.set(conversationVersion.get() + 1);
+                        }
+                    } else {
+                        conversation.setUnreadCount(conversation.getUnreadCount() + 1);
+                        conversationVersion.set(conversationVersion.get() + 1);
+                    }
+                    newMessageEvent.set(createNewMessageEvent(message, conversation));
                 });
             }
         }
@@ -681,6 +728,8 @@ public class ChatViewModel {
         if (existing != null) {
             MessageItem target = existing;
             Platform.runLater(() -> {
+                ConversationResponse current = activeConversation.get();
+                if (current == null || !message.getConversationId().equals(current.getId())) return;
                 target.update(message);
                 applyPinnedRealtime(message, target);
             });
@@ -697,6 +746,8 @@ public class ChatViewModel {
                 : getUserDisplayName(message.getSenderId());
 
         Platform.runLater(() -> {
+            ConversationResponse current = activeConversation.get();
+            if (current == null || !message.getConversationId().equals(current.getId())) return;
             messages.add(new MessageItem(
                     message,
                     senderName,
@@ -1310,8 +1361,9 @@ public class ChatViewModel {
     }
 
     public void clearConversationData() {
+        messageLoadVersion.incrementAndGet();
         pinnedLoadVersion.incrementAndGet();
-        Platform.runLater(() -> {
+        Runnable clear = () -> {
             messages.clear();
             memberList.clear();
             sentFileList.clear();
@@ -1320,7 +1372,9 @@ public class ChatViewModel {
             currentChatName.set(null);
             currentChatIsGroup.set(false);
             activeConversation.set(null);
-        });
+        };
+        if (Platform.isFxApplicationThread()) clear.run();
+        else Platform.runLater(clear);
     }
 
     public byte[] downloadFile(MessageResponse msg) throws Exception {
@@ -1440,6 +1494,81 @@ public class ChatViewModel {
 
     public String getCurrentUserId() { return currentUserId; }
     public String getToken() { return token; }
+
+    public CompletableFuture<UserResponse> loadCurrentUserProfile() {
+        String keycloakUserId = currentUserResponse == null
+                ? null : currentUserResponse.getKeycloakUserId();
+        if (keycloakUserId == null || keycloakUserId.isBlank()) {
+            return CompletableFuture.failedFuture(
+                    new IllegalStateException("Không tìm thấy thông tin tài khoản hiện tại."));
+        }
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                return chatService.getUserById(keycloakUserId, token);
+            } catch (Exception e) {
+                throw new java.util.concurrent.CompletionException(e);
+            }
+        }).thenApply(profile -> {
+            currentUserResponse = profile;
+            return profile;
+        });
+    }
+
+    public CompletableFuture<UserResponse> loadGroupMemberProfile(String userId) {
+        if (userId == null || userId.isBlank()) {
+            return CompletableFuture.failedFuture(
+                    new IllegalArgumentException("Không tìm thấy thành viên."));
+        }
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                UserProfileResponse chatProfile = chatService.getUserProfileById(userId, token);
+                String keycloakUserId = chatProfile == null ? null : chatProfile.getExternalSub();
+                if (keycloakUserId == null || keycloakUserId.isBlank()) {
+                    keycloakUserId = userId;
+                }
+                return chatService.getUserById(keycloakUserId, token);
+            } catch (Exception e) {
+                throw new java.util.concurrent.CompletionException(e);
+            }
+        });
+    }
+
+    public void openPrivateChatForProfile(UserResponse profile) {
+        if (profile == null || profile.getKeycloakUserId() == null
+                || profile.getKeycloakUserId().equals(
+                        currentUserResponse == null ? null : currentUserResponse.getKeycloakUserId())) {
+            return;
+        }
+        String displayName = profile.getUsername();
+        if (displayName == null || displayName.isBlank()) {
+            displayName = profile.getFullName();
+        }
+        if (displayName == null || displayName.isBlank()) return;
+        nameToUserMap.put(displayName, profile);
+        displayNameToUserId.put(displayName, profile.getKeycloakUserId());
+        if (!privateChatList.contains(displayName)) privateChatList.add(displayName);
+        selectPrivateChat(displayName);
+    }
+
+    public CompletableFuture<UserResponse> updateCurrentUserProfile(UpdateUserProfileRequest request) {
+        String keycloakUserId = currentUserResponse == null
+                ? null : currentUserResponse.getKeycloakUserId();
+        if (keycloakUserId == null || keycloakUserId.isBlank()) {
+            return CompletableFuture.failedFuture(
+                    new IllegalStateException("Không tìm thấy thông tin tài khoản hiện tại."));
+        }
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                return chatService.updateUserProfile(keycloakUserId, request, token);
+            } catch (Exception e) {
+                throw new java.util.concurrent.CompletionException(e);
+            }
+        }).thenApply(profile -> {
+            currentUserResponse = profile;
+            return profile;
+        });
+    }
+
     public void setApplicationActive(boolean value) {
         boolean becameActive = value && !applicationActive;
         applicationActive = value;

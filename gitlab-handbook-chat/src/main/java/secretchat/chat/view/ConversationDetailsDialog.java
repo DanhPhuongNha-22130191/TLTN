@@ -12,6 +12,7 @@ import javafx.stage.*;
 import javafx.util.Duration;
 import secretchat.chat.service.ConversationDetailsService;
 import secretchat.chat.viewmodel.ChatViewModel;
+import secretchat.dto.response.UserResponse;
 
 import java.awt.Desktop;
 import java.io.File;
@@ -51,7 +52,7 @@ public final class ConversationDetailsDialog {
     }
 
     public static void showMembers(ChatViewModel vm, Window owner,
-            java.util.function.Consumer<String> openPrivateChat) {
+            java.util.function.Consumer<UserResponse> openPrivateChat) {
         ConversationDetailsDialog dialog = new ConversationDetailsDialog(vm, owner, "Thành viên nhóm");
         dialog.configureMembers(openPrivateChat);
         dialog.show();
@@ -69,7 +70,7 @@ public final class ConversationDetailsDialog {
         dialog.show();
     }
 
-    private void configureMembers(java.util.function.Consumer<String> openPrivateChat) {
+    private void configureMembers(java.util.function.Consumer<UserResponse> openPrivateChat) {
         List<ChatViewModel.GroupMemberView> members = viewModel.getCurrentGroupMembers();
         setFilteredItems(members, member -> {
             ChatViewModel.GroupMemberView value = (ChatViewModel.GroupMemberView) member;
@@ -89,14 +90,12 @@ public final class ConversationDetailsDialog {
                 HBox.setHgrow(spacer, Priority.ALWAYS);
                 HBox row = new HBox(12, avatar, text, spacer);
                 row.setAlignment(Pos.CENTER_LEFT);
-                if (!"Bạn".equals(member.displayName())) {
-                    row.setOnMouseClicked(event -> {
-                        if (event.getClickCount() == 2) {
-                            openPrivateChat.accept(member.displayName());
-                            stage.close();
-                        }
-                    });
-                }
+                row.getStyleClass().add("details-member-row");
+                row.setOnMouseClicked(event -> {
+                    if (event.getClickCount() == 1) {
+                        showMemberProfile(member, openPrivateChat);
+                    }
+                });
                 if (owner && !"OWNER".equals(member.role())) {
                     Button transfer = actionButton("Chuyển quyền");
                     transfer.setOnAction(e -> { viewModel.transferGroupOwnership(member.userId()); stage.close(); });
@@ -118,6 +117,84 @@ public final class ConversationDetailsDialog {
         HBox footer = (HBox) root.getChildren().get(root.getChildren().size() - 1);
         footer.getChildren().add(0, add);
         footer.getChildren().add(1, leave);
+    }
+
+    private void showMemberProfile(ChatViewModel.GroupMemberView member,
+            java.util.function.Consumer<UserResponse> openPrivateChat) {
+        Stage profileStage = new Stage(StageStyle.TRANSPARENT);
+        profileStage.initOwner(stage);
+        profileStage.initModality(Modality.WINDOW_MODAL);
+
+        Label avatar = new Label(member.displayName().substring(0, 1).toUpperCase());
+        avatar.getStyleClass().add("member-profile-avatar");
+        Label title = new Label("Hồ sơ thành viên");
+        title.getStyleClass().add("member-profile-title");
+        Label role = new Label(roleText(member.role()));
+        role.getStyleClass().add("member-profile-role");
+        VBox heading = new VBox(3, title, role);
+        HBox header = new HBox(14, avatar, heading);
+        header.setAlignment(Pos.CENTER_LEFT);
+        header.getStyleClass().add("member-profile-header");
+
+        ProgressIndicator loading = new ProgressIndicator();
+        loading.setPrefSize(34, 34);
+        VBox content = new VBox(12, loading);
+        content.setAlignment(Pos.CENTER);
+        content.getStyleClass().add("member-profile-content");
+        VBox.setVgrow(content, Priority.ALWAYS);
+
+        Button close = new Button("Đóng");
+        close.getStyleClass().add("details-secondary-button");
+        close.setOnAction(event -> profileStage.close());
+        Button chat = new Button("Trò chuyện");
+        chat.getStyleClass().add("details-action-button");
+        chat.setDisable(true);
+        HBox footer = new HBox(10, close, chat);
+        footer.setAlignment(Pos.CENTER_RIGHT);
+        footer.getStyleClass().add("member-profile-footer");
+
+        VBox profileRoot = new VBox(header, content, footer);
+        profileRoot.getStyleClass().add("member-profile-dialog");
+        Scene profileScene = new Scene(profileRoot, 460, 410);
+        profileScene.setFill(null);
+        profileScene.getStylesheets().add(
+                getClass().getResource("/css/conversation-details.css").toExternalForm());
+        profileStage.setScene(profileScene);
+        profileStage.show();
+
+        viewModel.loadGroupMemberProfile(member.userId())
+                .whenComplete((profile, error) -> javafx.application.Platform.runLater(() -> {
+                    content.getChildren().clear();
+                    if (error != null) {
+                        Label failure = new Label("Không thể tải hồ sơ thành viên.");
+                        failure.getStyleClass().add("member-profile-error");
+                        content.getChildren().add(failure);
+                        return;
+                    }
+                    content.setAlignment(Pos.TOP_LEFT);
+                    content.getChildren().addAll(
+                            profileField("Tên đăng nhập", profile.getUsername()),
+                            profileField("Họ và tên", profile.getFullName()),
+                            profileField("Email", profile.getEmail()),
+                            profileField("Số điện thoại", profile.getPhoneNumber()));
+                    boolean currentUser = member.userId().equals(viewModel.getCurrentUserId());
+                    chat.setDisable(currentUser);
+                    if (currentUser) chat.setTooltip(new Tooltip("Không thể trò chuyện với chính mình."));
+                    chat.setOnAction(event -> {
+                        openPrivateChat.accept(profile);
+                        profileStage.close();
+                        stage.close();
+                    });
+                }));
+    }
+
+    private VBox profileField(String label, String value) {
+        Label name = new Label(label);
+        name.getStyleClass().add("member-profile-field-label");
+        Label data = new Label(value == null || value.isBlank() ? "Chưa cập nhật" : value);
+        data.getStyleClass().add("member-profile-field-value");
+        data.setWrapText(true);
+        return new VBox(3, name, data);
     }
 
     private void addMember() {
@@ -266,6 +343,7 @@ public final class ConversationDetailsDialog {
     private Button actionButton(String text) {
         Button button = new Button(text);
         button.getStyleClass().add("details-action-button");
+        button.setOnMouseClicked(event -> event.consume());
         return button;
     }
 

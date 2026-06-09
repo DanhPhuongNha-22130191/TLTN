@@ -61,11 +61,13 @@ public class ChatController extends BaseChatController {
     private ChatViewModel viewModel;
     private File selectedFile;
     private final PauseTransition typingPause = new PauseTransition(Duration.millis(900));
+    private final PauseTransition pinnedCollapsePause = new PauseTransition(Duration.millis(120));
     private final Timeline typingAnimation = new Timeline();
     private String typingBaseText = "Đang nhập";
     private final DesktopNotificationService desktopNotifications = new DesktopNotificationService();
     private Popup activeToast;
-    private boolean pinnedCollapsed;
+    private boolean pinnedCollapsed = true;
+    private boolean pinnedExpandedByUser;
 
     @FXML
     public void initialize() {
@@ -129,6 +131,10 @@ public class ChatController extends BaseChatController {
         });
         viewModel.activeConversationProperty().addListener((obs, oldVal, newVal) ->
         {
+            if (newVal != null && newVal != oldVal) {
+                pinnedCollapsed = true;
+                pinnedExpandedByUser = false;
+            }
             updateRightPanel(viewModel.currentChatIsGroupProperty().get());
             updatePinnedPanel();
             searchResultLabel.setVisible(false);
@@ -152,6 +158,15 @@ public class ChatController extends BaseChatController {
         // Cell factories
         setupCellFactories();
         setupPinnedMessageList();
+        pinnedCollapsePause.setOnFinished(event -> collapsePinnedWhenPointerLeaves());
+        pinnedArea.hoverProperty().addListener((obs, wasHovered, isHovered) -> {
+            if (isHovered) pinnedCollapsePause.stop();
+            else pinnedCollapsePause.playFromStart();
+        });
+        pinnedContent.hoverProperty().addListener((obs, wasHovered, isHovered) -> {
+            if (isHovered) pinnedCollapsePause.stop();
+            else pinnedCollapsePause.playFromStart();
+        });
 
         // Auto scroll to bottom
         messageScrollPane.vvalueProperty().addListener((obs, oldVal, newVal) -> {
@@ -249,7 +264,7 @@ public class ChatController extends BaseChatController {
 
                     if (unread > 0) {
                         Label badge = new Label(String.valueOf(unread));
-                        badge.setStyle("-fx-background-color: #ef4444; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 2 6; -fx-font-size: 10px; -fx-font-weight: bold;");
+                        badge.getStyleClass().add("conversation-unread-badge");
                         HBox.setMargin(badge, new javafx.geometry.Insets(0, 0, 0, 10));
                         box.getChildren().add(badge);
                     }
@@ -320,6 +335,7 @@ public class ChatController extends BaseChatController {
                 MenuItem unpin = new MenuItem("Bỏ ghim");
                 unpin.setOnAction(event -> viewModel.unpinMessage(item));
                 menu.getItems().addAll(goTo, unpin);
+                more.setOnMouseClicked(event -> event.consume());
                 more.setOnAction(event -> {
                     menu.show(more, javafx.geometry.Side.BOTTOM, 0, 0);
                     event.consume();
@@ -327,6 +343,12 @@ public class ChatController extends BaseChatController {
                 HBox row = new HBox(10, typeIcon, text, more);
                 row.getStyleClass().add("pinned-message-row");
                 row.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+                row.setOnMouseClicked(event -> {
+                    if (event.getButton() == javafx.scene.input.MouseButton.PRIMARY
+                            && event.getClickCount() == 1) {
+                        goToPinnedMessage(item);
+                    }
+                });
                 setGraphic(row);
             }
         });
@@ -353,6 +375,15 @@ public class ChatController extends BaseChatController {
                 });
     }
 
+    private void collapsePinnedWhenPointerLeaves() {
+        if (!pinnedArea.isHover() && !pinnedContent.isHover()
+                && pinnedExpandedByUser && !pinnedCollapsed) {
+            pinnedCollapsed = true;
+            pinnedExpandedByUser = false;
+            updatePinnedPanel();
+        }
+    }
+
     private void updatePinnedPanel() {
         boolean hasConversation = viewModel != null
                 && viewModel.activeConversationProperty().get() != null;
@@ -367,11 +398,20 @@ public class ChatController extends BaseChatController {
         pinnedEmptyLabel.setVisible(count == 0);
         pinnedEmptyLabel.setManaged(count == 0);
         pinnedCollapseButton.setText(pinnedCollapsed ? "Mở rộng" : "Thu gọn");
+        if (hasConversation && !pinnedCollapsed) {
+            Platform.runLater(() -> {
+                pinnedMessageList.refresh();
+                pinnedContent.applyCss();
+                pinnedContent.layout();
+                pinnedArea.requestLayout();
+            });
+        }
     }
 
     @FXML
     private void handleTogglePinned() {
         pinnedCollapsed = !pinnedCollapsed;
+        pinnedExpandedByUser = !pinnedCollapsed;
         updatePinnedPanel();
     }
 
@@ -510,7 +550,7 @@ public class ChatController extends BaseChatController {
 
     @FXML private void handleShowGroupMembers() {
         ConversationDetailsDialog.showMembers(viewModel, messageInput.getScene().getWindow(),
-                this::openPrivateChatFromMemberDialog);
+                this::openPrivateChatFromMemberProfile);
     }
 
     @FXML private void handleShowSentFiles() {
@@ -687,6 +727,39 @@ public class ChatController extends BaseChatController {
         }
     }
 
+    private void openPrivateChatFromMemberProfile(secretchat.dto.response.UserResponse profile) {
+        if (profile == null) return;
+        String displayName = profile.getUsername() == null || profile.getUsername().isBlank()
+                ? profile.getFullName() : profile.getUsername();
+        chatTabPane.getSelectionModel().select(0);
+        chatTitleLabel.setText(displayName);
+        chatStatusLabel.setText("Chat cá nhân");
+        viewModel.openPrivateChatForProfile(profile);
+        privateChatList.getSelectionModel().select(displayName);
+        privateChatList.refresh();
+    }
+
+    @FXML
+    private void handleProfile() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/profile-dialog.fxml"));
+            Parent root = loader.load();
+            ProfileDialogController controller = loader.getController();
+            controller.setViewModel(viewModel);
+
+            Stage dialog = new Stage();
+            dialog.initOwner(messageInput.getScene().getWindow());
+            dialog.initModality(Modality.APPLICATION_MODAL);
+            dialog.initStyle(StageStyle.UNDECORATED);
+            dialog.setScene(new Scene(root));
+            dialog.setResizable(false);
+            dialog.showAndWait();
+        } catch (IOException e) {
+            LOGGER.log(System.Logger.Level.ERROR, "Lỗi khi mở dialog trang cá nhân", e);
+            showAlert("Lỗi", "Không thể mở trang cá nhân.");
+        }
+    }
+
     @FXML
     private void handleSearch() {
         String keyword = searchField.getText().trim();
@@ -708,7 +781,7 @@ public class ChatController extends BaseChatController {
             return;
         }
         ConversationDetailsDialog.showMembers(viewModel, messageInput.getScene().getWindow(),
-                this::openPrivateChatFromMemberDialog);
+                this::openPrivateChatFromMemberProfile);
     }
 
     @FXML

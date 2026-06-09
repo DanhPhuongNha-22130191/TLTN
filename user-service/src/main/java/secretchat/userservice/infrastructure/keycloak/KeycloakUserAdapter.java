@@ -76,15 +76,23 @@ public class KeycloakUserAdapter implements KeycloakUserPort {
     }
 
     @Override
-    public void updateUser(String keycloakUserId, String fullName) {
-        UserRepresentation user = new UserRepresentation();
-        if (fullName != null) {
-            String[] parts = fullName.split(" ", 2);
-            user.setFirstName(parts[0]);
-            user.setLastName(parts.length > 1 ? parts[1] : "");
-        }
+    public void updateUser(String keycloakUserId, String username, String fullName, String newPassword) {
         try {
+            UserRepresentation user = keycloak.realm(realm).users().get(keycloakUserId).toRepresentation();
+            if (username != null && !username.isBlank()) user.setUsername(username);
+            if (fullName != null) {
+                String[] parts = fullName.split(" ", 2);
+                user.setFirstName(parts[0]);
+                user.setLastName(parts.length > 1 ? parts[1] : "");
+            }
             keycloak.realm(realm).users().get(keycloakUserId).update(user);
+            if (newPassword != null && !newPassword.isBlank()) {
+                CredentialRepresentation credential = new CredentialRepresentation();
+                credential.setType(CredentialRepresentation.PASSWORD);
+                credential.setValue(newPassword);
+                credential.setTemporary(false);
+                keycloak.realm(realm).users().get(keycloakUserId).resetPassword(credential);
+            }
         } catch (NotFoundException e) {
             throw new UserNotFoundException("User not found in Keycloak: " + keycloakUserId);
         } catch (Exception e) {

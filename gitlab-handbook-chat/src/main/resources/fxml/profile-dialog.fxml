@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="secretchat.chat.controller.ProfileDialogController"
+      stylesheets="@../css/dialog-common.css"
+      styleClass="dialog-root, profile-dialog"
+      prefWidth="500">
+
+    <HBox styleClass="dialog-header" alignment="CENTER_LEFT" spacing="12">
+        <StackPane styleClass="dialog-icon-box">
+            <FontIcon iconLiteral="fa-user" styleClass="dialog-icon"/>
+        </StackPane>
+        <VBox spacing="2">
+            <Label text="Trang cá nhân" styleClass="dialog-title"/>
+            <Label text="Cập nhật thông tin tài khoản và mật khẩu" styleClass="dialog-caption"/>
+        </VBox>
+    </HBox>
+
+    <VBox spacing="13" styleClass="dialog-body">
+        <padding>
+            <Insets top="20" right="22" bottom="18" left="22"/>
+        </padding>
+
+        <VBox spacing="6">
+            <Label text="Tên đăng nhập" styleClass="field-label"/>
+            <TextField fx:id="usernameField" promptText="Nhập tên đăng nhập"
+                       styleClass="input-field"/>
+        </VBox>
+
+        <VBox spacing="6">
+            <Label text="Họ và tên" styleClass="field-label"/>
+            <TextField fx:id="fullNameField" promptText="Nhập họ và tên"
+                       styleClass="input-field"/>
+        </VBox>
+
+        <VBox spacing="6">
+            <Label text="Số điện thoại" styleClass="field-label"/>
+            <TextField fx:id="phoneNumberField" promptText="Nhập số điện thoại"
+                       styleClass="input-field"/>
+        </VBox>
+
+        <Separator/>
+        <Label text="Đổi mật khẩu" styleClass="profile-section-title"/>
+        <Label text="Để trống hai ô dưới nếu không muốn đổi mật khẩu."
+               styleClass="dialog-caption"/>
+
+        <HBox spacing="10">
+            <VBox spacing="6" HBox.hgrow="ALWAYS">
+                <Label text="Mật khẩu mới" styleClass="field-label"/>
+                <PasswordField fx:id="passwordField" promptText="Tối thiểu 6 ký tự"
+                               styleClass="input-field"/>
+            </VBox>
+            <VBox spacing="6" HBox.hgrow="ALWAYS">
+                <Label text="Xác nhận mật khẩu" styleClass="field-label"/>
+                <PasswordField fx:id="confirmPasswordField" promptText="Nhập lại mật khẩu"
+                               styleClass="input-field"/>
+            </VBox>
+        </HBox>
+
+        <Label fx:id="errorLabel" visible="false" managed="false"
+               wrapText="true" maxWidth="450" styleClass="error-label"/>
+    </VBox>
+
+    <HBox spacing="12" alignment="CENTER_RIGHT" styleClass="dialog-footer">
+        <padding>
+            <Insets top="16" right="22" bottom="18" left="22"/>
+        </padding>
+        <ProgressIndicator fx:id="progressIndicator"
+                           visible="false" managed="false"
+                           prefWidth="24" prefHeight="24"/>
+        <Button text="Hủy" onAction="#handleCancel" styleClass="cancel-btn"/>
+        <Button fx:id="saveButton" text="Lưu thay đổi"
+                onAction="#handleSave" defaultButton="true"
+                styleClass="primary-btn"/>
+    </HBox>
+</VBox>
