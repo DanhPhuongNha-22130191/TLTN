@@ -40,4 +40,5 @@ jobs:
         with:
           name: SecretChat-Windows-App
           path: gitlab-handbook-chat/target/dist/SecretChat
+          include-hidden-files: true
           if-no-files-found: warn
