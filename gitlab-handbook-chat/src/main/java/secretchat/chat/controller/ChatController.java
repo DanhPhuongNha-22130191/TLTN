@@ -346,6 +346,7 @@ public class ChatController extends BaseChatController {
                 menu.setOnHidden(event -> pinnedContextMenuOpen = false);
                 more.setOnMouseClicked(event -> event.consume());
                 more.setOnAction(event -> {
+                    pinnedContextMenuOpen = true;
                     menu.show(more, javafx.geometry.Side.BOTTOM, 0, 0);
                     event.consume();
                 });
