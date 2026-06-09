@@ -100,6 +100,13 @@ public class UserProfileService implements UserProfileUseCase {
                 log.warn("Failed to fetch profile from user-service for userId {}, falling back to local DB", userId, e);
                 return localProfile;
             }
+        } else {
+            try {
+                return userServiceClient.getUserByKeycloakId(userId)
+                        .map(this::syncProfile);
+            } catch (Exception e) {
+                log.warn("Failed to fetch profile from user-service by Keycloak ID for userId {}", userId, e);
+            }
         }
         return Optional.empty();
     }

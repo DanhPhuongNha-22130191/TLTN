@@ -1555,7 +1555,11 @@ public class ChatViewModel {
         return CompletableFuture.supplyAsync(() -> {
             UserProfileResponse chatProfile = null;
             try {
-                chatProfile = chatService.getUserProfileById(userId, token);
+                try {
+                    chatProfile = chatService.getUserProfileById(userId, token);
+                } catch (Exception pe) {
+                    System.out.println("[Profile] loadGroupMemberProfile getUserProfileById failed: " + rootMessage(pe));
+                }
                 System.out.println("[Profile] loadGroupMemberProfile chatProfile: userId=" + userId
                         + ", externalSub=" + (chatProfile == null ? "null" : chatProfile.getExternalSub())
                         + ", username=" + (chatProfile == null ? "null" : chatProfile.getUsername()));
