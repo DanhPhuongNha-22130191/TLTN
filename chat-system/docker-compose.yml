@@ -211,7 +211,7 @@ services:
 
       SPRING_CLOUD_GATEWAY_ROUTES_2_ID: chat-service-websocket
       SPRING_CLOUD_GATEWAY_ROUTES_2_URI: ws://chat-service:8083
-      SPRING_CLOUD_GATEWAY_ROUTES_2_PREDICATES_0: Path=/ws/**
+      SPRING_CLOUD_GATEWAY_ROUTES_2_PREDICATES_0: Path=/ws,/ws/**
 
       SPRING_CLOUD_GATEWAY_ROUTES_3_ID: ai-rag-bot-api
       SPRING_CLOUD_GATEWAY_ROUTES_3_URI: http://ai-rag-bot:3000

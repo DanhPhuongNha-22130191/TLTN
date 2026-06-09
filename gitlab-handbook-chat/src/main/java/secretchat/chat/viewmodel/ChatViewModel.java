@@ -6,6 +6,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import secretchat.chat.service.AIService;
 import secretchat.chat.service.ChatService;
+import secretchat.chat.service.RealtimeChatService;
 import secretchat.common.exception.ApiException;
 import secretchat.dto.request.*;
 import secretchat.dto.response.*;
@@ -20,7 +21,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -30,6 +33,8 @@ public class ChatViewModel {
 
     private final ChatService chatService;
     private final AIService aiService;
+    private final RealtimeChatService realtimeChatService;
+    private final Set<String> displayedMessageIds = ConcurrentHashMap.newKeySet();
     
     private String token;
     private String currentUserId;
@@ -64,6 +69,7 @@ public class ChatViewModel {
     public ChatViewModel() {
         this.chatService = new ChatService(ApiClient.getInstance());
         this.aiService = new AIService();
+        this.realtimeChatService = new RealtimeChatService();
     }
 
     public void init() {
@@ -72,6 +78,13 @@ public class ChatViewModel {
             errorMessage.set("Không tìm thấy token đăng nhập. Vui lòng đăng nhập lại.");
             return;
         }
+
+        realtimeChatService.connect(token)
+                .exceptionally(error -> {
+                    Platform.runLater(() -> errorMessage.set(
+                            "Không thể kết nối WebSocket qua gateway: " + rootMessage(error)));
+                    return null;
+                });
 
         try {
             isLoading.set(true);
@@ -325,6 +338,7 @@ public class ChatViewModel {
         conv.setUnreadCount(0);
         loadChatInfo(selectedUserStr, false);
         loadMessages(conv.getId(), 0); // Ignore unreadCount for loading as it's just marked 0
+        subscribeToConversation(conv.getId());
     }
 
     public void selectGroupChat(String selectedGroupStr) {
@@ -368,6 +382,7 @@ public class ChatViewModel {
         conv.setUnreadCount(0);
         loadGroupChatInfo(selectedGroup);
         loadMessages(conv.getId(), 0);
+        subscribeToConversation(conv.getId());
     }
 
     private void loadChatInfo(String chatName, boolean isGroup) {
@@ -415,6 +430,7 @@ public class ChatViewModel {
     }
 
     private void loadMessages(String conversationId, int unreadCount) {
+        displayedMessageIds.clear();
         Platform.runLater(messages::clear);
 
         CompletableFuture.runAsync(() -> {
@@ -426,6 +442,9 @@ public class ChatViewModel {
                     List<String> links = new ArrayList<>();
 
                     for (MessageResponse msg : history) {
+                        if (msg.getId() != null && !displayedMessageIds.add(msg.getId())) {
+                            continue;
+                        }
                         boolean isMe = msg.getSenderId() != null && msg.getSenderId().equals(currentUserId);
                         String timeStr = formatTime(msg.getCreatedAt());
                         String senderName = getUserDisplayName(msg.getSenderId());
@@ -449,6 +468,10 @@ public class ChatViewModel {
                     }
 
                     Platform.runLater(() -> {
+                        ConversationResponse current = activeConversation.get();
+                        if (current == null || !conversationId.equals(current.getId())) {
+                            return;
+                        }
                         messages.addAll(newMessages);
                         if (messages.isEmpty() && "TRỢ LÝ AI".equals(currentChatName.get())) {
                             messages.add(new MessageItem(null, "TRỢ LÝ AI", "Xin chào! Tôi là Trợ lý AI. Tôi có thể giúp gì cho bạn hôm nay?", getCurrentTime(), false, false, false, false));
@@ -480,85 +503,140 @@ public class ChatViewModel {
             return;
         }
 
-        try {
-            boolean isAiChat = "TRỢ LÝ AI".equals(currentChatName.get());
+        boolean isAiChat = "TRỢ LÝ AI".equals(currentChatName.get());
+        Long conversationId = IdUtils.parseLongId(activeConversation.get().getId());
 
-            if (hasText) {
-                SendMessageRequest req = new SendMessageRequest();
-                req.setConversationId(IdUtils.parseLongId(activeConversation.get().getId()));
-                req.setSenderId(currentUserId);
-                req.setContent(text);
-                req.setMessageType("TEXT");
-
-                MessageResponse response = chatService.sendMessage(req, token);
-                MessageItem item = new MessageItem(response, "Bạn", text, getCurrentTime(), true, false, false, false);
-                messages.add(item);
-                extractAndAddLinks(text);
-
-                if (isAiChat) {
-                    CompletableFuture.runAsync(() -> {
-                        String aiResponseText = aiService.callAIAssistant(text);
-                        try {
-                            SendMessageRequest aiReq = new SendMessageRequest();
-                            aiReq.setConversationId(IdUtils.parseLongId(activeConversation.get().getId()));
-                            aiReq.setSenderId("AI_ASSISTANT");
-                            aiReq.setContent(aiResponseText);
-                            aiReq.setMessageType("TEXT");
-
-                            MessageResponse aiResponse = chatService.sendMessage(aiReq, token);
-                            Platform.runLater(() -> messages.add(new MessageItem(aiResponse, "TRỢ LÝ AI", aiResponseText, getCurrentTime(), false, false, false, false)));
-                        } catch (Exception ex) {
-                            Platform.runLater(() -> errorMessage.set("Không thể lưu phản hồi của AI: " + ex.getMessage()));
+        if (hasText) {
+            SendMessageRequest request = createTextMessage(conversationId, currentUserId, text);
+            realtimeChatService.sendMessage(request)
+                    .thenRun(() -> {
+                        if (isAiChat) {
+                            sendAiResponse(conversationId, text);
                         }
+                    })
+                    .exceptionally(error -> {
+                        Platform.runLater(() -> errorMessage.set(
+                                "Không thể gửi tin nhắn qua WebSocket: " + rootMessage(error)));
+                        return null;
                     });
-                }
-            }
-
-            if (hasFile) {
-                if (isAiChat) {
-                    errorMessage.set("Trợ lý AI hiện chưa hỗ trợ nhận file.");
-                    return;
-                }
-
-                CompletableFuture.runAsync(() -> {
-                    try {
-                        LOGGER.log(System.Logger.Level.INFO, "Bắt đầu upload file: {0}, size={1}", file.getName(), file.length());
-                        String uploadedFileUrl = chatService.uploadFile(file, token);
-                        LOGGER.log(System.Logger.Level.INFO, "Upload thành công, fileUrl={0}", uploadedFileUrl);
-
-                        SendMessageRequest req = new SendMessageRequest();
-                        req.setConversationId(IdUtils.parseLongId(activeConversation.get().getId()));
-                        req.setSenderId(currentUserId);
-                        req.setFileName(file.getName());
-                        req.setFileSize(file.length());
-                        req.setFileUrl(uploadedFileUrl);
-                        req.setFileType(FileUtils.getFileExtension(file));
-
-                        String ext = FileUtils.getFileExtension(file).toLowerCase();
-                        if (ext.equals("png") || ext.equals("jpg") || ext.equals("jpeg") || ext.equals("gif")) {
-                            req.setMessageType("IMAGE");
-                        } else {
-                            req.setMessageType("FILE");
-                        }
-
-                        LOGGER.log(System.Logger.Level.INFO, "Gửi tin nhắn file tới API, messageType={0}", req.getMessageType());
-                        MessageResponse response = chatService.sendMessage(req, token);
-                        MessageItem item = new MessageItem(response, "Bạn", file.getName(), getCurrentTime(), true, true, false, false);
-                        
-                        Platform.runLater(() -> {
-                            messages.add(item);
-                            sentFileList.add(file.getName());
-                        });
-                    } catch (Exception ex) {
-                        LOGGER.log(System.Logger.Level.ERROR, "Lỗi gửi file", ex);
-                        Platform.runLater(() -> errorMessage.set("Không thể gửi file: " + ex.getMessage()));
-                    }
-                });
-            }
-
-        } catch (Exception e) {
-            errorMessage.set("Không thể gửi tin nhắn: " + e.getMessage());
         }
+
+        if (hasFile) {
+            if (isAiChat) {
+                errorMessage.set("Trợ lý AI hiện chưa hỗ trợ nhận file.");
+                return;
+            }
+
+            CompletableFuture.runAsync(() -> uploadAndSendFile(conversationId, file));
+        }
+    }
+
+    public void close() {
+        realtimeChatService.close();
+    }
+
+    private void subscribeToConversation(String conversationId) {
+        realtimeChatService.subscribe(conversationId, this::handleRealtimeMessage)
+                .exceptionally(error -> {
+                    Platform.runLater(() -> errorMessage.set(
+                            "Không thể theo dõi hội thoại realtime: " + rootMessage(error)));
+                    return null;
+                });
+    }
+
+    private void handleRealtimeMessage(MessageResponse message) {
+        ConversationResponse currentConversation = activeConversation.get();
+        if (currentConversation == null
+                || message.getConversationId() == null
+                || !message.getConversationId().equals(currentConversation.getId())
+                || (message.getId() != null && !displayedMessageIds.add(message.getId()))) {
+            return;
+        }
+
+        boolean isMe = currentUserId.equals(message.getSenderId());
+        boolean isFile = !"TEXT".equalsIgnoreCase(message.getMessageType());
+        String content = isFile && message.getFileName() != null
+                ? message.getFileName()
+                : message.getContent();
+        String senderName = "AI_ASSISTANT".equals(message.getSenderId())
+                ? "TRỢ LÝ AI"
+                : getUserDisplayName(message.getSenderId());
+
+        Platform.runLater(() -> {
+            messages.add(new MessageItem(
+                    message,
+                    senderName,
+                    content,
+                    formatTime(message.getCreatedAt()),
+                    isMe,
+                    isFile,
+                    message.isDeleted(),
+                    message.getDeletedForUsers() != null
+                            && message.getDeletedForUsers().contains(currentUserId)));
+            if (isFile && message.getFileName() != null) {
+                sentFileList.add(message.getFileName());
+            } else if (content != null) {
+                extractAndAddLinks(content);
+            }
+        });
+    }
+
+    private SendMessageRequest createTextMessage(Long conversationId, String senderId, String content) {
+        SendMessageRequest request = new SendMessageRequest();
+        request.setConversationId(conversationId);
+        request.setSenderId(senderId);
+        request.setContent(content);
+        request.setMessageType("TEXT");
+        return request;
+    }
+
+    private void sendAiResponse(Long conversationId, String question) {
+        CompletableFuture.runAsync(() -> {
+            String answer = aiService.callAIAssistant(question);
+            realtimeChatService.sendMessage(createTextMessage(conversationId, "AI_ASSISTANT", answer))
+                    .exceptionally(error -> {
+                        Platform.runLater(() -> errorMessage.set(
+                                "Không thể gửi phản hồi AI qua WebSocket: " + rootMessage(error)));
+                        return null;
+                    });
+        });
+    }
+
+    private void uploadAndSendFile(Long conversationId, File file) {
+        try {
+            LOGGER.log(System.Logger.Level.INFO, "Bắt đầu upload file: {0}, size={1}",
+                    file.getName(), file.length());
+            String uploadedFileUrl = chatService.uploadFile(file, token);
+
+            SendMessageRequest request = new SendMessageRequest();
+            request.setConversationId(conversationId);
+            request.setSenderId(currentUserId);
+            request.setFileName(file.getName());
+            request.setFileSize(file.length());
+            request.setFileUrl(uploadedFileUrl);
+            request.setFileType(FileUtils.getFileExtension(file));
+
+            String extension = FileUtils.getFileExtension(file).toLowerCase();
+            request.setMessageType(
+                    extension.equals("png") || extension.equals("jpg")
+                            || extension.equals("jpeg") || extension.equals("gif")
+                            ? "IMAGE"
+                            : "FILE");
+
+            realtimeChatService.sendMessage(request).join();
+        } catch (Exception error) {
+            LOGGER.log(System.Logger.Level.ERROR, "Lỗi gửi file", error);
+            Platform.runLater(() -> errorMessage.set(
+                    "Không thể gửi file qua WebSocket: " + rootMessage(error)));
+        }
+    }
+
+    private String rootMessage(Throwable error) {
+        Throwable cause = error;
+        while (cause.getCause() != null) {
+            cause = cause.getCause();
+        }
+        return cause.getMessage() != null ? cause.getMessage() : cause.getClass().getSimpleName();
     }
 
     private void extractAndAddLinks(String text) {

@@ -40,7 +40,7 @@ spring:
         - id: chat-service-websocket
           uri: ws://${CHAT_SERVICE_HOST}:${CHAT_SERVICE_PORT}
           predicates:
-            - Path=/ws/**
+            - Path=/ws,/ws/**
 
         - id: ai-rag-bot-api
           uri: http://${AI_RAG_BOT_HOST}:${AI_RAG_BOT_PORT}

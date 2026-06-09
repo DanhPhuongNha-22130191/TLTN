@@ -116,6 +116,12 @@ public class ChatController extends BaseChatController {
 
         updateRightPanel(false);
         viewModel.init();
+
+        Platform.runLater(() -> {
+            if (messageInput.getScene() != null && messageInput.getScene().getWindow() != null) {
+                messageInput.getScene().getWindow().setOnHidden(event -> viewModel.close());
+            }
+        });
     }
 
     private void setupCellFactories() {
@@ -423,6 +429,7 @@ public class ChatController extends BaseChatController {
 
     @FXML
     private void handleLogout(ActionEvent event) {
+        viewModel.close();
         new MainViewModel().logout();
         switchScene(event, "/fxml/login-view.fxml");
     }

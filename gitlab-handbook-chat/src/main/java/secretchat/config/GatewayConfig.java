@@ -85,4 +85,8 @@ public class GatewayConfig {
     public String getAiUrl() {
         return gatewayUrl + "/api/ai/chat";
     }
+
+    public String getWebSocketUrl() {
+        return gatewayUrl.replaceFirst("^http", "ws") + "/ws";
+    }
 }
