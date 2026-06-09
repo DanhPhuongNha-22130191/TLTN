@@ -1505,26 +1505,35 @@ public class ChatViewModel {
         System.out.println("[Profile] loadCurrentUserProfile start keycloakUserId=" + keycloakUserId);
         return CompletableFuture.supplyAsync(() -> {
             try {
-                UserResponse profile = chatService.getUserById(keycloakUserId, token);
-                System.out.println("[Profile] loadCurrentUserProfile got user profile id="
+                UserResponse profile = chatService.getCurrentUserProfile(token);
+                System.out.println("[Profile] loadCurrentUserProfile got current user profile id="
                         + profile.getId() + ", username=" + profile.getUsername()
                         + ", keycloakUserId=" + profile.getKeycloakUserId());
                 return profile;
             } catch (Exception e) {
-                System.out.println("[Profile] loadCurrentUserProfile getUserById failed: " + rootMessage(e));
-                String username = currentUserResponse == null
-                        ? null : currentUserResponse.getUsername();
-                if (username == null || username.isBlank()) {
-                    throw new java.util.concurrent.CompletionException(e);
-                }
+                System.out.println("[Profile] loadCurrentUserProfile getCurrentUserProfile failed: " + rootMessage(e));
                 try {
-                    UserResponse profile = chatService.getUserByUsername(username, token);
-                    System.out.println("[Profile] loadCurrentUserProfile fallback by username succeeded: username="
-                            + profile.getUsername() + ", keycloakUserId=" + profile.getKeycloakUserId());
+                    UserResponse profile = chatService.getUserById(keycloakUserId, token);
+                    System.out.println("[Profile] loadCurrentUserProfile fallback by id succeeded: id="
+                            + profile.getId() + ", username=" + profile.getUsername()
+                            + ", keycloakUserId=" + profile.getKeycloakUserId());
                     return profile;
-                } catch (Exception fallbackError) {
-                    fallbackError.addSuppressed(e);
-                    throw new java.util.concurrent.CompletionException(fallbackError);
+                } catch (Exception e2) {
+                    System.out.println("[Profile] loadCurrentUserProfile getUserById fallback failed: " + rootMessage(e2));
+                    String username = currentUserResponse == null
+                            ? null : currentUserResponse.getUsername();
+                    if (username == null || username.isBlank()) {
+                        throw new java.util.concurrent.CompletionException(e2);
+                    }
+                    try {
+                        UserResponse profile = chatService.getUserByUsername(username, token);
+                        System.out.println("[Profile] loadCurrentUserProfile fallback by username succeeded: username="
+                                + profile.getUsername() + ", keycloakUserId=" + profile.getKeycloakUserId());
+                        return profile;
+                    } catch (Exception fallbackError) {
+                        fallbackError.addSuppressed(e2);
+                        throw new java.util.concurrent.CompletionException(fallbackError);
+                    }
                 }
             }
         }).thenApply(profile -> {
@@ -1544,8 +1553,9 @@ public class ChatViewModel {
         }
         System.out.println("[Profile] loadGroupMemberProfile start userId=" + userId);
         return CompletableFuture.supplyAsync(() -> {
+            UserProfileResponse chatProfile = null;
             try {
-                UserProfileResponse chatProfile = chatService.getUserProfileById(userId, token);
+                chatProfile = chatService.getUserProfileById(userId, token);
                 System.out.println("[Profile] loadGroupMemberProfile chatProfile: userId=" + userId
                         + ", externalSub=" + (chatProfile == null ? "null" : chatProfile.getExternalSub())
                         + ", username=" + (chatProfile == null ? "null" : chatProfile.getUsername()));
@@ -1560,6 +1570,17 @@ public class ChatViewModel {
             } catch (Exception e) {
                 System.out.println("[Profile] loadGroupMemberProfile failed userId=" + userId
                         + ", error=" + rootMessage(e));
+                if (chatProfile != null && chatProfile.getUsername() != null && !chatProfile.getUsername().isBlank()) {
+                    try {
+                        UserResponse profile = chatService.getUserByUsername(chatProfile.getUsername(), token);
+                        System.out.println("[Profile] loadGroupMemberProfile fallback by username succeeded: username="
+                                + profile.getUsername() + ", keycloakUserId=" + profile.getKeycloakUserId());
+                        return profile;
+                    } catch (Exception fallbackError) {
+                        fallbackError.addSuppressed(e);
+                        throw new java.util.concurrent.CompletionException(fallbackError);
+                    }
+                }
                 throw new java.util.concurrent.CompletionException(e);
             }
         });

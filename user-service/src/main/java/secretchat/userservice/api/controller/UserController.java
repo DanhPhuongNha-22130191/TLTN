@@ -30,6 +30,14 @@ public class UserController {
         return ResponseEntity.ok(userUseCase.getAll().stream().map(UserResponse::from).toList());
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<UserResponse> getCurrentUser(@AuthenticationPrincipal Jwt jwt) {
+        if (jwt == null || jwt.getSubject() == null) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        return ResponseEntity.ok(UserResponse.from(userUseCase.getById(jwt.getSubject())));
+    }
+
     @GetMapping("/{keycloakUserId}")
     public ResponseEntity<UserResponse> getById(@PathVariable String keycloakUserId) {
         return ResponseEntity.ok(UserResponse.from(userUseCase.getById(keycloakUserId)));

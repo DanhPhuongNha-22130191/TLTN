@@ -37,6 +37,14 @@ public class ChatService {
         }
     }
 
+    public UserResponse getCurrentUserProfile(String token) throws Exception {
+        try {
+            return apiClient.get("/api/users/me", token, UserResponse.class);
+        } catch (Exception e) {
+            throw GlobalExceptionHandler.handle(e);
+        }
+    }
+
     public FriendResponse addFriend(AddFriendRequest request, String token) throws Exception {
         try {
             return apiClient.post("/api/friends", request, token, FriendResponse.class);
