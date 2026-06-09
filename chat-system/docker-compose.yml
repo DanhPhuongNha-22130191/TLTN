@@ -1,0 +1,216 @@
+services:
+
+  # =========================
+  # PostgreSQL User Service
+  # =========================
+  postgres:
+    image: postgres:16-alpine
+    container_name: postgres-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password123
+      POSTGRES_DB: user_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+
+  # =========================
+  # Keycloak
+  # =========================
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.6.2
+    container_name: keycloak
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/user_db
+      KC_DB_USERNAME: postgres
+      KC_DB_PASSWORD: password123
+
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+
+    command:
+      - start-dev
+      - --import-realm
+
+    ports:
+      - "8081:8080"
+
+    volumes:
+      - ./realm-export.json:/opt/keycloak/data/import/realm-export.json:ro
+
+    depends_on:
+      - postgres
+
+    restart: always
+
+  # =========================
+  # User Service
+  # =========================
+  user-service:
+    image: phuongnha/user-service:latest
+    container_name: user-service
+
+    ports:
+      - "8082:8082"
+
+    environment:
+      SERVER_PORT: 8082
+
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: user_db
+      DB_USER: postgres
+      DB_PASSWORD: password123
+
+      KEYCLOAK_SERVER_URL: http://keycloak:8080
+      KEYCLOAK_REALM: master
+
+      KEYCLOAK_CLIENT_ID: javafx-client
+      KEYCLOAK_ADMIN_CLIENT_ID: javafx-client
+
+      KEYCLOAK_ADMIN_USERNAME: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://keycloak:8080/realms/master
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8080/realms/master/protocol/openid-connect/certs
+
+    depends_on:
+      - postgres
+      - keycloak
+
+    restart: always
+
+  # =========================
+  # PostgreSQL Chat Service
+  # =========================
+  chat-postgres:
+    image: postgres:15-alpine
+    container_name: chat-db
+
+    environment:
+      POSTGRES_DB: chat_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+
+    ports:
+      - "5433:5432"
+
+    volumes:
+      - chat_postgres_data:/var/lib/postgresql/data
+
+    restart: always
+
+  # =========================
+  # Chat Service
+  # =========================
+  chat-service:
+    image: phuongnha/chat-service:latest
+    container_name: chat-service
+
+    ports:
+      - "8083:8083"
+
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+
+      SERVER_PORT: 8083
+
+      DB_HOST: chat-postgres
+      DB_PORT: 5432
+      DB_NAME: chat_db
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+
+      USER_SERVICE_URL: http://user-service:8082
+
+      # =========================
+      # Upload Config
+      # =========================
+      SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE: 50MB
+      SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE: 50MB
+
+    depends_on:
+      - chat-postgres
+      - user-service
+
+    volumes:
+      - chat_uploads:/app/uploads
+
+    restart: always
+
+  # =========================
+  # AI RAG BOT
+  # =========================
+  ai-rag-bot:
+    image: phuongnha/ai-rag-bot:latest
+    container_name: ai-rag-bot
+
+    ports:
+      - "3000:3000"
+
+    environment:
+      SERVER_PORT: 3000
+
+      OLLAMA_URL: http://host.docker.internal:11434/api/generate
+
+      PYTHONUNBUFFERED: 1
+
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+    depends_on:
+      - user-service
+      - chat-service
+
+    restart: always
+
+  # =========================
+  # API Gateway
+  # =========================
+  api-gateway:
+    image: phuongnha/api-gateway:latest
+    container_name: api-gateway
+
+    ports:
+      - "8080:8080"
+
+    environment:
+      SERVER_PORT: 8080
+
+      KEYCLOAK_SERVER_URL: http://keycloak:8080
+      KEYCLOAK_REALM: master
+
+      USER_SERVICE_HOST: user-service
+      USER_SERVICE_PORT: 8082
+
+      CHAT_SERVICE_HOST: chat-service
+      CHAT_SERVICE_PORT: 8083
+
+      AI_RAG_BOT_HOST: ai-rag-bot
+      AI_RAG_BOT_PORT: 3000
+
+      INTERNAL_SECRET_KEY: tltn-internal-secret-key-2026
+
+      FRONTEND_URL: http://localhost:3000
+
+      # =========================
+      # Upload Config
+      # =========================
+      SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE: 50MB
+      SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE: 50MB
+
+    depends_on:
+      - user-service
+      - chat-service
+      - ai-rag-bot
+      - keycloak
+
+    restart: always
+
+volumes:
+  postgres_data:
+  chat_postgres_data:
+  chat_uploads:

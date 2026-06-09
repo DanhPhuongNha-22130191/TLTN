@@ -47,7 +47,8 @@ public class MessageController {
             return ResponseEntity.ok("uploads/" + fileName);
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.internalServerError().build();
+            System.err.println("File upload error: " + e.getMessage());
+            return ResponseEntity.status(500).body("{\"error\": \"" + e.getMessage() + "\"}");
         }
     }
 
