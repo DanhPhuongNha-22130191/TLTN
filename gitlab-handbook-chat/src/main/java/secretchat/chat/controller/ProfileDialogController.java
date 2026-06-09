@@ -32,15 +32,20 @@ public class ProfileDialogController {
     public void setViewModel(ChatViewModel viewModel) {
         this.viewModel = viewModel;
         UserResponse snapshot = viewModel.getCurrentUserProfileSnapshot();
+        System.out.println("[Profile] Opening profile dialog. current snapshot keycloakUserId="
+                + (snapshot == null ? "null" : snapshot.getKeycloakUserId()));
         if (snapshot != null) populate(snapshot);
         setLoading(true);
         viewModel.loadCurrentUserProfile()
                 .whenComplete((profile, error) -> Platform.runLater(() -> {
                     setLoading(false);
                     if (error != null) {
+                        System.out.println("[Profile] loadCurrentUserProfile failed: " + rootMessage(error));
                         showError("Không thể đồng bộ hồ sơ mới nhất. Bạn vẫn có thể chỉnh sửa và lưu.");
                         return;
                     }
+                    System.out.println("[Profile] loadCurrentUserProfile success: username="
+                            + profile.getUsername() + ", keycloakUserId=" + profile.getKeycloakUserId());
                     hideError();
                     populate(profile);
                 }));
@@ -62,15 +67,21 @@ public class ProfileDialogController {
         request.setPhoneNumber(phoneNumberField.getText().trim());
         request.setNewPassword(passwordField.getText().isBlank() ? null : passwordField.getText());
 
+        System.out.println("[Profile] updateCurrentUserProfile request: username=" + request.getUsername()
+                + ", fullName=" + request.getFullName() + ", phoneNumber=" + request.getPhoneNumber()
+                + ", newPassword=" + (request.getNewPassword() == null ? "null" : "*****"));
         hideError();
         setLoading(true);
         viewModel.updateCurrentUserProfile(request)
                 .whenComplete((profile, error) -> Platform.runLater(() -> {
                     setLoading(false);
                     if (error != null) {
+                        System.out.println("[Profile] updateCurrentUserProfile failed: " + rootMessage(error));
                         showError(rootMessage(error));
                         return;
                     }
+                    System.out.println("[Profile] updateCurrentUserProfile success: username=" + profile.getUsername()
+                            + ", keycloakUserId=" + profile.getKeycloakUserId());
                     closeDialog();
                 }));
     }

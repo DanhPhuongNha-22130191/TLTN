@@ -1043,7 +1043,7 @@ public class ChatController extends BaseChatController {
                     case "SENDING" -> "Đang gửi";
                     case "FAILED" -> "Gửi lỗi";
                     case "SEEN" -> "Đã xem";
-                    case "DELIVERED" -> "Đã gửi";
+                    case "DELIVERED" -> "Đã nhận";
                     default -> "Đã gửi";
                 };
                 statusLabel.getStyleClass().removeAll(

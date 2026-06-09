@@ -1502,17 +1502,26 @@ public class ChatViewModel {
             return CompletableFuture.failedFuture(
                     new IllegalStateException("Không tìm thấy thông tin tài khoản hiện tại."));
         }
+        System.out.println("[Profile] loadCurrentUserProfile start keycloakUserId=" + keycloakUserId);
         return CompletableFuture.supplyAsync(() -> {
             try {
-                return chatService.getUserById(keycloakUserId, token);
+                UserResponse profile = chatService.getUserById(keycloakUserId, token);
+                System.out.println("[Profile] loadCurrentUserProfile got user profile id="
+                        + profile.getId() + ", username=" + profile.getUsername()
+                        + ", keycloakUserId=" + profile.getKeycloakUserId());
+                return profile;
             } catch (Exception e) {
+                System.out.println("[Profile] loadCurrentUserProfile getUserById failed: " + rootMessage(e));
                 String username = currentUserResponse == null
                         ? null : currentUserResponse.getUsername();
                 if (username == null || username.isBlank()) {
                     throw new java.util.concurrent.CompletionException(e);
                 }
                 try {
-                    return chatService.getUserByUsername(username, token);
+                    UserResponse profile = chatService.getUserByUsername(username, token);
+                    System.out.println("[Profile] loadCurrentUserProfile fallback by username succeeded: username="
+                            + profile.getUsername() + ", keycloakUserId=" + profile.getKeycloakUserId());
+                    return profile;
                 } catch (Exception fallbackError) {
                     fallbackError.addSuppressed(e);
                     throw new java.util.concurrent.CompletionException(fallbackError);
@@ -1533,15 +1542,24 @@ public class ChatViewModel {
             return CompletableFuture.failedFuture(
                     new IllegalArgumentException("Không tìm thấy thành viên."));
         }
+        System.out.println("[Profile] loadGroupMemberProfile start userId=" + userId);
         return CompletableFuture.supplyAsync(() -> {
             try {
                 UserProfileResponse chatProfile = chatService.getUserProfileById(userId, token);
+                System.out.println("[Profile] loadGroupMemberProfile chatProfile: userId=" + userId
+                        + ", externalSub=" + (chatProfile == null ? "null" : chatProfile.getExternalSub())
+                        + ", username=" + (chatProfile == null ? "null" : chatProfile.getUsername()));
                 String keycloakUserId = chatProfile == null ? null : chatProfile.getExternalSub();
                 if (keycloakUserId == null || keycloakUserId.isBlank()) {
                     keycloakUserId = userId;
                 }
-                return chatService.getUserById(keycloakUserId, token);
+                UserResponse profile = chatService.getUserById(keycloakUserId, token);
+                System.out.println("[Profile] loadGroupMemberProfile got user profile: username="
+                        + profile.getUsername() + ", keycloakUserId=" + profile.getKeycloakUserId());
+                return profile;
             } catch (Exception e) {
+                System.out.println("[Profile] loadGroupMemberProfile failed userId=" + userId
+                        + ", error=" + rootMessage(e));
                 throw new java.util.concurrent.CompletionException(e);
             }
         });
