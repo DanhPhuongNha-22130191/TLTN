@@ -431,7 +431,7 @@ public class ChatController extends BaseChatController {
         messageSearchField.clear();
         searchResultLabel.setVisible(false);
         searchResultLabel.setManaged(false);
-        pinnedMessageList.clear();
+        pinnedMessageList.getItems().clear();
         viewModel.clearConversationData();
     }
 
@@ -483,7 +483,7 @@ public class ChatController extends BaseChatController {
         chatStatusLabel.setText("Trợ lý ảo thông minh");
         
         viewModel.selectPrivateChat(aiAssistantName);
-        privateChatList.clearSelection();
+        privateChatList.getSelectionModel().clearSelection();
     }
 
     @FXML
