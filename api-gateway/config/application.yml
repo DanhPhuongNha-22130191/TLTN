@@ -1,0 +1,53 @@
+server:
+  port: ${SERVER_PORT:8088}
+
+spring:
+  application:
+    name: api-gateway
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${KEYCLOAK_SERVER_URL}/realms/${KEYCLOAK_REALM}
+
+  cloud:
+    gateway:
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins:
+              - ${FRONTEND_URL:http://localhost:3000}
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
+
+      routes:
+        - id: user-service-api
+          uri: http://${USER_SERVICE_HOST}:${USER_SERVICE_PORT}
+          predicates:
+            - Path=/api/users/**
+
+        - id: chat-service-api
+          uri: http://${CHAT_SERVICE_HOST}:${CHAT_SERVICE_PORT}
+          predicates:
+            - Path=/api/user/**,/api/conversations/**,/api/groups/**,/api/messages/**,/api/friends/**
+
+        - id: chat-service-websocket
+          uri: ws://${CHAT_SERVICE_HOST}:${CHAT_SERVICE_PORT}
+          predicates:
+            - Path=/ws/**
+
+        - id: ai-rag-bot-api
+          uri: http://${AI_RAG_BOT_HOST}:${AI_RAG_BOT_PORT}
+          predicates:
+            - Path=/api/ai/**
+          filters:
+            - RewritePath=/api/ai/(?<segment>.*), /$\{segment}
+
+app:
+  internal-secret: ${INTERNAL_SECRET_KEY}

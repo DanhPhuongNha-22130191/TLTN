@@ -50,7 +50,9 @@ services:
   # User Service
   # =========================
   user-service:
-    image: phuongnha/user-service:latest
+    image: phuongnha/user-service:${USER_SERVICE_TAG:-latest}
+    pull_policy: always
+    platform: linux/amd64
     container_name: user-service
 
     ports:
@@ -107,7 +109,9 @@ services:
   # Chat Service
   # =========================
   chat-service:
-    image: phuongnha/chat-service:latest
+    image: phuongnha/chat-service:${CHAT_SERVICE_TAG:-latest}
+    pull_policy: always
+    platform: linux/amd64
     container_name: chat-service
 
     ports:
@@ -145,7 +149,9 @@ services:
   # AI RAG BOT
   # =========================
   ai-rag-bot:
-    image: phuongnha/ai-rag-bot:latest
+    image: phuongnha/ai-rag-bot:${AI_RAG_BOT_TAG:-latest}
+    pull_policy: always
+    platform: linux/amd64
     container_name: ai-rag-bot
 
     ports:
@@ -171,14 +177,16 @@ services:
   # API Gateway
   # =========================
   api-gateway:
-    image: phuongnha/api-gateway:latest
+    image: phuongnha/api-gateway:${API_GATEWAY_TAG:-latest}
+    pull_policy: always
+    platform: linux/amd64
     container_name: api-gateway
 
     ports:
-      - "8080:8080"
+      - "8088:8088"
 
     environment:
-      SERVER_PORT: 8080
+      SERVER_PORT: 8088
 
       KEYCLOAK_SERVER_URL: http://keycloak:8080
       KEYCLOAK_REALM: master
@@ -191,6 +199,24 @@ services:
 
       AI_RAG_BOT_HOST: ai-rag-bot
       AI_RAG_BOT_PORT: 3000
+
+      # Define every gateway route here so this compose file is standalone.
+      SPRING_CLOUD_GATEWAY_ROUTES_0_ID: user-service-api
+      SPRING_CLOUD_GATEWAY_ROUTES_0_URI: http://user-service:8082
+      SPRING_CLOUD_GATEWAY_ROUTES_0_PREDICATES_0: Path=/api/users/**
+
+      SPRING_CLOUD_GATEWAY_ROUTES_1_ID: chat-service-api
+      SPRING_CLOUD_GATEWAY_ROUTES_1_URI: http://chat-service:8083
+      SPRING_CLOUD_GATEWAY_ROUTES_1_PREDICATES_0: Path=/api/user/**,/api/conversations/**,/api/groups/**,/api/messages/**,/api/friends/**
+
+      SPRING_CLOUD_GATEWAY_ROUTES_2_ID: chat-service-websocket
+      SPRING_CLOUD_GATEWAY_ROUTES_2_URI: ws://chat-service:8083
+      SPRING_CLOUD_GATEWAY_ROUTES_2_PREDICATES_0: Path=/ws/**
+
+      SPRING_CLOUD_GATEWAY_ROUTES_3_ID: ai-rag-bot-api
+      SPRING_CLOUD_GATEWAY_ROUTES_3_URI: http://ai-rag-bot:3000
+      SPRING_CLOUD_GATEWAY_ROUTES_3_PREDICATES_0: Path=/api/ai/**
+      SPRING_CLOUD_GATEWAY_ROUTES_3_FILTERS_0: StripPrefix=2
 
       INTERNAL_SECRET_KEY: tltn-internal-secret-key-2026
 

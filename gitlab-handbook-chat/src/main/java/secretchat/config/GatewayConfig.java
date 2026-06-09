@@ -8,7 +8,6 @@ public class GatewayConfig {
     private static final System.Logger LOGGER = System.getLogger(GatewayConfig.class.getName());
     private static final GatewayConfig INSTANCE = new GatewayConfig();
     private String gatewayUrl;
-    private String aiUrl;
 
     private GatewayConfig() {
         loadConfig();
@@ -44,25 +43,9 @@ public class GatewayConfig {
 
         // Fallback mặc định
         String finalHost = host != null ? host : "localhost";
-        String finalPort = port != null ? port : "8080";
+        String finalPort = port != null ? port : "8088";
 
         this.gatewayUrl = "http://" + finalHost + ":" + finalPort;
-
-        // Tải AI_URL
-        String resolvedAiUrl = System.getenv("AI_URL");
-        if (resolvedAiUrl == null)
-            resolvedAiUrl = dotenv.get("AI_URL");
-        if (resolvedAiUrl == null)
-            resolvedAiUrl = System.getProperty("ai.url");
-        if (resolvedAiUrl == null) {
-            // Thử load từ gateway-config.properties nếu có
-            Properties props = loadProperties();
-            resolvedAiUrl = props.getProperty("ai.url");
-        }
-        if (resolvedAiUrl == null)
-            resolvedAiUrl = "http://localhost:3000/chat";
-
-        this.aiUrl = resolvedAiUrl;
     }
 
     private Properties loadProperties() {
@@ -100,6 +83,6 @@ public class GatewayConfig {
     }
 
     public String getAiUrl() {
-        return aiUrl;
+        return gatewayUrl + "/api/ai/chat";
     }
 }

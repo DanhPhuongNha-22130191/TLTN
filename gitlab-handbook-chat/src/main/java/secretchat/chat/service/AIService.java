@@ -2,6 +2,7 @@ package secretchat.chat.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import secretchat.config.GatewayConfig;
+import secretchat.service.SessionManager;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -32,15 +33,19 @@ public class AIService {
 
             String aiUrl = GatewayConfig.getInstance().getAiUrl();
 
-            HttpRequest request = HttpRequest.newBuilder()
+            HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
                     .uri(URI.create(aiUrl))
                     .header("Content-Type", "application/json")
                     .header("Accept", "application/json")
                     .timeout(Duration.ofSeconds(60))
-                    .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
-                    .build();
+                    .POST(HttpRequest.BodyPublishers.ofString(jsonBody));
 
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            String accessToken = SessionManager.getInstance().getAccessToken();
+            if (accessToken != null && !accessToken.isBlank()) {
+                requestBuilder.header("Authorization", "Bearer " + accessToken);
+            }
+
+            HttpResponse<String> response = client.send(requestBuilder.build(), HttpResponse.BodyHandlers.ofString());
             if (response.statusCode() == 200) {
                 var resNode = mapper.readTree(response.body());
                 return resNode.path("answer").asText("Không nhận được câu trả lời từ AI.");
