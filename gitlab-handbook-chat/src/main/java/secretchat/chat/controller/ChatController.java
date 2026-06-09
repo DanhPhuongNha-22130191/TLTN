@@ -46,6 +46,7 @@ public class ChatController extends BaseChatController {
     @FXML private ListView<String> sentLinkList;
     @FXML private Button addMemberButton;
     @FXML private Button leaveGroupButton;
+    @FXML private Button deleteGroupButton;
     @FXML private TextField messageSearchField;
     @FXML private ListView<String> pinnedMessageList;
     @FXML private VBox pinnedArea;
@@ -113,6 +114,8 @@ public class ChatController extends BaseChatController {
         viewModel.currentChatIsGroupProperty().addListener((obs, oldVal, newVal) -> {
             updateRightPanel(newVal);
         });
+        viewModel.activeConversationProperty().addListener((obs, oldVal, newVal) ->
+                updateRightPanel(viewModel.currentChatIsGroupProperty().get()));
 
         viewModel.errorMessageProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal != null && !newVal.isEmpty()) {
@@ -351,6 +354,11 @@ public class ChatController extends BaseChatController {
         leaveGroupButton.setVisible(isGroup);
         leaveGroupButton.setManaged(isGroup);
 
+        boolean canDeleteGroup = isGroup
+                && viewModel.isGroupCreator(viewModel.currentChatNameProperty().get());
+        deleteGroupButton.setVisible(canDeleteGroup);
+        deleteGroupButton.setManaged(canDeleteGroup);
+
         memberSectionLabel.setVisible(isGroup);
         memberSectionLabel.setManaged(isGroup);
 
@@ -570,6 +578,30 @@ public class ChatController extends BaseChatController {
         confirm.showAndWait().ifPresent(buttonType -> {
             if (buttonType == ButtonType.OK) {
                 viewModel.leaveGroup();
+                chatTitleLabel.setText("Chọn cuộc trò chuyện");
+                chatStatusLabel.setText("Cá nhân / Nhóm");
+            }
+        });
+    }
+
+    @FXML
+    private void handleDeleteGroup() {
+        String groupName = viewModel.currentChatNameProperty().get();
+        if (!viewModel.currentChatIsGroupProperty().get()
+                || groupName == null
+                || !viewModel.isGroupCreator(groupName)) {
+            showAlert("Lỗi", "Chỉ chủ nhóm mới có thể xóa nhóm.");
+            return;
+        }
+
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        styleAlert(confirm);
+        confirm.setTitle("Xóa nhóm");
+        confirm.setHeaderText("Xóa vĩnh viễn nhóm " + groupName + "?");
+        confirm.setContentText("Các thành viên sẽ không thể truy cập nhóm này nữa.");
+        confirm.showAndWait().ifPresent(buttonType -> {
+            if (buttonType == ButtonType.OK) {
+                viewModel.deleteCurrentGroup();
                 chatTitleLabel.setText("Chọn cuộc trò chuyện");
                 chatStatusLabel.setText("Cá nhân / Nhóm");
             }

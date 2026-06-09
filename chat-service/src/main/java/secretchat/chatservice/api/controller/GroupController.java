@@ -49,8 +49,10 @@ public class GroupController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteGroup(@PathVariable Long id) {
-        groupUseCase.deleteGroup(id);
+    public ResponseEntity<Void> deleteGroup(
+            @PathVariable Long id,
+            @RequestParam String userId) {
+        groupUseCase.deleteGroup(id, userId);
         return ResponseEntity.noContent().build();
     }
 

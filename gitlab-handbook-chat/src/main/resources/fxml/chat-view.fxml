@@ -250,6 +250,19 @@
                         </graphic>
                     </Button>
 
+                    <Button fx:id="deleteGroupButton"
+                            text="Xóa nhóm"
+                            maxWidth="Infinity"
+                            visible="false"
+                            managed="false"
+                            onAction="#handleDeleteGroup"
+                            styleClass="danger-button">
+                        <graphic>
+                            <FontIcon iconLiteral="fa-trash"
+                                      styleClass="btn-icon"/>
+                        </graphic>
+                    </Button>
+
                     <Separator styleClass="panel-sep"/>
 
                     <!-- SENT FILES -->

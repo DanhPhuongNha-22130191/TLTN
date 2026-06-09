@@ -287,9 +287,10 @@ public class ChatService {
         }
     }
 
-    public void deleteGroup(Long groupId, String token) throws Exception {
+    public void deleteGroup(Long groupId, String userId, String token) throws Exception {
         try {
-            apiClient.delete("/api/groups/" + groupId, token);
+            apiClient.delete("/api/groups/" + groupId + "?userId="
+                    + java.net.URLEncoder.encode(userId, java.nio.charset.StandardCharsets.UTF_8), token);
         } catch (Exception e) {
             throw GlobalExceptionHandler.handle(e);
         }

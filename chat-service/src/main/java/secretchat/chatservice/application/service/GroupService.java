@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import secretchat.chatservice.application.port.in.GroupUseCase;
 import secretchat.chatservice.application.port.out.GroupMemberRepositoryPort;
 import secretchat.chatservice.application.port.out.GroupRepositoryPort;
+import secretchat.chatservice.application.port.out.ConversationRepositoryPort;
 import secretchat.chatservice.application.usecase.command.CreateGroupCommand;
 import secretchat.chatservice.application.usecase.command.UpdateGroupCommand;
 import secretchat.chatservice.domain.model.Group;
@@ -22,6 +23,7 @@ public class GroupService implements GroupUseCase {
 
     private final GroupRepositoryPort groupRepositoryPort;
     private final GroupMemberRepositoryPort groupMemberRepositoryPort;
+    private final ConversationRepositoryPort conversationRepositoryPort;
 
     @Override
     @Transactional
@@ -110,10 +112,14 @@ public class GroupService implements GroupUseCase {
 
     @Override
     @Transactional
-    public void deleteGroup(Long groupId) {
-        if (!groupRepositoryPort.existsById(groupId)) {
-            throw new IllegalArgumentException("Group not found with id: " + groupId);
+    public void deleteGroup(Long groupId, String userId) {
+        Group group = getGroupDetails(groupId);
+        if (userId == null || !userId.equals(group.getCreatorId())) {
+            throw new secretchat.chatservice.application.exception.BusinessException(
+                    "Only the group owner can delete this group");
         }
+        conversationRepositoryPort.findByGroupId(groupId)
+                .ifPresent(conversation -> conversationRepositoryPort.deleteById(conversation.getId()));
         groupRepositoryPort.deleteById(groupId);
     }
 

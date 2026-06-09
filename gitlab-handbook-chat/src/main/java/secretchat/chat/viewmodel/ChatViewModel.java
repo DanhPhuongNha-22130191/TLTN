@@ -953,6 +953,33 @@ public class ChatViewModel {
         }
     }
 
+    public void deleteCurrentGroup() {
+        GroupResponse group = nameToGroupMap.get(currentChatName.get());
+        if (group == null || !currentUserId.equals(group.getCreatorId())) {
+            errorMessage.set("Chỉ chủ nhóm mới có thể xóa nhóm.");
+            return;
+        }
+        try {
+            chatService.deleteGroup(IdUtils.parseLongId(group.getId()), currentUserId, token);
+            Platform.runLater(() -> {
+                groupChatList.remove(group.getName());
+                nameToGroupMap.remove(group.getName());
+                groupConversationMap.remove(group.getId());
+                messages.clear();
+                memberList.clear();
+                sentFileList.clear();
+                sentLinkList.clear();
+                pinnedMessageList.clear();
+                currentChatName.set(null);
+                currentChatIsGroup.set(false);
+                activeConversation.set(null);
+            });
+            notificationMessage.set("Đã xóa nhóm " + group.getName() + ".");
+        } catch (Exception e) {
+            errorMessage.set("Không thể xóa nhóm: " + e.getMessage());
+        }
+    }
+
     public void editMessage(MessageItem item, String content) {
         if (item == null || item.getResponse() == null) return;
         CompletableFuture.runAsync(() -> {
