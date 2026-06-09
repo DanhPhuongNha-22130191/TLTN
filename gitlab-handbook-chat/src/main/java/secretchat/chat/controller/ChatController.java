@@ -426,6 +426,14 @@ public class ChatController extends BaseChatController {
         updatePinnedPanel();
     }
 
+    private void collapsePinnedPanel() {
+        if (!pinnedCollapsed) {
+            pinnedCollapsed = true;
+            pinnedExpandedByUser = false;
+            updatePinnedPanel();
+        }
+    }
+
     private void renderAllMessages() {
         messageContainer.getChildren().clear();
         for (ChatViewModel.MessageItem item : viewModel.getMessages()) {
