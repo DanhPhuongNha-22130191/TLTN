@@ -1,0 +1,124 @@
+.add-member-dialog {
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-background-color: #e8ebff;
+    -fx-background-radius: 6;
+    -fx-border-color: #575be8;
+    -fx-border-width: 2;
+    -fx-border-radius: 6;
+    -fx-effect: dropshadow(gaussian, rgba(23, 20, 76, 0.30), 18, 0.12, 0, 6);
+}
+
+.add-member-header {
+    -fx-padding: 18 20;
+    -fx-background-color: #dce0ff;
+    -fx-border-color: transparent transparent #aeb6ff transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.add-member-title {
+    -fx-font-size: 19px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #17144c;
+}
+
+.add-member-caption {
+    -fx-font-size: 12px;
+    -fx-text-fill: #565e82;
+}
+
+.add-member-content {
+    -fx-padding: 18 20;
+    -fx-background-color: #f7f8ff;
+}
+
+.add-member-search {
+    -fx-min-height: 42;
+    -fx-background-color: white;
+    -fx-background-radius: 4;
+    -fx-border-color: #919bd0;
+    -fx-border-width: 1;
+    -fx-border-radius: 4;
+    -fx-padding: 0 12;
+    -fx-font-size: 13px;
+}
+
+.add-member-search:focused {
+    -fx-border-color: #575be8;
+    -fx-border-width: 2;
+}
+
+.add-member-list {
+    -fx-background-color: white;
+    -fx-border-color: #aeb6df;
+    -fx-border-width: 1;
+    -fx-background-radius: 4;
+    -fx-border-radius: 4;
+    -fx-padding: 4;
+}
+
+.add-member-list .list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: #272d52;
+    -fx-font-size: 13px;
+    -fx-padding: 10 12;
+    -fx-background-radius: 3;
+    -fx-border-color: transparent transparent #eceeff transparent;
+}
+
+.add-member-list .list-cell:filled:hover {
+    -fx-background-color: #eceeff;
+}
+
+.add-member-list .list-cell:filled:selected {
+    -fx-background-color: #575be8;
+    -fx-text-fill: white;
+}
+
+.add-member-empty {
+    -fx-text-fill: #6d7496;
+    -fx-font-size: 12px;
+}
+
+.add-member-footer {
+    -fx-padding: 14 20 18 20;
+    -fx-background-color: #e8ebff;
+    -fx-border-color: #c2c7f3 transparent transparent transparent;
+    -fx-border-width: 1 0 0 0;
+}
+
+.add-member-button,
+.add-member-cancel {
+    -fx-min-height: 38;
+    -fx-padding: 8 16;
+    -fx-background-radius: 4;
+    -fx-border-radius: 4;
+    -fx-border-width: 1;
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+    -fx-cursor: hand;
+}
+
+.add-member-button {
+    -fx-background-color: #575be8;
+    -fx-text-fill: white;
+    -fx-border-color: #4549cc;
+}
+
+.add-member-button:hover {
+    -fx-background-color: #4549cc;
+}
+
+.add-member-button:disabled {
+    -fx-opacity: 0.55;
+}
+
+.add-member-cancel {
+    -fx-background-color: white;
+    -fx-text-fill: #343a5f;
+    -fx-border-color: #959dc8;
+}
+
+.add-member-cancel:hover {
+    -fx-background-color: #f0f2ff;
+    -fx-border-color: #575be8;
+}

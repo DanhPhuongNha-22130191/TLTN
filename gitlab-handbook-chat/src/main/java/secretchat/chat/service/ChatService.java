@@ -7,6 +7,7 @@ import secretchat.service.ApiClient;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.DoubleConsumer;
 
 public class ChatService {
 
@@ -120,6 +121,10 @@ public class ChatService {
 
     public String uploadFile(java.io.File file, String token) throws Exception {
         return apiClient.uploadFile("/api/messages/upload", file, token);
+    }
+
+    public String uploadFile(java.io.File file, String token, DoubleConsumer progressListener) throws Exception {
+        return apiClient.uploadFile("/api/messages/upload", file, token, progressListener);
     }
 
     public MessageResponse sendMessage(SendMessageRequest request, String token) throws Exception {

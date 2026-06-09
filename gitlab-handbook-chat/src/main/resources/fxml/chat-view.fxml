@@ -37,11 +37,12 @@
             </HBox>
 
             <!-- Action buttons -->
-            <VBox spacing="8" style="-fx-padding: 4 0 2 0;">
+            <HBox spacing="8" styleClass="sidebar-actions">
                 <Button text="Tạo nhóm"
                         maxWidth="Infinity"
+                        HBox.hgrow="ALWAYS"
                         onAction="#handleCreateGroup"
-                        styleClass="primary-button">
+                        styleClass="sidebar-action-button, primary-button">
                     <graphic>
                         <FontIcon iconLiteral="fa-plus"
                                   styleClass="btn-icon"/>
@@ -50,14 +51,15 @@
 
                 <Button text="Thêm bạn"
                         maxWidth="Infinity"
+                        HBox.hgrow="ALWAYS"
                         onAction="#handleAddFriend"
-                        styleClass="secondary-button">
+                        styleClass="sidebar-action-button, secondary-button">
                     <graphic>
                         <FontIcon iconLiteral="fa-user-plus"
                                   styleClass="btn-icon"/>
                     </graphic>
                 </Button>
-            </VBox>
+            </HBox>
 
             <!-- Search -->
             <HBox alignment="CENTER_LEFT"
@@ -146,17 +148,25 @@
             <!-- MESSAGES -->
             <center>
                 <VBox>
-                    <HBox alignment="CENTER_LEFT" spacing="8" styleClass="conversation-search-bar">
-                        <TextField fx:id="messageSearchField"
-                                   promptText="Tìm trong cuộc trò chuyện..."
-                                   onAction="#handleSearchMessages"
-                                   HBox.hgrow="ALWAYS"/>
-                        <Button text="Tìm" onAction="#handleSearchMessages" styleClass="secondary-button"/>
-                    </HBox>
+                    <VBox spacing="5" styleClass="conversation-search-panel">
+                        <HBox alignment="CENTER_LEFT" spacing="8" styleClass="conversation-search-bar">
+                            <FontIcon iconLiteral="fa-search" styleClass="conversation-search-icon"/>
+                            <TextField fx:id="messageSearchField"
+                                       promptText="Tìm trong cuộc trò chuyện..."
+                                       onAction="#handleSearchMessages"
+                                       styleClass="conversation-search-field"
+                                       HBox.hgrow="ALWAYS"/>
+                            <Button text="Tìm" onAction="#handleSearchMessages"
+                                    styleClass="conversation-search-button"/>
+                        </HBox>
+                        <Label fx:id="searchResultLabel"
+                               visible="false" managed="false"
+                               styleClass="conversation-search-result"/>
+                    </VBox>
 
                     <VBox fx:id="pinnedArea" visible="false" managed="false" styleClass="pinned-area">
                         <Label text="TIN NHẮN ĐÃ GHIM" styleClass="section-label"/>
-                        <ListView fx:id="pinnedMessageList" prefHeight="72" styleClass="panel-list"/>
+                        <ListView fx:id="pinnedMessageList" prefHeight="108" styleClass="panel-list, pinned-message-list"/>
                     </VBox>
 
                     <StackPane VBox.vgrow="ALWAYS">

@@ -22,8 +22,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -35,10 +37,12 @@ public class ChatViewModel {
     private final AIService aiService;
     private final RealtimeChatService realtimeChatService;
     private final Set<String> displayedMessageIds = ConcurrentHashMap.newKeySet();
+    private final Set<String> receivedRealtimeMessageIds = ConcurrentHashMap.newKeySet();
     
     private String token;
     private String currentUserId;
     private UserResponse currentUserResponse;
+    private volatile boolean applicationActive = true;
 
     // Maps to cache data
     private final Map<String, UserResponse> nameToUserMap = new HashMap<>();
@@ -57,7 +61,7 @@ public class ChatViewModel {
     private final ObservableList<String> memberList = FXCollections.observableArrayList();
     private final ObservableList<String> sentFileList = FXCollections.observableArrayList();
     private final ObservableList<String> sentLinkList = FXCollections.observableArrayList();
-    private final ObservableList<String> pinnedMessageList = FXCollections.observableArrayList();
+    private final ObservableList<PinnedMessageItem> pinnedMessageList = FXCollections.observableArrayList();
 
     private final StringProperty currentChatName = new SimpleStringProperty();
     private final BooleanProperty currentChatIsGroup = new SimpleBooleanProperty(false);
@@ -69,6 +73,7 @@ public class ChatViewModel {
     private final StringProperty typingText = new SimpleStringProperty();
     private final BooleanProperty aiLoading = new SimpleBooleanProperty(false);
     private final IntegerProperty conversationVersion = new SimpleIntegerProperty();
+    private final ObjectProperty<NewMessageEvent> newMessageEvent = new SimpleObjectProperty<>();
 
     public ChatViewModel() {
         this.chatService = new ChatService(ApiClient.getInstance());
@@ -424,6 +429,7 @@ public class ChatViewModel {
                 MessageResponse[] history = chatService.getConversationChatHistory(IdUtils.parseLongId(conversationId), token);
                 if (history != null) {
                     List<MessageItem> newMessages = new ArrayList<>();
+                    List<PinnedMessageItem> pinnedMessages = new ArrayList<>();
                     List<String> files = new ArrayList<>();
                     List<String> links = new ArrayList<>();
 
@@ -446,10 +452,7 @@ public class ChatViewModel {
                         MessageItem item = new MessageItem(msg, senderName, content, timeStr, isMe, isFile, isDeleted, isDeletedForMe);
                         newMessages.add(item);
                         if (msg.isPinned() && content != null) {
-                            String summary = pinnedSummary(content);
-                            if (!pinnedMessageList.contains(summary)) {
-                                Platform.runLater(() -> pinnedMessageList.add(summary));
-                            }
+                            pinnedMessages.add(new PinnedMessageItem(item));
                         }
 
                         if (isFile && !isDeleted && !isDeletedForMe) {
@@ -468,6 +471,7 @@ public class ChatViewModel {
                             return;
                         }
                         messages.addAll(newMessages);
+                        pinnedMessageList.setAll(pinnedMessages);
                         if (messages.isEmpty() && "TRỢ LÝ AI".equals(currentChatName.get())) {
                             messages.add(new MessageItem(null, "TRỢ LÝ AI", "Xin chào! Tôi là Trợ lý AI. Tôi có thể giúp gì cho bạn hôm nay?", getCurrentTime(), false, false, false, false));
                         }
@@ -502,16 +506,21 @@ public class ChatViewModel {
         Long conversationId = IdUtils.parseLongId(activeConversation.get().getId());
 
         if (hasText) {
+            MessageItem pending = createPendingMessage(
+                    conversationId, text.trim(), "TEXT", null, null);
             SendMessageRequest request = createTextMessage(conversationId, currentUserId, text);
             realtimeChatService.sendMessage(request)
                     .thenRun(() -> {
+                        Platform.runLater(() -> pending.setStatus("SENT"));
                         if (isAiChat) {
                             sendAiResponse(conversationId, text);
                         }
                     })
                     .exceptionally(error -> {
-                        Platform.runLater(() -> errorMessage.set(
-                                "Không thể gửi tin nhắn qua WebSocket: " + rootMessage(error)));
+                        Platform.runLater(() -> {
+                            pending.setStatus("FAILED");
+                            errorMessage.set("Không thể gửi tin nhắn qua WebSocket: " + rootMessage(error));
+                        });
                         return null;
                     });
         }
@@ -522,8 +531,40 @@ public class ChatViewModel {
                 return;
             }
 
-            CompletableFuture.runAsync(() -> uploadAndSendFile(conversationId, file));
+            MessageItem pending = createPendingMessage(
+                    conversationId, file.getName(), "FILE", file.getName(), file.length());
+            CompletableFuture.runAsync(() -> uploadAndSendFile(conversationId, file, pending));
         }
+    }
+
+    private MessageItem createPendingMessage(
+            Long conversationId, String content, String messageType, String fileName, Long fileSize) {
+        MessageResponse pendingResponse = new MessageResponse();
+        pendingResponse.setId("pending-" + UUID.randomUUID());
+        pendingResponse.setConversationId(String.valueOf(conversationId));
+        pendingResponse.setSenderId(currentUserId);
+        pendingResponse.setContent(content);
+        pendingResponse.setMessageType(messageType);
+        pendingResponse.setFileName(fileName);
+        pendingResponse.setFileSize(fileSize);
+        pendingResponse.setStatus("SENDING");
+
+        MessageItem item = new MessageItem(
+                pendingResponse,
+                currentUserResponse == null ? "Bạn" : currentUserResponse.getUsername(),
+                content,
+                getCurrentTime(),
+                true,
+                !"TEXT".equalsIgnoreCase(messageType),
+                false,
+                false);
+        if (!"TEXT".equalsIgnoreCase(messageType)) item.setUploadProgress(0);
+        if (Platform.isFxApplicationThread()) {
+            messages.add(item);
+        } else {
+            Platform.runLater(() -> messages.add(item));
+        }
+        return item;
     }
 
     private void handleRealtimeFriend(FriendResponse friend) {
@@ -588,29 +629,39 @@ public class ChatViewModel {
         boolean isMe = currentUserId.equals(message.getSenderId());
         ConversationResponse conversation = findConversation(message.getConversationId());
         if (conversation == null) return;
+        boolean firstRealtimeDelivery = message.getId() == null
+                || receivedRealtimeMessageIds.add(message.getId());
 
         ConversationResponse currentConversation = activeConversation.get();
-        boolean isActive = currentConversation != null
+        boolean isActiveConversation = currentConversation != null
                 && message.getConversationId().equals(currentConversation.getId());
+        boolean isActivelyViewed = isActiveConversation && applicationActive;
 
         if (!isMe) {
-            updateMessageStatus(message, isActive ? "SEEN" : "DELIVERED");
-        }
-
-        if (!isActive) {
-            if (!isMe && (message.getStatus() == null || "SENT".equals(message.getStatus()))) {
+            updateMessageStatus(message, isActivelyViewed ? "SEEN" : "DELIVERED");
+            if (firstRealtimeDelivery) {
+                Platform.runLater(() -> newMessageEvent.set(createNewMessageEvent(message, conversation)));
+            }
+            if (!isActivelyViewed && firstRealtimeDelivery) {
                 Platform.runLater(() -> {
                     conversation.setUnreadCount(conversation.getUnreadCount() + 1);
                     conversationVersion.set(conversationVersion.get() + 1);
                 });
             }
+        }
+
+        if (!isActiveConversation) {
             return;
         }
 
         MessageItem existing = findMessageItem(message.getId());
+        if (existing == null && isMe) {
+            existing = findMatchingPendingMessage(message);
+        }
         if (existing != null) {
+            MessageItem target = existing;
             Platform.runLater(() -> {
-                existing.update(message);
+                target.update(message);
                 refreshPinnedMessages();
             });
             return;
@@ -663,6 +714,23 @@ public class ChatViewModel {
         return null;
     }
 
+    private MessageItem findMatchingPendingMessage(MessageResponse message) {
+        boolean incomingFile = !"TEXT".equalsIgnoreCase(message.getMessageType());
+        String incomingContent = incomingFile ? message.getFileName() : message.getContent();
+        for (MessageItem item : messages) {
+            if (!item.isMe() || item.getResponse() == null
+                    || item.getResponse().getId() == null
+                    || !item.getResponse().getId().startsWith("pending-")
+                    || item.isFile() != incomingFile) {
+                continue;
+            }
+            if (java.util.Objects.equals(item.getContent(), incomingContent)) {
+                return item;
+            }
+        }
+        return null;
+    }
+
     private void updateMessageStatus(MessageResponse message, String status) {
         if (message.getId() == null || status.equals(message.getStatus())) return;
         CompletableFuture.runAsync(() -> {
@@ -711,11 +779,17 @@ public class ChatViewModel {
         });
     }
 
-    private void uploadAndSendFile(Long conversationId, File file) {
+    private void uploadAndSendFile(Long conversationId, File file, MessageItem pending) {
         try {
             LOGGER.log(System.Logger.Level.INFO, "Bắt đầu upload file: {0}, size={1}",
                     file.getName(), file.length());
-            String uploadedFileUrl = chatService.uploadFile(file, token);
+            AtomicInteger lastPercent = new AtomicInteger(-1);
+            String uploadedFileUrl = chatService.uploadFile(file, token, progress -> {
+                int percent = (int) Math.round(progress * 100);
+                if (lastPercent.getAndSet(percent) != percent) {
+                    Platform.runLater(() -> pending.setUploadProgress(percent / 100d));
+                }
+            });
 
             SendMessageRequest request = new SendMessageRequest();
             request.setConversationId(conversationId);
@@ -733,10 +807,16 @@ public class ChatViewModel {
                             : "FILE");
 
             realtimeChatService.sendMessage(request).join();
+            Platform.runLater(() -> {
+                pending.setUploadProgress(1);
+                pending.setStatus("SENT");
+            });
         } catch (Exception error) {
             LOGGER.log(System.Logger.Level.ERROR, "Lỗi gửi file", error);
-            Platform.runLater(() -> errorMessage.set(
-                    "Không thể gửi file qua WebSocket: " + rootMessage(error)));
+            Platform.runLater(() -> {
+                pending.setStatus("FAILED");
+                errorMessage.set("Không thể gửi file qua WebSocket: " + rootMessage(error));
+            });
         }
     }
 
@@ -1069,28 +1149,45 @@ public class ChatViewModel {
 
     public void togglePin(MessageItem item) {
         if (item == null || item.getResponse() == null) return;
+        boolean previous = item.isPinned();
+        boolean target = !previous;
+        Platform.runLater(() -> {
+            item.setPinned(target);
+            refreshPinnedMessages();
+        });
         CompletableFuture.runAsync(() -> {
             try {
-                chatService.setMessagePinned(IdUtils.parseLongId(item.getResponse().getId()),
-                        !item.isPinned(), token);
+                chatService.setMessagePinned(
+                        IdUtils.parseLongId(item.getResponse().getId()), target, token);
+                Platform.runLater(() -> {
+                    item.setPinned(target);
+                    refreshPinnedMessages();
+                });
             } catch (Exception e) {
-                Platform.runLater(() -> errorMessage.set("Không thể ghim tin nhắn: " + e.getMessage()));
+                Platform.runLater(() -> {
+                    item.setPinned(previous);
+                    refreshPinnedMessages();
+                    errorMessage.set("Không thể cập nhật ghim tin nhắn: " + e.getMessage());
+                });
             }
         });
     }
 
-    public String searchConversationMessages(String query) {
-        ConversationResponse conversation = activeConversation.get();
-        if (conversation == null || query == null || query.isBlank()) return null;
-        try {
-            MessageResponse[] results = chatService.searchMessages(
-                    IdUtils.parseLongId(conversation.getId()), query, token);
-            if (results != null && results.length > 0) {
-                return results[0].getContent();
+    public void unpinMessage(PinnedMessageItem pinned) {
+        if (pinned != null && pinned.message() != null && pinned.message().isPinned()) {
+            togglePin(pinned.message());
+        }
+    }
+
+    public MessageItem searchConversationMessage(String query) {
+        if (activeConversation.get() == null || query == null || query.isBlank()) return null;
+        String normalized = query.trim().toLowerCase();
+        for (MessageItem item : messages) {
+            if (!item.isDeleted() && !item.isDeletedForMe()
+                    && item.getContent() != null
+                    && item.getContent().toLowerCase().contains(normalized)) {
+                return item;
             }
-            notificationMessage.set("Không tìm thấy tin nhắn phù hợp.");
-        } catch (Exception e) {
-            errorMessage.set("Không thể tìm kiếm tin nhắn: " + e.getMessage());
         }
         return null;
     }
@@ -1110,14 +1207,9 @@ public class ChatViewModel {
         pinnedMessageList.clear();
         for (MessageItem item : messages) {
             if (item.isPinned() && !item.isDeleted() && !item.isDeletedForMe()) {
-                pinnedMessageList.add(pinnedSummary(item.getContent()));
+                pinnedMessageList.add(new PinnedMessageItem(item));
             }
         }
-    }
-
-    private String pinnedSummary(String content) {
-        String normalized = content == null ? "" : content.replaceAll("\\s+", " ").trim();
-        return normalized.length() > 55 ? normalized.substring(0, 55) + "..." : normalized;
     }
 
     public byte[] downloadFile(MessageResponse msg) throws Exception {
@@ -1165,7 +1257,7 @@ public class ChatViewModel {
     public ObservableList<String> getMemberList() { return memberList; }
     public ObservableList<String> getSentFileList() { return sentFileList; }
     public ObservableList<String> getSentLinkList() { return sentLinkList; }
-    public ObservableList<String> getPinnedMessageList() { return pinnedMessageList; }
+    public ObservableList<PinnedMessageItem> getPinnedMessageList() { return pinnedMessageList; }
 
     public StringProperty currentChatNameProperty() { return currentChatName; }
     public BooleanProperty currentChatIsGroupProperty() { return currentChatIsGroup; }
@@ -1176,9 +1268,32 @@ public class ChatViewModel {
     public StringProperty typingTextProperty() { return typingText; }
     public BooleanProperty aiLoadingProperty() { return aiLoading; }
     public IntegerProperty conversationVersionProperty() { return conversationVersion; }
+    public ObjectProperty<NewMessageEvent> newMessageEventProperty() { return newMessageEvent; }
 
     public String getCurrentUserId() { return currentUserId; }
     public String getToken() { return token; }
+    public void setApplicationActive(boolean value) {
+        boolean becameActive = value && !applicationActive;
+        applicationActive = value;
+        if (becameActive) markActiveConversationRead();
+    }
+
+    private void markActiveConversationRead() {
+        ConversationResponse conversation = activeConversation.get();
+        if (conversation == null || conversation.getId() == null || conversation.getUnreadCount() <= 0) return;
+        CompletableFuture.runAsync(() -> {
+            try {
+                chatService.markConversationAsRead(IdUtils.parseLongId(conversation.getId()), token);
+                Platform.runLater(() -> {
+                    conversation.setUnreadCount(0);
+                    conversationVersion.set(conversationVersion.get() + 1);
+                });
+            } catch (Exception e) {
+                LOGGER.log(System.Logger.Level.WARNING,
+                        "Không thể đánh dấu cuộc trò chuyện đã đọc", e);
+            }
+        });
+    }
 
     public int getUnreadCountForUser(String userId) {
         ConversationResponse c = personalConversationMap.get(userId);
@@ -1203,6 +1318,24 @@ public class ChatViewModel {
         return g != null && currentUserId.equals(g.getCreatorId());
     }
 
+    private NewMessageEvent createNewMessageEvent(
+            MessageResponse message, ConversationResponse conversation) {
+        boolean group = "GROUP".equalsIgnoreCase(conversation.getType());
+        String chatName;
+        if (group) {
+            GroupResponse groupResponse = nameToGroupMap.values().stream()
+                    .filter(value -> java.util.Objects.equals(value.getId(), conversation.getGroupId()))
+                    .findFirst().orElse(null);
+            chatName = groupResponse == null ? "Nhóm chat" : groupResponse.getName();
+        } else {
+            chatName = getUserDisplayName(message.getSenderId());
+        }
+        String preview = !"TEXT".equalsIgnoreCase(message.getMessageType())
+                ? "Đã gửi một file: " + (message.getFileName() == null ? "Tệp đính kèm" : message.getFileName())
+                : message.getContent();
+        return new NewMessageEvent(conversation.getId(), chatName, group, preview);
+    }
+
     public static class MessageItem {
         private final MessageResponse response;
         private final String senderName;
@@ -1215,6 +1348,7 @@ public class ChatViewModel {
         private final StringProperty status = new SimpleStringProperty("SENT");
         private final BooleanProperty starred = new SimpleBooleanProperty();
         private final BooleanProperty pinned = new SimpleBooleanProperty();
+        private final DoubleProperty uploadProgress = new SimpleDoubleProperty(-1);
 
         public MessageItem(MessageResponse response, String senderName, String content, String time, boolean isMe, boolean isFile, boolean isDeleted, boolean isDeletedForMe) {
             this.response = response;
@@ -1248,14 +1382,30 @@ public class ChatViewModel {
         public void setDeletedForMe(boolean value) { this.isDeletedForMe.set(value); }
         public BooleanProperty isDeletedForMeProperty() { return isDeletedForMe; }
         public String getStatus() { return status.get(); }
+        public void setStatus(String value) { status.set(value); }
         public StringProperty statusProperty() { return status; }
         public boolean isStarred() { return starred.get(); }
         public BooleanProperty starredProperty() { return starred; }
         public boolean isPinned() { return pinned.get(); }
+        public void setPinned(boolean value) {
+            pinned.set(value);
+            if (response != null) response.setPinned(value);
+        }
         public BooleanProperty pinnedProperty() { return pinned; }
+        public double getUploadProgress() { return uploadProgress.get(); }
+        public void setUploadProgress(double value) { uploadProgress.set(value); }
+        public DoubleProperty uploadProgressProperty() { return uploadProgress; }
 
         public void update(MessageResponse updated) {
+            response.setId(updated.getId());
+            response.setConversationId(updated.getConversationId());
+            response.setSenderId(updated.getSenderId());
             response.setContent(updated.getContent());
+            response.setFileUrl(updated.getFileUrl());
+            response.setFileName(updated.getFileName());
+            response.setFileSize(updated.getFileSize());
+            response.setFileType(updated.getFileType());
+            response.setMessageType(updated.getMessageType());
             response.setDeleted(updated.isDeleted());
             response.setDeletedForUsers(updated.getDeletedForUsers());
             response.setStatus(updated.getStatus());
@@ -1271,4 +1421,10 @@ public class ChatViewModel {
     }
 
     public record GroupMemberView(String userId, String displayName, String role) {}
+    public record PinnedMessageItem(MessageItem message) {
+        public String content() { return message.getContent(); }
+        public String sender() { return message.getSenderName(); }
+        public String time() { return message.getTime(); }
+    }
+    public record NewMessageEvent(String conversationId, String chatName, boolean group, String preview) {}
 }

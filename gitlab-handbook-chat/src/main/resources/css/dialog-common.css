@@ -1,0 +1,125 @@
+.dialog-root {
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-background-color: #e9ecff;
+    -fx-background-radius: 6;
+    -fx-border-color: #6265f5;
+    -fx-border-width: 2;
+    -fx-border-radius: 6;
+    -fx-effect: dropshadow(gaussian, rgba(23, 20, 76, 0.28), 16, 0.12, 0, 5);
+}
+
+.dialog-header {
+    -fx-background-color: #dfe3ff;
+    -fx-background-radius: 4 4 0 0;
+    -fx-border-color: transparent transparent #aeb6ff transparent;
+    -fx-border-width: 0 0 1 0;
+    -fx-padding: 18 20;
+}
+
+.dialog-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #17144c;
+}
+
+.dialog-caption {
+    -fx-font-size: 13px;
+    -fx-text-fill: #4f5678;
+}
+
+.dialog-body {
+    -fx-background-color: #f7f8ff;
+}
+
+.dialog-footer {
+    -fx-background-color: #e9ecff;
+    -fx-border-color: #c5caff transparent transparent transparent;
+    -fx-border-width: 1 0 0 0;
+}
+
+.field-label {
+    -fx-text-fill: #30375c;
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+}
+
+.input-field {
+    -fx-background-color: #ffffff;
+    -fx-text-fill: #1f2340;
+    -fx-prompt-text-fill: #858daa;
+    -fx-background-radius: 4;
+    -fx-border-radius: 4;
+    -fx-border-color: #9da6d8;
+    -fx-border-width: 1;
+    -fx-min-height: 42;
+    -fx-pref-height: 42;
+    -fx-pref-width: 10000;
+    -fx-padding: 0 12;
+    -fx-font-size: 13px;
+}
+
+.input-field:focused {
+    -fx-border-color: #4f52e8;
+    -fx-border-width: 2;
+}
+
+.error-label {
+    -fx-text-fill: #c81e4d;
+    -fx-font-size: 12px;
+    -fx-font-weight: 600;
+}
+
+.cancel-btn,
+.primary-btn {
+    -fx-min-height: 38;
+    -fx-padding: 8 16;
+    -fx-background-radius: 4;
+    -fx-border-radius: 4;
+    -fx-border-width: 1;
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+    -fx-cursor: hand;
+}
+
+.cancel-btn {
+    -fx-background-color: #ffffff;
+    -fx-text-fill: #343a5f;
+    -fx-border-color: #959dc8;
+}
+
+.cancel-btn:hover {
+    -fx-background-color: #f0f2ff;
+    -fx-border-color: #6265f5;
+}
+
+.primary-btn {
+    -fx-background-color: #575be8;
+    -fx-text-fill: white;
+    -fx-border-color: #4549cc;
+}
+
+.primary-btn:hover {
+    -fx-background-color: #4549cc;
+}
+
+.dialog-icon-box {
+    -fx-min-width: 38;
+    -fx-pref-width: 38;
+    -fx-min-height: 38;
+    -fx-pref-height: 38;
+    -fx-background-color: #575be8;
+    -fx-background-radius: 4;
+    -fx-border-color: #4549cc;
+    -fx-border-radius: 4;
+}
+
+.dialog-icon {
+    -fx-icon-size: 18;
+    -fx-icon-color: white;
+}
+
+.dialog-icon-fallback {
+    -fx-text-fill: white;
+    -fx-font-size: 11px;
+    -fx-font-weight: 900;
+}

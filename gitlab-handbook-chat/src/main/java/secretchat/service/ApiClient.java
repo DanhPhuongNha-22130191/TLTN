@@ -12,6 +12,9 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.nio.ByteBuffer;
+import java.util.concurrent.Flow;
+import java.util.function.DoubleConsumer;
 
 public class ApiClient {
     private static final ApiClient INSTANCE = new ApiClient();
@@ -210,6 +213,11 @@ public class ApiClient {
     }
 
     public String uploadFile(String path, java.io.File file, String accessToken) throws Exception {
+        return uploadFile(path, file, accessToken, ignored -> {});
+    }
+
+    public String uploadFile(
+            String path, java.io.File file, String accessToken, DoubleConsumer progressListener) throws Exception {
         String url = GatewayConfig.getInstance().getGatewayUrl() + path;
         
         byte[] fileBytes = java.nio.file.Files.readAllBytes(file.toPath());
@@ -231,7 +239,7 @@ public class ApiClient {
         HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .header("Content-Type", "multipart/form-data; boundary=" + boundary)
-                .POST(HttpRequest.BodyPublishers.ofByteArray(fullBody));
+                .POST(new ProgressBodyPublisher(fullBody, progressListener));
 
         HttpResponse<String> response = sendWithRetry(builder, accessToken);
 
@@ -240,6 +248,60 @@ public class ApiClient {
         }
         
         return response.body(); 
+    }
+
+    private static final class ProgressBodyPublisher implements HttpRequest.BodyPublisher {
+        private final byte[] body;
+        private final DoubleConsumer progressListener;
+
+        private ProgressBodyPublisher(byte[] body, DoubleConsumer progressListener) {
+            this.body = body;
+            this.progressListener = progressListener;
+        }
+
+        @Override
+        public long contentLength() {
+            return body.length;
+        }
+
+        @Override
+        public void subscribe(Flow.Subscriber<? super ByteBuffer> subscriber) {
+            progressListener.accept(0);
+            subscriber.onSubscribe(new Flow.Subscription() {
+                private static final int CHUNK_SIZE = 64 * 1024;
+                private int offset;
+                private boolean cancelled;
+                private boolean completed;
+
+                @Override
+                public synchronized void request(long count) {
+                    if (cancelled || completed) return;
+                    if (count <= 0) {
+                        completed = true;
+                        subscriber.onError(new IllegalArgumentException("Non-positive subscription request"));
+                        return;
+                    }
+                    long remainingRequests = count;
+                    while (!cancelled && remainingRequests-- > 0 && offset < body.length) {
+                        int size = Math.min(CHUNK_SIZE, body.length - offset);
+                        ByteBuffer chunk = ByteBuffer.wrap(body, offset, size).slice();
+                        offset += size;
+                        subscriber.onNext(chunk);
+                        progressListener.accept((double) offset / body.length);
+                    }
+                    if (!cancelled && offset >= body.length && !completed) {
+                        completed = true;
+                        progressListener.accept(1);
+                        subscriber.onComplete();
+                    }
+                }
+
+                @Override
+                public synchronized void cancel() {
+                    cancelled = true;
+                }
+            });
+        }
     }
 
     public void delete(String path, String accessToken) throws Exception {

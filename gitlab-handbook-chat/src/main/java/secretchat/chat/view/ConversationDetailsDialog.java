@@ -122,11 +122,74 @@ public final class ConversationDetailsDialog {
 
     private void addMember() {
         List<String> candidates = viewModel.getAvailableGroupMemberNames();
-        ChoiceDialog<String> choice = new ChoiceDialog<>(candidates.isEmpty() ? null : candidates.get(0), candidates);
-        choice.setTitle("Thêm thành viên");
-        choice.setHeaderText("Chọn bạn bè để thêm vào nhóm");
-        choice.showAndWait().ifPresent(viewModel::addGroupMember);
-        stage.close();
+        Stage addStage = new Stage(StageStyle.TRANSPARENT);
+        addStage.initOwner(stage);
+        addStage.initModality(Modality.WINDOW_MODAL);
+
+        Label title = new Label("Thêm thành viên");
+        title.getStyleClass().add("add-member-title");
+        Label caption = new Label("Tìm và chọn một người bạn để thêm vào nhóm");
+        caption.getStyleClass().add("add-member-caption");
+        VBox header = new VBox(3, title, caption);
+        header.getStyleClass().add("add-member-header");
+
+        TextField memberSearch = new TextField();
+        memberSearch.setPromptText("Tìm theo tên...");
+        memberSearch.getStyleClass().add("add-member-search");
+
+        FilteredList<String> filtered = new FilteredList<>(
+                FXCollections.observableArrayList(candidates), ignored -> true);
+        memberSearch.textProperty().addListener((obs, oldText, text) -> {
+            String keyword = text == null ? "" : text.trim().toLowerCase();
+            filtered.setPredicate(name -> name.toLowerCase().contains(keyword));
+        });
+
+        ListView<String> memberList = new ListView<>(filtered);
+        memberList.getStyleClass().add("add-member-list");
+        memberList.setPlaceholder(emptyMemberLabel());
+        VBox.setVgrow(memberList, Priority.ALWAYS);
+
+        VBox content = new VBox(10, memberSearch, memberList);
+        content.getStyleClass().add("add-member-content");
+
+        Button cancel = new Button("Hủy");
+        cancel.getStyleClass().add("add-member-cancel");
+        cancel.setOnAction(event -> addStage.close());
+
+        Button add = new Button("Thêm");
+        add.getStyleClass().add("add-member-button");
+        add.setDefaultButton(true);
+        add.disableProperty().bind(memberList.getSelectionModel().selectedItemProperty().isNull());
+        add.setOnAction(event -> {
+            String selected = memberList.getSelectionModel().getSelectedItem();
+            if (selected != null) {
+                viewModel.addGroupMember(selected);
+                addStage.close();
+                stage.close();
+            }
+        });
+        memberList.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 2 && !add.isDisabled()) add.fire();
+        });
+
+        HBox footer = new HBox(10, cancel, add);
+        footer.setAlignment(Pos.CENTER_RIGHT);
+        footer.getStyleClass().add("add-member-footer");
+
+        VBox addRoot = new VBox(header, content, footer);
+        addRoot.getStyleClass().add("add-member-dialog");
+        Scene addScene = new Scene(addRoot, 480, 470);
+        addScene.setFill(null);
+        addScene.getStylesheets().add(
+                getClass().getResource("/css/add-member-dialog.css").toExternalForm());
+        addStage.setScene(addScene);
+        addStage.showAndWait();
+    }
+
+    private Label emptyMemberLabel() {
+        Label empty = new Label("Không có thành viên phù hợp");
+        empty.getStyleClass().add("add-member-empty");
+        return empty;
     }
 
     private void configureFiles() {

@@ -11,6 +11,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
+import javafx.stage.Popup;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.animation.PauseTransition;
@@ -21,6 +22,7 @@ import org.kordamp.ikonli.javafx.FontIcon;
 import secretchat.chat.viewmodel.ChatViewModel;
 import secretchat.chat.viewmodel.MainViewModel;
 import secretchat.chat.view.ConversationDetailsDialog;
+import secretchat.chat.service.DesktopNotificationService;
 import secretchat.dto.response.GroupResponse;
 
 import java.io.File;
@@ -43,11 +45,12 @@ public class ChatController extends BaseChatController {
     @FXML private VBox chatActionsPanel;
     @FXML private Button groupMembersButton;
     @FXML private TextField messageSearchField;
-    @FXML private ListView<String> pinnedMessageList;
+    @FXML private ListView<ChatViewModel.PinnedMessageItem> pinnedMessageList;
     @FXML private VBox pinnedArea;
     @FXML private Label typingLabel;
     @FXML private ProgressIndicator aiProgressIndicator;
     @FXML private Button scrollBottomButton;
+    @FXML private Label searchResultLabel;
 
     private static final System.Logger LOGGER = System.getLogger(ChatController.class.getName());
     private ChatViewModel viewModel;
@@ -55,6 +58,8 @@ public class ChatController extends BaseChatController {
     private final PauseTransition typingPause = new PauseTransition(Duration.millis(900));
     private final Timeline typingAnimation = new Timeline();
     private String typingBaseText = "Đang nhập";
+    private final DesktopNotificationService desktopNotifications = new DesktopNotificationService();
+    private Popup activeToast;
 
     @FXML
     public void initialize() {
@@ -89,8 +94,10 @@ public class ChatController extends BaseChatController {
 
         // Listen for messages updates
         viewModel.getMessages().addListener((ListChangeListener<ChatViewModel.MessageItem>) change -> {
+            boolean added = false;
             while (change.next()) {
                 if (change.wasAdded()) {
+                    added = true;
                     for (ChatViewModel.MessageItem item : change.getAddedSubList()) {
                         renderMessageItem(item);
                     }
@@ -101,13 +108,20 @@ public class ChatController extends BaseChatController {
                     }
                 }
             }
+            if (added) {
+                scrollToBottomAfterLayout();
+            }
         });
 
         viewModel.currentChatIsGroupProperty().addListener((obs, oldVal, newVal) -> {
             updateRightPanel(newVal);
         });
         viewModel.activeConversationProperty().addListener((obs, oldVal, newVal) ->
-                updateRightPanel(viewModel.currentChatIsGroupProperty().get()));
+        {
+            updateRightPanel(viewModel.currentChatIsGroupProperty().get());
+            searchResultLabel.setVisible(false);
+            searchResultLabel.setManaged(false);
+        });
 
         viewModel.errorMessageProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal != null && !newVal.isEmpty()) {
@@ -125,6 +139,7 @@ public class ChatController extends BaseChatController {
 
         // Cell factories
         setupCellFactories();
+        setupPinnedMessageList();
 
         // Auto scroll to bottom
         messageScrollPane.vvalueProperty().addListener((obs, oldVal, newVal) -> {
@@ -136,17 +151,15 @@ public class ChatController extends BaseChatController {
             privateChatList.refresh();
             groupChatList.refresh();
         });
+        viewModel.newMessageEventProperty().addListener((obs, oldValue, event) -> {
+            if (event != null) handleNewMessageNotification(event);
+        });
 
         messageInput.textProperty().addListener((obs, oldText, newText) -> {
             viewModel.sendTyping(newText != null && !newText.isBlank());
             typingPause.stop();
             typingPause.setOnFinished(event -> viewModel.sendTyping(false));
             typingPause.playFromStart();
-        });
-
-        pinnedMessageList.setOnMouseClicked(event -> {
-            String selected = pinnedMessageList.getSelectionModel().getSelectedItem();
-            if (selected != null) scrollToMessage(selected.replace("...", ""));
         });
 
         chatTabPane.getSelectionModel().selectedItemProperty().addListener((obs, oldTab, newTab) -> {
@@ -159,7 +172,19 @@ public class ChatController extends BaseChatController {
 
         Platform.runLater(() -> {
             if (messageInput.getScene() != null && messageInput.getScene().getWindow() != null) {
-                messageInput.getScene().getWindow().setOnHidden(event -> viewModel.close());
+                Stage stage = (Stage) messageInput.getScene().getWindow();
+                Runnable updateApplicationState = () ->
+                        viewModel.setApplicationActive(stage.isShowing()
+                                && !stage.isIconified() && stage.isFocused());
+                stage.focusedProperty().addListener((obs, oldValue, newValue) ->
+                        updateApplicationState.run());
+                stage.iconifiedProperty().addListener((obs, oldValue, newValue) ->
+                        updateApplicationState.run());
+                updateApplicationState.run();
+                stage.setOnHidden(event -> {
+                    viewModel.close();
+                    desktopNotifications.close();
+                });
             }
         });
     }
@@ -242,6 +267,117 @@ public class ChatController extends BaseChatController {
         privateChatList.setCellFactory(chatListCellFactory);
         groupChatList.setCellFactory(chatListCellFactory);
 
+    }
+
+    private void setupPinnedMessageList() {
+        pinnedMessageList.setCellFactory(ignored -> new ListCell<>() {
+            @Override
+            protected void updateItem(ChatViewModel.PinnedMessageItem item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setGraphic(null);
+                    return;
+                }
+                Label content = new Label(item.content());
+                content.setMaxWidth(430);
+                content.setTextOverrun(OverrunStyle.ELLIPSIS);
+                content.getStyleClass().add("pinned-message-content");
+
+                String metaText = item.sender();
+                if (item.time() != null && !item.time().isBlank()) metaText += " • " + item.time();
+                Label meta = new Label(metaText);
+                meta.getStyleClass().add("pinned-message-meta");
+
+                VBox text = new VBox(2, content, meta);
+                HBox.setHgrow(text, Priority.ALWAYS);
+                Button unpin = new Button("Bỏ ghim");
+                unpin.getStyleClass().add("pinned-unpin-button");
+                unpin.setOnAction(event -> {
+                    viewModel.unpinMessage(item);
+                    event.consume();
+                });
+                HBox row = new HBox(10, text, unpin);
+                row.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+                row.setOnMouseClicked(event -> scrollToMessage(item.message()));
+                setGraphic(row);
+            }
+        });
+    }
+
+    private void handleNewMessageNotification(ChatViewModel.NewMessageEvent event) {
+        Stage stage = (Stage) messageInput.getScene().getWindow();
+        boolean viewingConversation = viewModel.activeConversationProperty().get() != null
+                && event.conversationId().equals(viewModel.activeConversationProperty().get().getId());
+        if (stage.isFocused() && viewingConversation) return;
+
+        Runnable openConversation = () -> {
+            stage.setIconified(false);
+            stage.show();
+            stage.toFront();
+            stage.requestFocus();
+            openConversation(event);
+        };
+
+        if (stage.isIconified() || !stage.isShowing()) {
+            desktopNotifications.show(event.chatName(), event.preview(), openConversation);
+        } else {
+            showMessageToast(event, openConversation);
+        }
+    }
+
+    private void showMessageToast(ChatViewModel.NewMessageEvent event, Runnable onClick) {
+        if (activeToast != null) activeToast.hide();
+
+        Label title = new Label(event.chatName());
+        title.getStyleClass().add("message-toast-title");
+        Label preview = new Label(event.preview());
+        preview.setWrapText(true);
+        preview.setMaxWidth(300);
+        preview.getStyleClass().add("message-toast-preview");
+        VBox content = new VBox(4, title, preview);
+        content.getStyleClass().add("message-toast");
+        content.getStylesheets().add(
+                getClass().getResource("/css/chat.css").toExternalForm());
+        content.setOnMouseClicked(mouseEvent -> {
+            activeToast.hide();
+            onClick.run();
+        });
+
+        Popup popup = new Popup();
+        popup.setAutoHide(true);
+        popup.getContent().add(content);
+        activeToast = popup;
+
+        Stage stage = (Stage) messageInput.getScene().getWindow();
+        content.applyCss();
+        popup.show(stage);
+        Platform.runLater(() -> {
+            popup.setX(stage.getX() + stage.getWidth() - content.prefWidth(-1) - 24);
+            popup.setY(stage.getY() + 72);
+        });
+        PauseTransition hide = new PauseTransition(Duration.seconds(5));
+        hide.setOnFinished(event1 -> popup.hide());
+        hide.play();
+    }
+
+    private void openConversation(ChatViewModel.NewMessageEvent event) {
+        if (event.group()) {
+            chatTabPane.getSelectionModel().select(1);
+            groupChatList.getSelectionModel().select(event.chatName());
+            chatTitleLabel.setText(event.chatName());
+            GroupResponse group = viewModel.getGroupByName(event.chatName());
+            chatStatusLabel.setText(group != null && group.getDescription() != null
+                    ? "Chat nhóm - " + group.getDescription() : "Chat nhóm");
+            viewModel.selectGroupChat(event.chatName());
+            groupChatList.refresh();
+        } else {
+            chatTabPane.getSelectionModel().select(0);
+            privateChatList.getSelectionModel().select(event.chatName());
+            chatTitleLabel.setText(event.chatName());
+            chatStatusLabel.setText("Chat cá nhân");
+            viewModel.selectPrivateChat(event.chatName());
+            privateChatList.refresh();
+        }
     }
 
     private void confirmRemoveFriend(String displayName) {
@@ -342,8 +478,27 @@ public class ChatController extends BaseChatController {
 
     @FXML
     private void handleSearchMessages() {
-        String content = viewModel.searchConversationMessages(messageSearchField.getText());
-        if (content != null) scrollToMessage(content);
+        if (messageSearchField.getText() == null || messageSearchField.getText().isBlank()) {
+            searchResultLabel.setVisible(false);
+            searchResultLabel.setManaged(false);
+            return;
+        }
+        ChatViewModel.MessageItem result = viewModel.searchConversationMessage(messageSearchField.getText());
+        if (result != null) {
+            searchResultLabel.setText("Đã tìm thấy: " + result.getSenderName()
+                    + (result.getTime().isBlank() ? "" : " • " + result.getTime()));
+            searchResultLabel.getStyleClass().remove("search-result-error");
+            searchResultLabel.setVisible(true);
+            searchResultLabel.setManaged(true);
+            scrollToMessage(result);
+        } else {
+            searchResultLabel.setText("Không tìm thấy tin nhắn phù hợp");
+            if (!searchResultLabel.getStyleClass().contains("search-result-error")) {
+                searchResultLabel.getStyleClass().add("search-result-error");
+            }
+            searchResultLabel.setVisible(true);
+            searchResultLabel.setManaged(true);
+        }
     }
 
     @FXML
@@ -457,6 +612,7 @@ public class ChatController extends BaseChatController {
     @FXML
     private void handleLogout(ActionEvent event) {
         viewModel.close();
+        desktopNotifications.close();
         new MainViewModel().logout();
         switchScene(event, "/fxml/login-view.fxml");
     }
@@ -596,7 +752,10 @@ public class ChatController extends BaseChatController {
             size.getStyleClass().add("file-message-size");
 
             fileDetails.getChildren().addAll(name, size);
-            fileBox.getChildren().addAll(iconPane, fileDetails);
+            Region fileSpacer = new Region();
+            HBox.setHgrow(fileSpacer, Priority.ALWAYS);
+            StackPane progressPane = createUploadProgress(item);
+            fileBox.getChildren().addAll(iconPane, fileDetails, fileSpacer, progressPane);
 
             contentNode = fileBox;
             attachFileClickHandler(fileBox, item);
@@ -673,10 +832,21 @@ public class ChatController extends BaseChatController {
             statusLabel.getStyleClass().add("message-status");
             Runnable refreshStatus = () -> {
                 String text = switch (item.getStatus()) {
+                    case "SENDING" -> "Đang gửi";
+                    case "FAILED" -> "Gửi lỗi";
                     case "SEEN" -> "Đã xem";
-                    case "DELIVERED" -> "Đã nhận";
+                    case "DELIVERED" -> "Đã gửi";
                     default -> "Đã gửi";
                 };
+                statusLabel.getStyleClass().removeAll(
+                        "message-status-sending", "message-status-sent",
+                        "message-status-seen", "message-status-failed");
+                statusLabel.getStyleClass().add(switch (item.getStatus()) {
+                    case "SENDING" -> "message-status-sending";
+                    case "FAILED" -> "message-status-failed";
+                    case "SEEN" -> "message-status-seen";
+                    default -> "message-status-sent";
+                });
                 if (item.isStarred()) text += "  ★";
                 if (item.isPinned()) text += "  📌";
                 statusLabel.setText(text);
@@ -690,7 +860,6 @@ public class ChatController extends BaseChatController {
 
         wrapper.getChildren().add(box);
         messageContainer.getChildren().add(wrapper);
-        scrollToBottom();
     }
 
     private ContextMenu attachContextMenu(javafx.scene.Node node, ChatViewModel.MessageItem item, HBox wrapper) {
@@ -710,7 +879,7 @@ public class ChatController extends BaseChatController {
             contextMenu.getItems().add(copyItem);
         }
 
-        if (item.getResponse() != null && item.getResponse().getId() != null) {
+        if (hasPersistedMessageId(item)) {
             if (item.isMe() && !item.isFile()) {
                 MenuItem editItem = new MenuItem("Chỉnh sửa");
                 editItem.setOnAction(e -> {
@@ -730,6 +899,8 @@ public class ChatController extends BaseChatController {
 
             MenuItem pinItem = new MenuItem(item.isPinned() ? "Bỏ ghim" : "Ghim tin nhắn");
             pinItem.setOnAction(e -> viewModel.togglePin(item));
+            item.pinnedProperty().addListener((obs, oldValue, pinned) ->
+                    pinItem.setText(pinned ? "Bỏ ghim" : "Ghim tin nhắn"));
             contextMenu.getItems().add(pinItem);
 
             MenuItem deleteItem = new MenuItem("Xóa");
@@ -789,8 +960,31 @@ public class ChatController extends BaseChatController {
         return contextMenu;
     }
 
+    private StackPane createUploadProgress(ChatViewModel.MessageItem item) {
+        ProgressIndicator progress = new ProgressIndicator(0);
+        progress.setPrefSize(38, 38);
+        progress.getStyleClass().add("file-upload-progress");
+        Label percent = new Label("0%");
+        percent.getStyleClass().add("file-upload-percent");
+        StackPane pane = new StackPane(progress, percent);
+        pane.getStyleClass().add("file-upload-progress-wrap");
+
+        Runnable refresh = () -> {
+            boolean uploading = item.isFile() && "SENDING".equals(item.getStatus());
+            pane.setVisible(uploading);
+            pane.setManaged(uploading);
+            double value = Math.max(0, item.getUploadProgress());
+            progress.setProgress(value);
+            percent.setText(Math.round(value * 100) + "%");
+        };
+        item.uploadProgressProperty().addListener((obs, oldValue, newValue) -> refresh.run());
+        item.statusProperty().addListener((obs, oldValue, newValue) -> refresh.run());
+        refresh.run();
+        return pane;
+    }
+
     private void attachFileClickHandler(javafx.scene.Node node, ChatViewModel.MessageItem item) {
-        if (item.getResponse() == null || item.getResponse().getId() == null) return;
+        if (!hasPersistedMessageId(item)) return;
         node.setOnMouseClicked(e -> {
             if (e.getButton() == javafx.scene.input.MouseButton.PRIMARY) {
                 try {
@@ -842,61 +1036,55 @@ public class ChatController extends BaseChatController {
     }
 
     private void scrollToBottom() {
-        Platform.runLater(() -> messageScrollPane.setVvalue(1.0));
+        scrollToBottomAfterLayout();
     }
 
-    private void scrollToMessage(String contentText) {
-        if (contentText == null || contentText.isBlank()) return;
-        
-        for (javafx.scene.Node rowNode : messageContainer.getChildren()) {
-            if (searchAndHighlightNode(rowNode, contentText)) {
-                Platform.runLater(() -> {
-                    double contentHeight = messageContainer.getHeight();
-                    double nodeMinY = rowNode.getBoundsInParent().getMinY();
-                    double nodeMaxY = rowNode.getBoundsInParent().getMaxY();
-                    double viewportHeight = messageScrollPane.getViewportBounds().getHeight();
-                    
-                    if (contentHeight > viewportHeight) {
-                        double targetScroll = (nodeMinY + (nodeMaxY - nodeMinY) / 2 - viewportHeight / 2) / (contentHeight - viewportHeight);
-                        targetScroll = Math.max(0.0, Math.min(1.0, targetScroll));
-                        messageScrollPane.setVvalue(targetScroll);
-                    } else {
-                        messageScrollPane.setVvalue(0.0);
-                    }
-                });
-                break;
-            }
-        }
+    private void scrollToBottomAfterLayout() {
+        Platform.runLater(() -> {
+            messageContainer.applyCss();
+            messageContainer.layout();
+            messageScrollPane.applyCss();
+            messageScrollPane.layout();
+            Platform.runLater(() -> messageScrollPane.setVvalue(1.0));
+        });
     }
 
-    private boolean searchAndHighlightNode(javafx.scene.Node node, String text) {
-        if (node instanceof Label lbl) {
-            boolean isFileMatch = lbl.getStyleClass().contains("file-message-name") && text.equals(lbl.getText());
-            boolean isLinkMatch = lbl.getStyleClass().contains("chat-message-bubble") && lbl.getText() != null && lbl.getText().contains(text);
-            
-            if (isFileMatch) {
-                if (lbl.getParent() instanceof VBox vbox && vbox.getParent() instanceof HBox hbox) {
-                    String oldStyle = hbox.getStyle();
-                    hbox.setStyle(oldStyle + "-fx-effect: dropshadow(gaussian, #facc15, 15, 0.5, 0, 0);");
-                    javafx.animation.PauseTransition pause = new javafx.animation.PauseTransition(javafx.util.Duration.seconds(2));
-                    pause.setOnFinished(e -> hbox.setStyle(oldStyle));
-                    pause.play();
-                }
-                return true;
-            } else if (isLinkMatch) {
-                String oldStyle = lbl.getStyle();
-                lbl.setStyle(oldStyle + "-fx-effect: dropshadow(gaussian, #facc15, 15, 0.5, 0, 0);");
-                javafx.animation.PauseTransition pause = new javafx.animation.PauseTransition(javafx.util.Duration.seconds(2));
-                pause.setOnFinished(e -> lbl.setStyle(oldStyle));
-                pause.play();
-                return true;
-            }
-        } else if (node instanceof Parent p) {
-            for (javafx.scene.Node child : p.getChildrenUnmodifiable()) {
-                if (searchAndHighlightNode(child, text)) return true;
-            }
+    private boolean hasPersistedMessageId(ChatViewModel.MessageItem item) {
+        return item.getResponse() != null
+                && item.getResponse().getId() != null
+                && !item.getResponse().getId().startsWith("pending-");
+    }
+
+    private void scrollToMessage(ChatViewModel.MessageItem target) {
+        if (target == null) return;
+        int index = viewModel.getMessages().indexOf(target);
+        if (index < 0 || index >= messageContainer.getChildren().size()) return;
+        javafx.scene.Node rowNode = messageContainer.getChildren().get(index);
+        javafx.scene.Node highlightTarget = rowNode;
+        if (rowNode instanceof HBox row && !row.getChildren().isEmpty()) {
+            highlightTarget = row.getChildren().get(0);
         }
-        return false;
+        highlightNode(highlightTarget);
+        Platform.runLater(() -> {
+            double contentHeight = messageContainer.getHeight();
+            double nodeMinY = rowNode.getBoundsInParent().getMinY();
+            double nodeMaxY = rowNode.getBoundsInParent().getMaxY();
+            double viewportHeight = messageScrollPane.getViewportBounds().getHeight();
+            if (contentHeight > viewportHeight) {
+                double targetScroll = (nodeMinY + (nodeMaxY - nodeMinY) / 2 - viewportHeight / 2)
+                        / (contentHeight - viewportHeight);
+                messageScrollPane.setVvalue(Math.max(0, Math.min(1, targetScroll)));
+            }
+        });
+    }
+
+    private void highlightNode(javafx.scene.Node node) {
+        if (!node.getStyleClass().contains("message-search-match")) {
+            node.getStyleClass().add("message-search-match");
+        }
+        PauseTransition pause = new PauseTransition(Duration.seconds(2));
+        pause.setOnFinished(event -> node.getStyleClass().remove("message-search-match"));
+        pause.play();
     }
 
     private void showAlert(String title, String content) {
