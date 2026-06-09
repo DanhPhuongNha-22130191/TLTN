@@ -522,7 +522,9 @@ public class ChatViewModel {
 
                 CompletableFuture.runAsync(() -> {
                     try {
+                        LOGGER.log(System.Logger.Level.INFO, "Bắt đầu upload file: {0}, size={1}", file.getName(), file.length());
                         String uploadedFileUrl = chatService.uploadFile(file, token);
+                        LOGGER.log(System.Logger.Level.INFO, "Upload thành công, fileUrl={0}", uploadedFileUrl);
 
                         SendMessageRequest req = new SendMessageRequest();
                         req.setConversationId(IdUtils.parseLongId(activeConversation.get().getId()));
@@ -539,6 +541,7 @@ public class ChatViewModel {
                             req.setMessageType("FILE");
                         }
 
+                        LOGGER.log(System.Logger.Level.INFO, "Gửi tin nhắn file tới API, messageType={0}", req.getMessageType());
                         MessageResponse response = chatService.sendMessage(req, token);
                         MessageItem item = new MessageItem(response, "Bạn", file.getName(), getCurrentTime(), true, true, false, false);
                         
@@ -547,6 +550,7 @@ public class ChatViewModel {
                             sentFileList.add(file.getName());
                         });
                     } catch (Exception ex) {
+                        LOGGER.log(System.Logger.Level.ERROR, "Lỗi gửi file", ex);
                         Platform.runLater(() -> errorMessage.set("Không thể gửi file: " + ex.getMessage()));
                     }
                 });
