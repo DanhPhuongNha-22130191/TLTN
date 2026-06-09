@@ -49,7 +49,7 @@
                     </graphic>
                 </Button>
 
-                <Button text="Thêm bạn"
+                <Button 
                         maxWidth="Infinity"
                         HBox.hgrow="ALWAYS"
                         onAction="#handleAddFriend"
