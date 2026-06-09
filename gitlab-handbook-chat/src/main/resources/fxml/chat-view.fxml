@@ -60,7 +60,7 @@
                     </graphic>
                 </Button>
 
-                <Button text="Hồ sơ"
+                <Button 
                         maxWidth="Infinity"
                         HBox.hgrow="ALWAYS"
                         onAction="#handleProfile"
@@ -91,7 +91,7 @@
                      tabClosingPolicy="UNAVAILABLE"
                      styleClass="chat-tab-pane">
                 <tabs>
-                    <Tab text="">
+                    <Tab text="Cá nhân">
                         <ListView fx:id="privateChatList"
                                   onMouseClicked="#handleSelectPrivateChat"
                                   styleClass="conv-list"/>
