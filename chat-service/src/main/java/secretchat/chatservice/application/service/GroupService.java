@@ -195,6 +195,42 @@ public class GroupService implements GroupUseCase {
     }
 
     @Override
+    @Transactional
+    public Group transferOwnership(Long groupId, String currentOwnerId, String newOwnerId) {
+        Group group = getGroupDetails(groupId);
+        if (!group.getCreatorId().equals(currentOwnerId)) {
+            throw new IllegalArgumentException("Only the group owner can transfer ownership");
+        }
+        GroupMember currentOwner = groupMemberRepositoryPort.findByGroupIdAndUserId(groupId, currentOwnerId)
+                .orElseThrow(() -> new IllegalArgumentException("Current owner is not a group member"));
+        GroupMember newOwner = groupMemberRepositoryPort.findByGroupIdAndUserId(groupId, newOwnerId)
+                .orElseThrow(() -> new IllegalArgumentException("New owner is not a group member"));
+
+        groupMemberRepositoryPort.save(copyMemberWithRole(currentOwner, Role.MEMBER));
+        groupMemberRepositoryPort.save(copyMemberWithRole(newOwner, Role.OWNER));
+        List<GroupMember> updatedMembers = group.getMembers().stream()
+                .map(member -> member.getUserId().equals(currentOwnerId)
+                        ? copyMemberWithRole(member, Role.MEMBER)
+                        : member.getUserId().equals(newOwnerId)
+                                ? copyMemberWithRole(member, Role.OWNER)
+                                : member)
+                .toList();
+
+        return groupRepositoryPort.save(Group.builder()
+                .id(group.getId()).name(group.getName()).description(group.getDescription())
+                .creatorId(newOwnerId).avatarUrl(group.getAvatarUrl()).isActive(group.isActive())
+                .members(updatedMembers).createdAt(group.getCreatedAt()).updatedAt(LocalDateTime.now())
+                .build());
+    }
+
+    private GroupMember copyMemberWithRole(GroupMember member, Role role) {
+        return GroupMember.builder()
+                .groupId(member.getGroupId()).userId(member.getUserId()).role(role)
+                .nickname(member.getNickname()).invitedBy(member.getInvitedBy())
+                .joinedAt(member.getJoinedAt()).build();
+    }
+
+    @Override
     public List<GroupMember> getGroupMembers(Long groupId) {
         return groupMemberRepositoryPort.findByGroupId(groupId);
     }

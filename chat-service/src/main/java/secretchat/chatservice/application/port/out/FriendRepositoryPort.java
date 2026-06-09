@@ -10,4 +10,5 @@ public interface FriendRepositoryPort {
     Optional<Friend> findByUserIdAndFriendId(String userId, String friendId);
     List<Friend> findByUserId(String userId);
     boolean existsByUserIdAndFriendId(String userId, String friendId);
+    void deleteByUserIdAndFriendId(String userId, String friendId);
 }

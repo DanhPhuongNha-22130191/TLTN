@@ -43,4 +43,9 @@ public class FriendRepositoryAdapter implements FriendRepositoryPort {
     public boolean existsByUserIdAndFriendId(String userId, String friendId) {
         return friendRepository.existsByUserIdAndFriendId(userId, friendId);
     }
+
+    @Override
+    public void deleteByUserIdAndFriendId(String userId, String friendId) {
+        friendRepository.deleteByUserIdAndFriendId(userId, friendId);
+    }
 }

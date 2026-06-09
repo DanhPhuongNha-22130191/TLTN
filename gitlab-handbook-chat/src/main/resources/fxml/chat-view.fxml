@@ -195,103 +195,43 @@
                 </VBox>
             </center>
 
-            <!-- RIGHT INFO PANEL -->
+            <!-- CONVERSATION ACTIONS -->
             <right>
-                <VBox fx:id="chatInfoPanel"
-                      prefWidth="260"
-                      spacing="10"
-                      styleClass="info-panel">
+                <VBox fx:id="chatActionsPanel"
+                      prefWidth="190"
+                      spacing="12"
+                      styleClass="conversation-actions-panel">
                     <padding>
-                        <Insets top="18" right="14" bottom="18" left="14"/>
+                        <Insets top="20" right="14" bottom="20" left="14"/>
                     </padding>
-
-                    <!-- Panel title -->
-                    <HBox alignment="CENTER_LEFT" spacing="8">
-                        <FontIcon iconLiteral="fa-info-circle"
-                                  styleClass="panel-title-icon"/>
-                        <Label text="Thông tin"
-                               styleClass="info-panel-title"/>
-                    </HBox>
-
-                    <Separator styleClass="panel-sep"/>
-
-                    <!-- MEMBERS -->
-                    <HBox alignment="CENTER_LEFT" spacing="6">
-                        <FontIcon iconLiteral="fa-users"
-                                  styleClass="section-icon"/>
-                        <Label fx:id="memberSectionLabel"
-                               text="THÀNH VIÊN NHÓM"
-                               styleClass="section-label"/>
-                    </HBox>
-
-                    <ListView fx:id="memberList"
-                              prefHeight="130"
-                              styleClass="panel-list member-list"/>
-
-                    <Button fx:id="addMemberButton"
-                            text="Thêm vào nhóm"
+                    <Button fx:id="groupMembersButton"
+                            text="Thành viên nhóm"
                             maxWidth="Infinity"
-                            onAction="#handleAddMember"
-                            styleClass="primary-button">
+                            onAction="#handleShowGroupMembers"
+                            styleClass="conversation-action-button">
                         <graphic>
-                            <FontIcon iconLiteral="fa-user-plus"
+                            <FontIcon iconLiteral="fa-users"
                                       styleClass="btn-icon"/>
                         </graphic>
                     </Button>
-
-                    <Button fx:id="leaveGroupButton"
-                            text="Rời nhóm"
+                    <Button text="File đã gửi"
                             maxWidth="Infinity"
-                            onAction="#handleLeaveGroup"
-                            styleClass="danger-button">
+                            onAction="#handleShowSentFiles"
+                            styleClass="conversation-action-button">
                         <graphic>
-                            <FontIcon iconLiteral="fa-sign-out"
+                            <FontIcon iconLiteral="fa-paperclip"
                                       styleClass="btn-icon"/>
                         </graphic>
                     </Button>
-
-                    <Button fx:id="deleteGroupButton"
-                            text="Xóa nhóm"
+                    <Button text="Link đã gửi"
                             maxWidth="Infinity"
-                            visible="false"
-                            managed="false"
-                            onAction="#handleDeleteGroup"
-                            styleClass="danger-button">
+                            onAction="#handleShowSentLinks"
+                            styleClass="conversation-action-button">
                         <graphic>
-                            <FontIcon iconLiteral="fa-trash"
+                            <FontIcon iconLiteral="fa-link"
                                       styleClass="btn-icon"/>
                         </graphic>
                     </Button>
-
-                    <Separator styleClass="panel-sep"/>
-
-                    <!-- SENT FILES -->
-                    <HBox alignment="CENTER_LEFT" spacing="6">
-                        <FontIcon iconLiteral="fa-paperclip"
-                                  styleClass="section-icon"/>
-                        <Label text="FILE ĐÃ GỬI"
-                               styleClass="section-label"/>
-                    </HBox>
-
-                    <ListView fx:id="sentFileList"
-                              VBox.vgrow="ALWAYS"
-                              prefHeight="220"
-                              styleClass="panel-list file-list"/>
-
-                    <Separator styleClass="panel-sep"/>
-
-                    <!-- SENT LINKS -->
-                    <HBox alignment="CENTER_LEFT" spacing="6">
-                        <FontIcon iconLiteral="fa-link"
-                                  styleClass="section-icon"/>
-                        <Label text="LINK ĐÃ GỬI"
-                               styleClass="section-label"/>
-                    </HBox>
-
-                    <ListView fx:id="sentLinkList"
-                              prefHeight="120"
-                              styleClass="panel-list link-list"/>
-
                 </VBox>
             </right>
 

@@ -155,6 +155,16 @@ public class ChatService {
         }
     }
 
+    public void removeFriend(String userId, String friendId, String token) throws Exception {
+        try {
+            apiClient.delete("/api/friends/user/"
+                    + java.net.URLEncoder.encode(userId, java.nio.charset.StandardCharsets.UTF_8) + "/"
+                    + java.net.URLEncoder.encode(friendId, java.nio.charset.StandardCharsets.UTF_8), token);
+        } catch (Exception e) {
+            throw GlobalExceptionHandler.handle(e);
+        }
+    }
+
     public MessageResponse editMessage(Long messageId, UpdateMessageRequest request, String token) throws Exception {
         try {
             return apiClient.put("/api/messages/" + messageId, request, token, MessageResponse.class);
@@ -291,6 +301,17 @@ public class ChatService {
         try {
             apiClient.delete("/api/groups/" + groupId + "?userId="
                     + java.net.URLEncoder.encode(userId, java.nio.charset.StandardCharsets.UTF_8), token);
+        } catch (Exception e) {
+            throw GlobalExceptionHandler.handle(e);
+        }
+    }
+
+    public GroupResponse transferGroupOwnership(Long groupId, String currentOwnerId, String newOwnerId,
+            String token) throws Exception {
+        String query = "?currentOwnerId=" + java.net.URLEncoder.encode(currentOwnerId, java.nio.charset.StandardCharsets.UTF_8)
+                + "&newOwnerId=" + java.net.URLEncoder.encode(newOwnerId, java.nio.charset.StandardCharsets.UTF_8);
+        try {
+            return apiClient.put("/api/groups/" + groupId + "/owner" + query, token, GroupResponse.class);
         } catch (Exception e) {
             throw GlobalExceptionHandler.handle(e);
         }

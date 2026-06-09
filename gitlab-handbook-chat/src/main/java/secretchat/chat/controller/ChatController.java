@@ -20,6 +20,7 @@ import javafx.util.Duration;
 import org.kordamp.ikonli.javafx.FontIcon;
 import secretchat.chat.viewmodel.ChatViewModel;
 import secretchat.chat.viewmodel.MainViewModel;
+import secretchat.chat.view.ConversationDetailsDialog;
 import secretchat.dto.response.GroupResponse;
 
 import java.io.File;
@@ -39,14 +40,8 @@ public class ChatController extends BaseChatController {
     @FXML private HBox filePreviewBox;
     @FXML private Label fileNameLabel;
     @FXML private Label fileSizeLabel;
-    @FXML private VBox chatInfoPanel;
-    @FXML private Label memberSectionLabel;
-    @FXML private ListView<String> memberList;
-    @FXML private ListView<String> sentFileList;
-    @FXML private ListView<String> sentLinkList;
-    @FXML private Button addMemberButton;
-    @FXML private Button leaveGroupButton;
-    @FXML private Button deleteGroupButton;
+    @FXML private VBox chatActionsPanel;
+    @FXML private Button groupMembersButton;
     @FXML private TextField messageSearchField;
     @FXML private ListView<String> pinnedMessageList;
     @FXML private VBox pinnedArea;
@@ -68,9 +63,6 @@ public class ChatController extends BaseChatController {
         // Setup bindings
         privateChatList.setItems(viewModel.getPrivateChatList());
         groupChatList.setItems(viewModel.getGroupChatList());
-        memberList.setItems(viewModel.getMemberList());
-        sentFileList.setItems(viewModel.getSentFileList());
-        sentLinkList.setItems(viewModel.getSentLinkList());
         pinnedMessageList.setItems(viewModel.getPinnedMessageList());
         pinnedArea.visibleProperty().bind(javafx.beans.binding.Bindings.isNotEmpty(viewModel.getPinnedMessageList()));
         pinnedArea.managedProperty().bind(pinnedArea.visibleProperty());
@@ -162,15 +154,6 @@ public class ChatController extends BaseChatController {
             updateRightPanel(isGroupTab);
         });
 
-        sentFileList.setOnMouseClicked(event -> {
-            if (event.getButton() == javafx.scene.input.MouseButton.PRIMARY) {
-                String selectedFile = sentFileList.getSelectionModel().getSelectedItem();
-                if (selectedFile != null && !selectedFile.isBlank()) {
-                    scrollToMessage(selectedFile);
-                }
-            }
-        });
-
         updateRightPanel(false);
         viewModel.init();
 
@@ -182,70 +165,6 @@ public class ChatController extends BaseChatController {
     }
 
     private void setupCellFactories() {
-        memberList.setCellFactory(lv -> {
-            ListCell<String> cell = new ListCell<>();
-            ContextMenu contextMenu = new ContextMenu();
-            MenuItem kickItem = new MenuItem("Kick khỏi nhóm");
-            MenuItem promoteItem = new MenuItem("Phân quyền Phó nhóm");
-            MenuItem demoteItem = new MenuItem("Hủy quyền Phó nhóm");
-
-            kickItem.setOnAction(event -> {
-                String memberName = extractMemberName(cell.getItem());
-                viewModel.kickMember(memberName);
-            });
-            promoteItem.setOnAction(event -> {
-                String memberName = extractMemberName(cell.getItem());
-                viewModel.updateRole(memberName, "ADMIN");
-            });
-            demoteItem.setOnAction(event -> {
-                String memberName = extractMemberName(cell.getItem());
-                viewModel.updateRole(memberName, "MEMBER");
-            });
-            
-            cell.textProperty().bind(cell.itemProperty());
-            
-            cell.emptyProperty().addListener((obs, wasEmpty, isNowEmpty) -> {
-                if (isNowEmpty) {
-                    cell.setContextMenu(null);
-                } else {
-                    if (viewModel.currentChatIsGroupProperty().get() && viewModel.activeConversationProperty().get() != null) {
-                        String currentChatName = viewModel.currentChatNameProperty().get();
-                        String displayedText = cell.getItem();
-                        String memberName = extractMemberName(displayedText);
-                        
-                        if (viewModel.isGroupCreator(currentChatName) && !"Bạn".equals(memberName)) {
-                            contextMenu.getItems().clear();
-                            contextMenu.getItems().add(kickItem);
-                            
-                            if (displayedText != null && displayedText.endsWith(" (Phó nhóm)")) {
-                                contextMenu.getItems().add(demoteItem);
-                            } else if (displayedText != null && !displayedText.endsWith(" (Chủ nhóm)")) {
-                                contextMenu.getItems().add(promoteItem);
-                            }
-                            cell.setContextMenu(contextMenu);
-                        } else {
-                            cell.setContextMenu(null);
-                        }
-                    } else {
-                        cell.setContextMenu(null);
-                    }
-                }
-            });
-            cell.setOnMouseClicked(event -> {
-                if (!cell.isEmpty() && event.getButton() == javafx.scene.input.MouseButton.PRIMARY) {
-                    String memberName = extractMemberName(cell.getItem());
-                    if (!"Bạn".equals(memberName)) {
-                        chatTabPane.getSelectionModel().select(0);
-                        chatTitleLabel.setText(memberName);
-                        chatStatusLabel.setText("Chat cá nhân");
-                        viewModel.openPrivateChatForMember(memberName);
-                        privateChatList.getSelectionModel().select(memberName);
-                    }
-                }
-            });
-            return cell;
-        });
-
         javafx.util.Callback<ListView<String>, ListCell<String>> chatListCellFactory = param -> new ListCell<>() {
             @Override
             protected void updateItem(String item, boolean empty) {
@@ -278,15 +197,16 @@ public class ChatController extends BaseChatController {
                         if (g != null) unread = viewModel.getUnreadCountForGroup(g.getId());
                     }
 
+                    box.getChildren().add(nameLabel);
+                    Region spacer = new Region();
+                    HBox.setHgrow(spacer, Priority.ALWAYS);
+                    box.getChildren().add(spacer);
+
                     if (unread > 0) {
                         Label badge = new Label(String.valueOf(unread));
                         badge.setStyle("-fx-background-color: #ef4444; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 2 6; -fx-font-size: 10px; -fx-font-weight: bold;");
                         HBox.setMargin(badge, new javafx.geometry.Insets(0, 0, 0, 10));
-                        Region spacer = new Region();
-                        HBox.setHgrow(spacer, Priority.ALWAYS);
-                        box.getChildren().addAll(nameLabel, spacer, badge);
-                    } else {
-                        box.getChildren().add(nameLabel);
+                        box.getChildren().add(badge);
                     }
                     
                     if (isAi) {
@@ -294,6 +214,24 @@ public class ChatController extends BaseChatController {
                         aiBadge.setStyle("-fx-background-color: linear-gradient(to right, #8b5cf6, #ec4899); -fx-text-fill: white; -fx-background-radius: 6; -fx-padding: 1 5; -fx-font-size: 9px; -fx-font-weight: bold;");
                         HBox.setMargin(aiBadge, new javafx.geometry.Insets(0, 0, 0, 6));
                         box.getChildren().add(aiBadge);
+                    }
+
+                    if (param == privateChatList && !isAi) {
+                        Button moreButton = new Button();
+                        FontIcon moreIcon = new FontIcon("fa-ellipsis-v");
+                        moreIcon.setIconSize(14);
+                        moreButton.setGraphic(moreIcon);
+                        moreButton.getStyleClass().add("conversation-more-button");
+                        ContextMenu menu = new ContextMenu();
+                        MenuItem removeFriend = new MenuItem("Xóa bạn bè");
+                        removeFriend.setOnAction(event -> confirmRemoveFriend(item));
+                        menu.getItems().add(removeFriend);
+                        moreButton.setOnAction(event -> {
+                            menu.show(moreButton, javafx.geometry.Side.BOTTOM, 0, 0);
+                            event.consume();
+                        });
+                        HBox.setMargin(moreButton, new javafx.geometry.Insets(0, 0, 0, 8));
+                        box.getChildren().add(moreButton);
                     }
                     
                     setGraphic(box);
@@ -304,32 +242,23 @@ public class ChatController extends BaseChatController {
         privateChatList.setCellFactory(chatListCellFactory);
         groupChatList.setCellFactory(chatListCellFactory);
 
-        sentLinkList.setCellFactory(param -> {
-            ListCell<String> cell = new ListCell<>() {
-                @Override
-                protected void updateItem(String item, boolean empty) {
-                    super.updateItem(item, empty);
-                    if (empty || item == null) {
-                        setText(null);
-                        setGraphic(null);
-                    } else {
-                        setText(item);
-                    }
+    }
+
+    private void confirmRemoveFriend(String displayName) {
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        styleAlert(confirm);
+        confirm.setTitle("Xóa bạn bè");
+        confirm.setHeaderText("Xóa " + displayName + " khỏi danh sách bạn bè?");
+        confirm.setContentText("Lịch sử tin nhắn sẽ được giữ lại.");
+        confirm.showAndWait().ifPresent(button -> {
+            if (button == ButtonType.OK) {
+                boolean wasCurrentChat = displayName.equals(viewModel.currentChatNameProperty().get());
+                viewModel.removeFriend(displayName);
+                if (wasCurrentChat) {
+                    chatTitleLabel.setText("Chọn cuộc trò chuyện");
+                    chatStatusLabel.setText("Cá nhân / Nhóm");
                 }
-            };
-            cell.setOnMouseClicked(event -> {
-                if (!cell.isEmpty() && event.getButton() == javafx.scene.input.MouseButton.PRIMARY) {
-                    String selectedLink = cell.getItem();
-                    if (selectedLink != null && !selectedLink.isBlank()) {
-                        if (event.getClickCount() == 2) {
-                            openWebLink(selectedLink);
-                        } else {
-                            scrollToMessage(selectedLink);
-                        }
-                    }
-                }
-            });
-            return cell;
+            }
         });
     }
 
@@ -345,31 +274,31 @@ public class ChatController extends BaseChatController {
 
     private void updateRightPanel(boolean isGroup) {
         boolean hasConversation = viewModel.activeConversationProperty().get() != null;
-        chatInfoPanel.setVisible(hasConversation);
-        chatInfoPanel.setManaged(hasConversation);
+        chatActionsPanel.setVisible(hasConversation);
+        chatActionsPanel.setManaged(hasConversation);
+        groupMembersButton.setVisible(isGroup);
+        groupMembersButton.setManaged(isGroup);
+    }
 
-        addMemberButton.setVisible(isGroup);
-        addMemberButton.setManaged(isGroup);
+    @FXML private void handleShowGroupMembers() {
+        ConversationDetailsDialog.showMembers(viewModel, messageInput.getScene().getWindow(),
+                this::openPrivateChatFromMemberDialog);
+    }
 
-        leaveGroupButton.setVisible(isGroup);
-        leaveGroupButton.setManaged(isGroup);
+    @FXML private void handleShowSentFiles() {
+        ConversationDetailsDialog.showFiles(viewModel, messageInput.getScene().getWindow());
+    }
 
-        boolean canDeleteGroup = isGroup
-                && viewModel.isGroupCreator(viewModel.currentChatNameProperty().get());
-        deleteGroupButton.setVisible(canDeleteGroup);
-        deleteGroupButton.setManaged(canDeleteGroup);
+    @FXML private void handleShowSentLinks() {
+        ConversationDetailsDialog.showLinks(viewModel, messageInput.getScene().getWindow());
+    }
 
-        memberSectionLabel.setVisible(isGroup);
-        memberSectionLabel.setManaged(isGroup);
-
-        memberList.setVisible(isGroup);
-        memberList.setManaged(isGroup);
-
-        if (isGroup) {
-            memberSectionLabel.setText("Thành viên nhóm");
-        } else {
-            memberSectionLabel.setText("Thành viên");
-        }
+    private void openPrivateChatFromMemberDialog(String memberName) {
+        chatTabPane.getSelectionModel().select(0);
+        chatTitleLabel.setText(memberName);
+        chatStatusLabel.setText("Chat cá nhân");
+        viewModel.openPrivateChatForMember(memberName);
+        privateChatList.getSelectionModel().select(memberName);
     }
 
     @FXML
@@ -521,7 +450,8 @@ public class ChatController extends BaseChatController {
             showAlert("Thông báo", "Đây là chat cá nhân.");
             return;
         }
-        showAlert("Thành viên", String.join("\n", memberList.getItems()));
+        ConversationDetailsDialog.showMembers(viewModel, messageInput.getScene().getWindow(),
+                this::openPrivateChatFromMemberDialog);
     }
 
     @FXML
@@ -549,11 +479,7 @@ public class ChatController extends BaseChatController {
         dialog.setHeaderText("Chọn thành viên muốn thêm vào nhóm");
         dialog.setContentText("Thành viên:");
 
-        for (String userStr : viewModel.getPrivateChatList()) {
-            if (!memberList.getItems().contains(userStr) && !"TRỢ LÝ AI".equals(userStr)) {
-                dialog.getItems().add(userStr);
-            }
-        }
+        dialog.getItems().addAll(viewModel.getAvailableGroupMemberNames());
 
         if (dialog.getItems().isEmpty()) {
             showAlert("Thông báo", "Không có bạn bè nào khả dụng để thêm.");

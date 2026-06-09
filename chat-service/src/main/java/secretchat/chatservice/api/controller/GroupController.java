@@ -92,6 +92,15 @@ public class GroupController {
         return ResponseEntity.ok(GroupApiMapper.toResponse(member));
     }
 
+    @PutMapping("/{groupId}/owner")
+    public ResponseEntity<GroupResponse> transferOwnership(
+            @PathVariable Long groupId,
+            @RequestParam String currentOwnerId,
+            @RequestParam String newOwnerId) {
+        return ResponseEntity.ok(GroupApiMapper.toResponse(
+                groupUseCase.transferOwnership(groupId, currentOwnerId, newOwnerId)));
+    }
+
     @GetMapping("/{groupId}/members")
     public ResponseEntity<List<GroupMemberResponse>> getGroupMembers(@PathVariable Long groupId) {
         List<GroupMember> members = groupUseCase.getGroupMembers(groupId);

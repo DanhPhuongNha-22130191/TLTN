@@ -732,3 +732,43 @@
     -fx-border-radius: 18 18 18 5;
 }
 
+.conversation-actions-panel {
+    -fx-background-color: #fafaff;
+    -fx-border-color: transparent transparent transparent #e7e9fb;
+    -fx-border-width: 0 0 0 1;
+}
+
+.conversation-action-button {
+    -fx-alignment: center-left;
+    -fx-background-color: #f0f1ff;
+    -fx-text-fill: #5559e8;
+    -fx-font-weight: 700;
+    -fx-font-size: 13px;
+    -fx-background-radius: 13;
+    -fx-border-color: #d9dcff;
+    -fx-border-radius: 13;
+    -fx-padding: 12 14;
+    -fx-cursor: hand;
+}
+
+.conversation-action-button:hover {
+    -fx-background-color: #6265f5;
+    -fx-text-fill: white;
+    -fx-translate-y: -1;
+}
+
+.conversation-more-button {
+    -fx-background-color: transparent;
+    -fx-background-radius: 9;
+    -fx-padding: 5 8;
+    -fx-cursor: hand;
+}
+
+.conversation-more-button:hover {
+    -fx-background-color: rgba(99, 102, 241, 0.14);
+}
+
+.conversation-more-button .ikonli-font-icon {
+    -fx-icon-color: #777ca4;
+}
+

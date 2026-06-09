@@ -19,5 +19,6 @@ public interface GroupUseCase {
     void removeMember(Long groupId, String userId);
     GroupMember updateMemberNickname(Long groupId, String userId, String nickname);
     GroupMember updateMemberRole(Long groupId, String userId, Role role);
+    Group transferOwnership(Long groupId, String currentOwnerId, String newOwnerId);
     List<GroupMember> getGroupMembers(Long groupId);
 }

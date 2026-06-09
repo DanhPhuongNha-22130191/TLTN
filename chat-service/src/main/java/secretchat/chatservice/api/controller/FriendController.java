@@ -67,4 +67,12 @@ public class FriendController {
 
         return ResponseEntity.ok(responses);
     }
+
+    @DeleteMapping("/user/{userId}/{friendId}")
+    public ResponseEntity<Void> removeFriend(
+            @PathVariable String userId,
+            @PathVariable String friendId) {
+        friendUseCase.removeFriend(userId, friendId);
+        return ResponseEntity.noContent().build();
+    }
 }

@@ -179,22 +179,6 @@ public class ChatViewModel {
                             
                             if (otherUserId != null && !otherUserId.equals(currentUserId)) {
                                 personalConversationMap.put(otherUserId, c);
-                                if (!displayNameToUserId.containsValue(otherUserId)) {
-                                    String displayName = fetchUserDisplayName(otherUserId);
-                                    String finalDisplayName = displayName;
-                                    String finalOtherUserId = otherUserId;
-                                    Platform.runLater(() -> {
-                                        if (!nameToUserMap.containsKey(finalDisplayName)) {
-                                            UserResponse placeholderUser = new UserResponse();
-                                            placeholderUser.setId(finalOtherUserId);
-                                            placeholderUser.setUsername(finalDisplayName);
-                                            placeholderUser.setFullName(finalDisplayName);
-                                            nameToUserMap.put(finalDisplayName, placeholderUser);
-                                            displayNameToUserId.put(finalDisplayName, finalOtherUserId);
-                                            privateChatList.add(finalDisplayName);
-                                        }
-                                    });
-                                }
                             }
                         } else if ("GROUP".equalsIgnoreCase(c.getType()) && c.getGroupId() != null) {
                             try {
@@ -953,6 +937,83 @@ public class ChatViewModel {
         }
     }
 
+    public void removeFriend(String displayName) {
+        if (displayName == null || "TRỢ LÝ AI".equals(displayName)) return;
+        UserResponse friend = nameToUserMap.get(displayName);
+        String friendId = friend != null ? friend.getId() : displayNameToUserId.get(displayName);
+        if (friendId == null) {
+            errorMessage.set("Không tìm thấy thông tin bạn bè.");
+            return;
+        }
+        try {
+            chatService.removeFriend(currentUserId, friendId, token);
+            Platform.runLater(() -> {
+                privateChatList.remove(displayName);
+                nameToUserMap.remove(displayName);
+                displayNameToUserId.remove(displayName);
+                if (displayName.equals(currentChatName.get())) {
+                    messages.clear();
+                    currentChatName.set(null);
+                    activeConversation.set(null);
+                }
+            });
+            notificationMessage.set("Đã xóa " + displayName + " khỏi danh sách bạn bè.");
+        } catch (Exception e) {
+            errorMessage.set("Không thể xóa bạn bè: " + e.getMessage());
+        }
+    }
+
+    public java.util.List<GroupMemberView> getCurrentGroupMembers() {
+        GroupResponse group = nameToGroupMap.get(currentChatName.get());
+        if (group == null) return java.util.List.of();
+        try {
+            GroupMemberResponse[] members = chatService.getGroupMembersList(IdUtils.parseLongId(group.getId()), token);
+            if (members == null) return java.util.List.of();
+            return java.util.Arrays.stream(members)
+                    .map(member -> new GroupMemberView(member.getUserId(),
+                            member.getUserId().equals(currentUserId) ? "Bạn" : getUserDisplayName(member.getUserId()),
+                            member.getRole()))
+                    .toList();
+        } catch (Exception e) {
+            errorMessage.set("Không thể tải thành viên nhóm: " + e.getMessage());
+            return java.util.List.of();
+        }
+    }
+
+    public java.util.List<String> getAvailableGroupMemberNames() {
+        java.util.Set<String> existingIds = getCurrentGroupMembers().stream()
+                .map(GroupMemberView::userId).collect(java.util.stream.Collectors.toSet());
+        return nameToUserMap.entrySet().stream()
+                .filter(entry -> !existingIds.contains(entry.getValue().getId()))
+                .map(java.util.Map.Entry::getKey).sorted().toList();
+    }
+
+    public void removeGroupMemberById(String userId) {
+        GroupResponse group = nameToGroupMap.get(currentChatName.get());
+        if (group == null || !isGroupCreator(currentChatName.get()) || userId.equals(currentUserId)) return;
+        try {
+            chatService.removeGroupMember(IdUtils.parseLongId(group.getId()), userId, token);
+            loadGroupChatInfo(group);
+            notificationMessage.set("Đã xóa thành viên khỏi nhóm.");
+        } catch (Exception e) {
+            errorMessage.set("Không thể xóa thành viên: " + e.getMessage());
+        }
+    }
+
+    public void transferGroupOwnership(String newOwnerId) {
+        GroupResponse group = nameToGroupMap.get(currentChatName.get());
+        if (group == null || !isGroupCreator(currentChatName.get()) || newOwnerId.equals(currentUserId)) return;
+        try {
+            GroupResponse updated = chatService.transferGroupOwnership(
+                    IdUtils.parseLongId(group.getId()), currentUserId, newOwnerId, token);
+            nameToGroupMap.put(currentChatName.get(), updated);
+            loadGroupChatInfo(updated);
+            notificationMessage.set("Đã chuyển quyền chủ nhóm.");
+        } catch (Exception e) {
+            errorMessage.set("Không thể chuyển quyền chủ nhóm: " + e.getMessage());
+        }
+    }
+
     public void deleteCurrentGroup() {
         GroupResponse group = nameToGroupMap.get(currentChatName.get());
         if (group == null || !currentUserId.equals(group.getCreatorId())) {
@@ -1208,4 +1269,6 @@ public class ChatViewModel {
             pinned.set(updated.isPinned());
         }
     }
+
+    public record GroupMemberView(String userId, String displayName, String role) {}
 }

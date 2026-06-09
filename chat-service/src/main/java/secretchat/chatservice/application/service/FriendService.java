@@ -65,4 +65,17 @@ public class FriendService implements FriendUseCase {
         return friendRepositoryPort.findByUserId(userId);
     }
 
+    @Override
+    @Transactional
+    public void removeFriend(String userId, String friendId) {
+        if (userId == null || friendId == null) {
+            throw new IllegalArgumentException("User ID and friend ID are required");
+        }
+        if (!friendRepositoryPort.existsByUserIdAndFriendId(userId, friendId)) {
+            throw new IllegalArgumentException("Friend relationship not found");
+        }
+        friendRepositoryPort.deleteByUserIdAndFriendId(userId, friendId);
+        friendRepositoryPort.deleteByUserIdAndFriendId(friendId, userId);
+    }
+
 }
