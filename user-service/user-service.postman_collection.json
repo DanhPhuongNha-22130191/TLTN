@@ -1,0 +1,225 @@
+{
+  "info": {
+    "_postman_id": "tltn-user-service-via-gateway",
+    "name": "User Service (API Gateway :8080)",
+    "description": "Tất cả endpoint qua API Gateway :8080.\n\n**Chạy services:** gateway :8080, user-service (SERVER_PORT, thường 8081), Keycloak (thường 8080).\n\n**Quan trọng:** gateway route tới `USER_SERVICE_PORT` — phải trùng cổng user-service. Nếu Keycloak chiếm 8081 → user-service dùng 8082 và gateway `USER_SERVICE_PORT=8082`.\n\n**Thứ tự:** Register → Activate → Login.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "userId", "value": "NV999" },
+    { "key": "username", "value": "nguyen.van.test" },
+    { "key": "email", "value": "nguyen.van.test@rescuehub.com" },
+    { "key": "seedUserId", "value": "NV007" },
+    { "key": "seedUsername", "value": "phạm.thảo.châu7" },
+    { "key": "seedEmail", "value": "phạm.thảo.châu7@rescuehub.com" },
+    { "key": "activationCode", "value": "" },
+    { "key": "accessToken", "value": "" },
+    { "key": "refreshToken", "value": "" }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "exec": [
+          "const path = pm.request.url.getPath();",
+          "if (path && path.startsWith('/api/users') && !path.includes('/auth/')) {",
+          "  pm.request.headers.upsert({ key: 'Authorization', value: 'Bearer ' + pm.collectionVariables.get('accessToken') });",
+          "}"
+        ],
+        "type": "text/javascript"
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "auth",
+      "item": [
+        {
+          "name": "Register",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const j = pm.response.json();",
+                  "  if (j.userId) pm.collectionVariables.set('userId', j.userId);",
+                  "  if (j.username) pm.collectionVariables.set('username', j.username);",
+                  "  if (j.email) pm.collectionVariables.set('email', j.email);",
+                  "  if (j.activationCode) pm.collectionVariables.set('activationCode', j.activationCode);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Nguyễn Văn Đăng Ký\",\n  \"username\": \"nguyen.van.dangky\",\n  \"email\": \"nguyen.van.dangky@rescuehub.com\",\n  \"password\": \"password123\",\n  \"confirmPassword\": \"password123\",\n  \"phoneNumber\": \"0909876543\"\n}"
+            },
+            "url": "{{baseUrl}}/api/users/auth/register"
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const j = pm.response.json();",
+                  "  if (j.accessToken) pm.collectionVariables.set('accessToken', j.accessToken);",
+                  "  if (j.refreshToken) pm.collectionVariables.set('refreshToken', j.refreshToken);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": "{{baseUrl}}/api/users/auth/login"
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+            },
+            "url": "{{baseUrl}}/api/users/auth/logout"
+          }
+        }
+      ]
+    },
+    {
+      "name": "user",
+      "item": [
+        {
+          "name": "Get all users",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/users"
+          }
+        },
+        {
+          "name": "Get user by ID (seed NV007)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/users/{{seedUserId}}"
+          }
+        },
+        {
+          "name": "Get user by username (seed)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/users/username/{{seedUsername}}"
+          }
+        },
+        {
+          "name": "Get user by email (seed)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/users/email/{{seedEmail}}"
+          }
+        },
+        {
+          "name": "Get user by ID (created NV999)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/users/{{userId}}"
+          }
+        },
+        {
+          "name": "Activate user",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "if (!pm.collectionVariables.get('activationCode')) {",
+                  "  console.warn('Chạy Create user trước, copy activationCode vào biến activationCode');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{userId}}\",\n  \"activationCode\": \"{{activationCode}}\"\n}"
+            },
+            "url": "{{baseUrl}}/api/users/activate"
+          }
+        }
+      ]
+    },
+    {
+      "name": "user-management",
+      "item": [
+        {
+          "name": "Create user",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const j = pm.response.json();",
+                  "  if (j.activationCode) pm.collectionVariables.set('activationCode', j.activationCode);",
+                  "  if (j.userId) pm.collectionVariables.set('userId', j.userId);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"NV999\",\n  \"fullName\": \"Nguyễn Văn Test\",\n  \"username\": \"nguyen.van.test\",\n  \"email\": \"nguyen.van.test@rescuehub.com\",\n  \"phoneNumber\": \"0901234567\",\n  \"department\": \"Kỹ Thuật\",\n  \"team\": \"Backend\",\n  \"position\": \"Lập Trình Viên\",\n  \"level\": \"L2\",\n  \"manager\": \"Ngô Thảo Hà\",\n  \"location\": \"Hà Nội\",\n  \"country\": \"Việt Nam\",\n  \"timezone\": \"UTC+7\",\n  \"userType\": \"Full-time\",\n  \"startDate\": \"2025-01-15\",\n  \"probationEndDate\": \"2025-03-15\",\n  \"skills\": \"Java, Spring Boot, PostgreSQL\",\n  \"projects\": \"Hệ Thống HR Nội Bộ\",\n  \"github\": \"nguyen.van.test\",\n  \"slack\": \"nguyen.van.test\",\n  \"remainingLeaveDays\": 12\n}"
+            },
+            "url": "{{baseUrl}}/api/users"
+          }
+        },
+        {
+          "name": "Update user",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Nguyễn Văn Test (đã cập nhật)\",\n  \"email\": \"nguyen.van.test.updated@rescuehub.com\",\n  \"phoneNumber\": \"0912345678\",\n  \"department\": \"Sản Phẩm\",\n  \"team\": \"Product\",\n  \"position\": \"Senior Engineer\",\n  \"level\": \"L3\",\n  \"status\": \"ACTIVE\",\n  \"remainingLeaveDays\": 10\n}"
+            },
+            "url": "{{baseUrl}}/api/users/{{userId}}"
+          }
+        },
+        {
+          "name": "Delete user",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/users/{{userId}}"
+          }
+        }
+      ]
+    }
+  ]
+}
