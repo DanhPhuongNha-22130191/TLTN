@@ -1,9 +1,16 @@
 package secretchat.chat.view;
 
+import com.pavlobu.emojitextflow.EmojiTextFlow;
+import com.pavlobu.emojitextflow.EmojiTextFlowParameters;
+import javafx.scene.Node;
 import javafx.scene.control.Hyperlink;
-import javafx.scene.text.Text;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.TextAlignment;
 import javafx.scene.text.TextFlow;
 import secretchat.util.LinkUtils;
+
+import java.util.List;
 
 public final class LinkTextView {
     private LinkTextView() {
@@ -32,9 +39,22 @@ public final class LinkTextView {
 
     private static void addText(TextFlow flow, String value, String styleClass) {
         if (value.isEmpty()) return;
-        Text text = new Text(value);
-        text.getStyleClass().add(styleClass);
-        flow.getChildren().add(text);
+        EmojiTextFlow parsed = new EmojiTextFlow(parameters(styleClass));
+        parsed.parseAndAppend(value);
+        List<Node> nodes = List.copyOf(parsed.getChildren());
+        parsed.getChildren().clear();
+        nodes.forEach(node -> node.getStyleClass().add(styleClass));
+        flow.getChildren().addAll(nodes);
+    }
+
+    private static EmojiTextFlowParameters parameters(String styleClass) {
+        EmojiTextFlowParameters parameters = new EmojiTextFlowParameters();
+        parameters.setEmojiScaleFactor(1);
+        parameters.setTextAlignment(TextAlignment.LEFT);
+        parameters.setFont(Font.font("System", 14));
+        parameters.setTextColor("my-message-text".equals(styleClass)
+                ? Color.WHITE : Color.web("#1e1b4b"));
+        return parameters;
     }
 
     private static void open(String url) {

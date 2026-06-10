@@ -8,6 +8,7 @@ import secretchat.chatservice.domain.enums.MessageType;
 import secretchat.chatservice.domain.enums.MessageStatus;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Builder
@@ -34,4 +35,5 @@ public class MessageResponse {
     private boolean starred;
     private boolean pinned;
     private LocalDateTime editedAt;
+    private List<MessageReactionResponse> reactions;
 }

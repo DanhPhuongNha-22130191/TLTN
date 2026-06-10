@@ -3,7 +3,10 @@ package secretchat.chat.controller;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.input.DragEvent;
+import javafx.scene.input.TransferMode;
 import javafx.scene.layout.*;
+import javafx.geometry.Side;
 import javafx.stage.Stage;
 import secretchat.chat.viewmodel.ChatViewModel;
 import secretchat.chat.viewmodel.ChatViewModelFactory;
@@ -19,6 +22,7 @@ import secretchat.chat.view.ConversationCellFactory;
 import secretchat.chat.view.ConversationDetailsDialog;
 import secretchat.chat.view.ConversationNavigator;
 import secretchat.chat.view.FilePreviewController;
+import secretchat.chat.view.EmojiPicker;
 import secretchat.chat.view.MessageContextMenuFactory;
 import secretchat.chat.view.PinnedMessagesPane;
 import secretchat.chat.view.NewMessageNotifier;
@@ -53,6 +57,8 @@ public class ChatController extends BaseChatController {
     @FXML private Label aiLoadingLabel;
     @FXML private Button scrollBottomButton;
     @FXML private Label searchResultLabel;
+    @FXML private Button emojiButton;
+    @FXML private BorderPane chatArea;
     @FXML private VBox chatContentArea;
     @FXML private VBox inputArea;
 
@@ -113,9 +119,44 @@ public class ChatController extends BaseChatController {
         notificationHandler.initialize();
 
         setupCellFactories();
+        setupFileDrop();
         viewModel.init();
         chatHeaderInfoContainer.setOnMouseClicked(event -> handleOpenActiveChatProfile());
         lifecycle.initialize();
+    }
+
+    private void setupFileDrop() {
+        chatArea.setOnDragOver(this::handleFileDragOver);
+        chatArea.setOnDragDropped(this::handleFileDrop);
+    }
+
+    private void handleFileDragOver(DragEvent event) {
+        if (event.getGestureSource() != chatArea
+                && event.getDragboard().hasFiles()
+                && event.getDragboard().getFiles().stream().anyMatch(java.io.File::isFile)) {
+            event.acceptTransferModes(TransferMode.COPY);
+        }
+        event.consume();
+    }
+
+    private void handleFileDrop(DragEvent event) {
+        boolean sent = false;
+        if (event.getDragboard().hasFiles()) {
+            for (java.io.File file : event.getDragboard().getFiles()) {
+                if (!file.isFile()) {
+                    continue;
+                }
+                if (fileDialogs.exceedsUploadLimit(file)) {
+                    showAlert("Lỗi", "File " + file.getName()
+                            + " vượt quá kích thước tối đa 100 MB.");
+                    continue;
+                }
+                viewModel.sendMessage("", file);
+                sent = true;
+            }
+        }
+        event.setDropCompleted(sent);
+        event.consume();
     }
 
     private void setupCellFactories() {
@@ -214,6 +255,15 @@ public class ChatController extends BaseChatController {
         
         messageInput.clear();
         filePreview.clear();
+    }
+
+    @FXML
+    private void handleShowEmojiPicker() {
+        EmojiPicker.showMessagePicker(emojiButton, Side.TOP, emoji -> {
+            int caret = messageInput.getCaretPosition();
+            messageInput.insertText(caret, emoji);
+            messageInput.requestFocus();
+        });
     }
 
     @FXML

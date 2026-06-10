@@ -7,10 +7,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import secretchat.chatservice.api.mapper.MessageApiMapper;
 import secretchat.chatservice.api.request.MessageStatusRequest;
+import secretchat.chatservice.api.request.MessageReactionRequest;
 import secretchat.chatservice.api.request.SendMessageRequest;
 import secretchat.chatservice.api.request.UpdateMessageRequest;
 import secretchat.chatservice.api.response.MessageResponse;
 import secretchat.chatservice.application.port.in.MessageUseCase;
+import secretchat.chatservice.application.port.in.MessageReactionUseCase;
 import secretchat.chatservice.domain.model.Message;
 import secretchat.chatservice.api.realtime.MessageRealtimePublisher;
 
@@ -28,6 +30,7 @@ public class MessageController {
     private static final Path UPLOAD_DIR = Paths.get("uploads").toAbsolutePath().normalize();
 
     private final MessageUseCase messageUseCase;
+    private final MessageReactionUseCase reactionUseCase;
     private final MessageRealtimePublisher realtimePublisher;
 
     @PostMapping
@@ -67,7 +70,7 @@ public class MessageController {
         List<Message> history = messageUseCase.getChatHistory(conversationId);
         
         List<MessageResponse> responses = history.stream()
-                .map(MessageApiMapper::toResponse)
+                .map(this::toResponse)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(responses);
     }
@@ -111,10 +114,18 @@ public class MessageController {
                 messageUseCase.updateStatus(id, request.getUserId(), request.getStatus())));
     }
 
+    @PutMapping("/{id}/reaction")
+    public ResponseEntity<MessageResponse> setReaction(
+            @PathVariable Long id,
+            @Valid @RequestBody MessageReactionRequest request) {
+        reactionUseCase.setReaction(id, request.getUserId(), request.getEmoji());
+        return ResponseEntity.ok(publish(messageUseCase.getMessage(id)));
+    }
+
     @GetMapping("/pinned/{conversationId}")
     public ResponseEntity<List<MessageResponse>> getPinnedMessages(@PathVariable Long conversationId) {
         return ResponseEntity.ok(messageUseCase.getPinnedMessages(conversationId).stream()
-                .map(MessageApiMapper::toResponse).collect(Collectors.toList()));
+                .map(this::toResponse).collect(Collectors.toList()));
     }
 
     @GetMapping("/{id}/around")
@@ -122,14 +133,14 @@ public class MessageController {
             @PathVariable Long id,
             @RequestParam(defaultValue = "20") int limit) {
         return ResponseEntity.ok(messageUseCase.getMessagesAround(id, limit).stream()
-                .map(MessageApiMapper::toResponse).collect(Collectors.toList()));
+                .map(this::toResponse).collect(Collectors.toList()));
     }
 
     @GetMapping("/search/{conversationId}")
     public ResponseEntity<List<MessageResponse>> searchMessages(
             @PathVariable Long conversationId, @RequestParam String query) {
         return ResponseEntity.ok(messageUseCase.searchMessages(conversationId, query).stream()
-                .map(MessageApiMapper::toResponse).collect(Collectors.toList()));
+                .map(this::toResponse).collect(Collectors.toList()));
     }
 
     @GetMapping("/{id}/download")
@@ -206,5 +217,14 @@ public class MessageController {
 
     private MessageResponse publish(Message message) {
         return realtimePublisher.publish(message);
+    }
+
+    private MessageResponse toResponse(Message message) {
+        MessageResponse response = MessageApiMapper.toResponse(message);
+        response.setReactions(reactionUseCase.getReactions(message.getId()).stream()
+                .map(reaction -> new secretchat.chatservice.api.response.MessageReactionResponse(
+                        reaction.userId(), reaction.emoji()))
+                .toList());
+        return response;
     }
 }

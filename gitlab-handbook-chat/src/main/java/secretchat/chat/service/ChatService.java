@@ -242,6 +242,16 @@ public class ChatService {
         }
     }
 
+    public MessageResponse setMessageReaction(
+            Long messageId, MessageReactionRequest request, String token) throws Exception {
+        try {
+            return apiClient.put("/api/messages/" + messageId + "/reaction",
+                    request, token, MessageResponse.class);
+        } catch (Exception e) {
+            throw GlobalExceptionHandler.handle(e);
+        }
+    }
+
     public MessageResponse[] getPinnedMessages(Long conversationId, String token) throws Exception {
         try {
             return apiClient.get("/api/messages/pinned/" + conversationId, token, MessageResponse[].class);

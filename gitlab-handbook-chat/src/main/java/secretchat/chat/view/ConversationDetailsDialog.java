@@ -13,6 +13,7 @@ import javafx.util.Duration;
 import secretchat.chat.service.ConversationDetailsService;
 import secretchat.chat.viewmodel.ChatViewModel;
 import secretchat.util.LinkUtils;
+import secretchat.util.UIUtils;
 import secretchat.dto.response.UserResponse;
 
 import java.awt.Desktop;
@@ -308,7 +309,8 @@ public final class ConversationDetailsDialog {
             Files.write(target.toPath(), bytes);
             if (open && Desktop.isDesktopSupported()) Desktop.getDesktop().open(target);
         } catch (Exception ex) {
-            new Alert(Alert.AlertType.ERROR, "Không thể xử lý file: " + ex.getMessage()).showAndWait();
+            UIUtils.showAutoClosingAlert(
+                    new Alert(Alert.AlertType.ERROR, "Không thể xử lý file: " + ex.getMessage()));
         }
     }
 
@@ -343,7 +345,8 @@ public final class ConversationDetailsDialog {
         try {
             LinkUtils.open(url);
         } catch (Exception ex) {
-            new Alert(Alert.AlertType.ERROR, "Không thể mở link: " + url).showAndWait();
+            UIUtils.showAutoClosingAlert(
+                    new Alert(Alert.AlertType.ERROR, "Không thể mở link: " + url));
         }
     }
 

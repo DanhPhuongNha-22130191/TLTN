@@ -1,6 +1,7 @@
 package secretchat.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class MessageResponse {
@@ -22,6 +23,7 @@ public class MessageResponse {
     private boolean starred;
     private boolean pinned;
     private String editedAt;
+    private List<MessageReactionResponse> reactions;
 
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
@@ -71,4 +73,6 @@ public class MessageResponse {
     public void setPinned(boolean pinned) { this.pinned = pinned; }
     public String getEditedAt() { return editedAt; }
     public void setEditedAt(String editedAt) { this.editedAt = editedAt; }
+    public List<MessageReactionResponse> getReactions() { return reactions; }
+    public void setReactions(List<MessageReactionResponse> reactions) { this.reactions = reactions; }
 }

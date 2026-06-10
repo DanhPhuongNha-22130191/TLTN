@@ -5,8 +5,10 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 import secretchat.chatservice.api.mapper.MessageApiMapper;
 import secretchat.chatservice.api.response.MessageResponse;
+import secretchat.chatservice.api.response.MessageReactionResponse;
 import secretchat.chatservice.application.port.in.ConversationUseCase;
 import secretchat.chatservice.application.port.in.GroupUseCase;
+import secretchat.chatservice.application.port.in.MessageReactionUseCase;
 import secretchat.chatservice.domain.model.Conversation;
 import secretchat.chatservice.domain.model.Message;
 
@@ -20,9 +22,14 @@ public class MessageRealtimePublisher {
     private final SimpMessagingTemplate messagingTemplate;
     private final ConversationUseCase conversationUseCase;
     private final GroupUseCase groupUseCase;
+    private final MessageReactionUseCase reactionUseCase;
 
     public MessageResponse publish(Message message) {
         MessageResponse response = MessageApiMapper.toResponse(message);
+        response.setReactions(reactionUseCase.getReactions(message.getId()).stream()
+                .map(reaction -> new MessageReactionResponse(
+                        reaction.userId(), reaction.emoji()))
+                .toList());
         messagingTemplate.convertAndSend(
                 "/topic/conversation/" + message.getConversationId(), response);
 

@@ -3,6 +3,7 @@ package secretchat.chat.viewmodel;
 import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableMap;
 import javafx.collections.ObservableList;
 import secretchat.chat.service.AIService;
 import secretchat.chat.service.ChatService;
@@ -847,6 +848,28 @@ public class ChatViewModel {
         request.setUsername(currentUserResponse == null ? null : currentUserResponse.getUsername());
         request.setTyping(typing);
         realtimeChatService.sendTyping(request);
+    }
+
+    public void reactToMessage(MessageItem item, String emoji) {
+        if (item == null || item.getResponse() == null || item.getResponse().getId() == null
+                || item.getResponse().getId().startsWith("pending-")) {
+            return;
+        }
+        String selectedEmoji = emoji != null
+                && emoji.equals(item.getReactionFor(currentUserId)) ? null : emoji;
+        CompletableFuture.runAsync(() -> {
+            try {
+                MessageReactionRequest request = new MessageReactionRequest();
+                request.setUserId(currentUserId);
+                request.setEmoji(selectedEmoji);
+                MessageResponse updated = chatService.setMessageReaction(
+                        IdUtils.parseLongId(item.getResponse().getId()), request, token);
+                Platform.runLater(() -> item.update(updated));
+            } catch (Exception e) {
+                Platform.runLater(() ->
+                        errorMessage.set("Không thể thả cảm xúc: " + rootMessage(e)));
+            }
+        });
     }
 
     private SendMessageRequest createTextMessage(Long conversationId, String senderId, String content) {
@@ -1739,6 +1762,7 @@ public class ChatViewModel {
         private final BooleanProperty starred = new SimpleBooleanProperty();
         private final BooleanProperty pinned = new SimpleBooleanProperty();
         private final DoubleProperty uploadProgress = new SimpleDoubleProperty(-1);
+        private final ObservableMap<String, String> reactions = FXCollections.observableHashMap();
 
         public MessageItem(MessageResponse response, String senderName, String content, String time, boolean isMe, boolean isFile, boolean isDeleted, boolean isDeletedForMe) {
             this.response = response;
@@ -1753,6 +1777,7 @@ public class ChatViewModel {
                 this.status.set(response.getStatus() == null ? "SENT" : response.getStatus());
                 this.starred.set(response.isStarred());
                 this.pinned.set(response.isPinned());
+                setReactions(response.getReactions());
             }
         }
 
@@ -1785,6 +1810,8 @@ public class ChatViewModel {
         public double getUploadProgress() { return uploadProgress.get(); }
         public void setUploadProgress(double value) { uploadProgress.set(value); }
         public DoubleProperty uploadProgressProperty() { return uploadProgress; }
+        public ObservableMap<String, String> getReactions() { return reactions; }
+        public String getReactionFor(String userId) { return reactions.get(userId); }
 
         public void update(MessageResponse updated) {
             response.setId(updated.getId());
@@ -1803,11 +1830,24 @@ public class ChatViewModel {
             response.setStarred(updated.isStarred());
             response.setPinned(updated.isPinned());
             response.setEditedAt(updated.getEditedAt());
+            response.setReactions(updated.getReactions());
             if (!isFile) content.set(updated.getContent());
             isDeleted.set(updated.isDeleted());
             status.set(updated.getStatus() == null ? "SENT" : updated.getStatus());
             starred.set(updated.isStarred());
             pinned.set(updated.isPinned());
+            setReactions(updated.getReactions());
+        }
+
+        private void setReactions(List<MessageReactionResponse> values) {
+            reactions.clear();
+            if (values == null) return;
+            for (MessageReactionResponse reaction : values) {
+                if (reaction != null && reaction.getUserId() != null
+                        && reaction.getEmoji() != null) {
+                    reactions.put(reaction.getUserId(), reaction.getEmoji());
+                }
+            }
         }
     }
 

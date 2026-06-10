@@ -123,7 +123,7 @@
          CENTER — CHAT PANEL
     ════════════════════════════════════════ -->
     <center>
-        <BorderPane styleClass="chat-area">
+        <BorderPane fx:id="chatArea" styleClass="chat-area">
 
             <!-- HEADER -->
             <top>
@@ -374,6 +374,11 @@
                                    HBox.hgrow="ALWAYS"
                                    onAction="#handleSendMessage"
                                    styleClass="message-input"/>
+
+                        <Button fx:id="emojiButton"
+                                text="☺"
+                                onAction="#handleShowEmojiPicker"
+                                styleClass="emoji-input-button"/>
 
                         <Button fx:id="sendButton"
                                 onAction="#handleSendMessage"

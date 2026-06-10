@@ -3,15 +3,23 @@ package secretchat.chat.controller;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.Button;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.kordamp.ikonli.javafx.FontIcon;
+import secretchat.util.UIUtils;
 
 public class NotificationDialogController {
 
+    @FXML private VBox dialogRoot;
     @FXML private Label titleLabel;
     @FXML private Label messageLabel;
     @FXML private FontIcon iconLabel;
     @FXML private Button okButton;
+
+    @FXML
+    private void initialize() {
+        UIUtils.closeWindowWhenMouseLeaves(dialogRoot);
+    }
 
     public void setup(String title, String message) {
         titleLabel.setText(title);

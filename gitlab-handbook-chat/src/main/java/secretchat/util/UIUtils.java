@@ -1,9 +1,13 @@
 package secretchat.util;
 
 import javafx.scene.Node;
+import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 
 public class UIUtils {
+
+    private UIUtils() {
+    }
     
     public static void makeDraggable(Node rootElement) {
         final double[] xOffset = {0};
@@ -21,5 +25,19 @@ public class UIUtils {
                 stage.setY(event.getScreenY() - yOffset[0]);
             }
         });
+    }
+
+    public static void closeWindowWhenMouseLeaves(Node rootElement) {
+        rootElement.setOnMouseExited(event -> {
+            if (rootElement.getScene() != null
+                    && rootElement.getScene().getWindow() != null) {
+                rootElement.getScene().getWindow().hide();
+            }
+        });
+    }
+
+    public static void showAutoClosingAlert(Alert alert) {
+        closeWindowWhenMouseLeaves(alert.getDialogPane());
+        alert.showAndWait();
     }
 }

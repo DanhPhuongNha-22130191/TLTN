@@ -4,6 +4,8 @@ import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.geometry.Side;
+import javafx.collections.MapChangeListener;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
@@ -16,6 +18,8 @@ import secretchat.util.FileUtils;
 import java.io.File;
 import java.nio.file.Files;
 import java.util.function.BiConsumer;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public final class ChatMessagePane {
     private final ChatViewModel viewModel;
@@ -62,6 +66,9 @@ public final class ChatMessagePane {
         Node content = item.isFile() ? createFileMessage(item) : createTextMessage(item);
         HBox contentRow = createContentRow(wrapper, content, item);
         messageBox.getChildren().add(contentRow);
+        if (!item.isDeleted() && !item.isDeletedForMe()) {
+            messageBox.getChildren().add(reactionBar(item));
+        }
         messageBox.getChildren().add(timeLabel(item));
         if (item.isMe()) messageBox.getChildren().add(statusLabel(item));
 
@@ -202,9 +209,22 @@ public final class ChatMessagePane {
                 menu.show(button, javafx.geometry.Side.BOTTOM, 0, 0);
             }
         });
-        more[0] = button;
-        if (item.isMe()) row.getChildren().addAll(button, contentNode);
-        else row.getChildren().addAll(contentNode, button);
+        Button react = new Button("☺");
+        react.getStyleClass().add("message-reaction-button");
+        Runnable refreshReactButton = () -> {
+            boolean visible = hasPersistedId(item);
+            react.setVisible(visible);
+            react.setManaged(visible);
+        };
+        item.statusProperty().addListener((obs, oldValue, newValue) -> refreshReactButton.run());
+        refreshReactButton.run();
+        react.setOnAction(event -> EmojiPicker.showReactionPicker(
+                react, Side.BOTTOM, emoji -> viewModel.reactToMessage(item, emoji)));
+        HBox actions = new HBox(2, react, button);
+        actions.setAlignment(Pos.CENTER);
+        more[0] = actions;
+        if (item.isMe()) row.getChildren().addAll(actions, contentNode);
+        else row.getChildren().addAll(contentNode, actions);
     }
 
     private void replaceWithDeleted(
@@ -239,6 +259,37 @@ public final class ChatMessagePane {
         Label label = new Label(item.getTime());
         label.setStyle("-fx-font-size: 10px; -fx-text-fill: #9ca3af;");
         return label;
+    }
+
+    private FlowPane reactionBar(ChatViewModel.MessageItem item) {
+        FlowPane bar = new FlowPane(5, 4);
+        bar.getStyleClass().add("message-reactions");
+        bar.setAlignment(item.isMe() ? Pos.CENTER_RIGHT : Pos.CENTER_LEFT);
+        Runnable refresh = () -> {
+            Map<String, Integer> counts = new LinkedHashMap<>();
+            item.getReactions().values().forEach(
+                    emoji -> counts.merge(emoji, 1, Integer::sum));
+            bar.getChildren().clear();
+            counts.forEach((emoji, count) -> {
+                Button chip = new Button();
+                chip.getStyleClass().add("message-reaction-chip");
+                HBox content = new HBox(3, EmojiPicker.emojiGraphic(emoji, 15),
+                        new Label(String.valueOf(count)));
+                content.setAlignment(Pos.CENTER);
+                chip.setGraphic(content);
+                chip.setOnAction(event -> viewModel.reactToMessage(item, emoji));
+                bar.getChildren().add(chip);
+            });
+            boolean visible = !item.isDeleted() && !item.isDeletedForMe() && !counts.isEmpty();
+            bar.setVisible(visible);
+            bar.setManaged(visible);
+        };
+        item.getReactions().addListener(
+                (MapChangeListener<String, String>) change -> refresh.run());
+        item.isDeletedProperty().addListener((obs, oldValue, newValue) -> refresh.run());
+        item.isDeletedForMeProperty().addListener((obs, oldValue, newValue) -> refresh.run());
+        refresh.run();
+        return bar;
     }
 
     private Label statusLabel(ChatViewModel.MessageItem item) {

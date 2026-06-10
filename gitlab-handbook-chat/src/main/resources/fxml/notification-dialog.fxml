@@ -7,6 +7,7 @@
 
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
+      fx:id="dialogRoot"
       fx:controller="secretchat.chat.controller.NotificationDialogController"
       stylesheets="@../css/dialog-common.css"
       styleClass="dialog-root"
