@@ -3,6 +3,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
 
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
@@ -18,7 +19,16 @@
             <Insets top="22" right="24" bottom="22" left="24"/>
         </padding>
 
-        <Label fx:id="iconLabel" text="⚙️" style="-fx-font-size: 22px;"/>
+        <StackPane styleClass="dialog-icon-box">
+            <FontIcon fx:id="actionIcon"
+                      iconLiteral="fa-cog"
+                      styleClass="dialog-icon"/>
+            <Label fx:id="fallbackIconLabel"
+                   text="!"
+                   visible="false"
+                   managed="false"
+                   styleClass="dialog-icon-fallback"/>
+        </StackPane>
 
         <VBox spacing="2">
             <Label fx:id="titleLabel" text="Xác nhận" styleClass="dialog-title"/>

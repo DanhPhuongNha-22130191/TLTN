@@ -10,6 +10,7 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -22,6 +23,7 @@ public final class EmojiParser {
     private final Map<String, String> unicodeToHex = new HashMap<>();
     private final Map<String, String> unicodeToShortname = new HashMap<>();
     private final Map<String, String> shortnameToUnicode = new HashMap<>();
+    private final List<Emoji> availableEmojis = new ArrayList<>();
     private final Pattern unicodePattern;
     private final Pattern shortnamePattern;
 
@@ -65,6 +67,10 @@ public final class EmojiParser {
         return result;
     }
 
+    public List<Emoji> getAvailableEmojis() {
+        return List.copyOf(availableEmojis);
+    }
+
     private void loadEmojiData() {
         try (InputStream input = EmojiParser.class.getClassLoader()
                 .getResourceAsStream("emoji.json")) {
@@ -72,6 +78,7 @@ public final class EmojiParser {
                 throw new IllegalStateException("emoji.json was not found");
             }
             JsonNode root = new ObjectMapper().readTree(input);
+            List<OrderedEmoji> orderedEmojis = new ArrayList<>();
             for (Map.Entry<String, JsonNode> emojiData : root.properties()) {
                 JsonNode entry = emojiData.getValue();
                 String shortname = entry.path("shortname").asText();
@@ -79,7 +86,12 @@ public final class EmojiParser {
                 if (primaryHex.isBlank()) continue;
                 register(primaryHex, primaryHex, shortname);
                 List<String> alternatives = new ArrayList<>();
-                entry.path("unicode_alt").forEach(node -> alternatives.add(node.asText()));
+                JsonNode unicodeAlt = entry.path("unicode_alt");
+                if (unicodeAlt.isTextual() && !unicodeAlt.asText().isBlank()) {
+                    alternatives.add(unicodeAlt.asText());
+                } else if (unicodeAlt.isArray()) {
+                    unicodeAlt.forEach(node -> alternatives.add(node.asText()));
+                }
                 alternatives.forEach(hex -> register(hex, primaryHex, shortname));
                 if (!shortname.isBlank()) {
                     shortnameToUnicode.put(shortname, toUnicode(primaryHex));
@@ -90,7 +102,17 @@ public final class EmojiParser {
                         shortnameToUnicode.put(value, toUnicode(primaryHex));
                     }
                 });
+                int order = entry.path("emoji_order").asInt(Integer.MAX_VALUE);
+                String pickerHex = alternatives.isEmpty() ? primaryHex : alternatives.getFirst();
+                orderedEmojis.add(new OrderedEmoji(
+                        order, new Emoji(shortname, toUnicode(pickerHex), primaryHex.toLowerCase())));
             }
+            Map<String, Emoji> uniqueEmojis = new LinkedHashMap<>();
+            orderedEmojis.stream()
+                    .sorted(Comparator.comparingInt(OrderedEmoji::order))
+                    .map(OrderedEmoji::emoji)
+                    .forEach(emoji -> uniqueEmojis.putIfAbsent(emoji.getUnicode(), emoji));
+            availableEmojis.addAll(uniqueEmojis.values());
         } catch (Exception error) {
             throw new IllegalStateException("Unable to load emoji metadata", error);
         }
@@ -120,5 +142,8 @@ public final class EmojiParser {
             value.appendCodePoint(Integer.parseInt(part, 16));
         }
         return value.toString();
+    }
+
+    private record OrderedEmoji(int order, Emoji emoji) {
     }
 }

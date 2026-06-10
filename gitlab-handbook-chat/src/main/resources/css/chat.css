@@ -812,6 +812,29 @@
     -fx-background-color: #eef0ff;
 }
 
+.emoji-picker-pagination {
+    -fx-padding: 4 6 7 6;
+}
+
+.emoji-picker-page-button {
+    -fx-min-width: 32;
+    -fx-background-color: #eef0ff;
+    -fx-text-fill: #4f52e8;
+    -fx-font-size: 16px;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+}
+
+.emoji-picker-page-button:hover {
+    -fx-background-color: #dfe2ff;
+}
+
+.emoji-picker-page-label {
+    -fx-min-width: 64;
+    -fx-alignment: center;
+    -fx-text-fill: #73789a;
+}
+
 .emoji-picker-menu-item,
 .emoji-picker-menu-item:focused {
     -fx-background-color: transparent;
