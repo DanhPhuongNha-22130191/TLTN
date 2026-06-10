@@ -3,6 +3,7 @@ package secretchat.chat.view;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.TextFlow;
 
 public final class AiMessageView {
     private static final String[] DISCLAIMER_MARKERS = {
@@ -27,23 +28,21 @@ public final class AiMessageView {
 
     public static void update(VBox bubble, String content) {
         ParsedAnswer parsed = parse(content);
-        Label answer = wrappedLabel(parsed.answer(), "ai-answer-text");
+        TextFlow answer = wrappedText(parsed.answer(), "ai-answer-text");
         bubble.getChildren().setAll(answer);
 
         if (parsed.disclaimer() != null && !parsed.disclaimer().isBlank()) {
             Separator separator = new Separator();
             separator.getStyleClass().add("ai-disclaimer-separator");
             bubble.getChildren().addAll(
-                    separator, wrappedLabel(parsed.disclaimer(), "ai-disclaimer-text"));
+                    separator, wrappedText(parsed.disclaimer(), "ai-disclaimer-text"));
         }
     }
 
-    private static Label wrappedLabel(String text, String styleClass) {
-        Label label = new Label(text);
-        label.setWrapText(true);
-        label.setMaxWidth(390);
-        label.getStyleClass().add(styleClass);
-        return label;
+    private static TextFlow wrappedText(String text, String styleClass) {
+        TextFlow flow = LinkTextView.create(text, styleClass);
+        flow.setMaxWidth(390);
+        return flow;
     }
 
     private static ParsedAnswer parse(String content) {

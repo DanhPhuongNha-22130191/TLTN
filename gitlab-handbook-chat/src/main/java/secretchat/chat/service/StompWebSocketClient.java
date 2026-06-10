@@ -14,7 +14,7 @@ import java.util.concurrent.CompletionStage;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
-public final class StompWebSocketClient implements WebSocket.Listener, AutoCloseable {
+final class StompWebSocketClient implements RealtimeTransport, WebSocket.Listener {
 
     private static final System.Logger LOGGER = System.getLogger(StompWebSocketClient.class.getName());
 
@@ -26,11 +26,16 @@ public final class StompWebSocketClient implements WebSocket.Listener, AutoClose
     private final AtomicReference<CompletableFuture<Void>> connectFuture = new AtomicReference<>();
 
     private volatile WebSocket webSocket;
+    private volatile Consumer<Throwable> disconnectHandler = ignored -> {};
+    private volatile boolean closing;
 
+    @Override
     public CompletableFuture<Void> connect(String url, String accessToken) {
+        closing = false;
         WebSocket current = webSocket;
-        if (current != null && !current.isOutputClosed()) {
-            return CompletableFuture.completedFuture(null);
+        CompletableFuture<Void> pending = connectFuture.get();
+        if (current != null && !current.isOutputClosed() && pending != null) {
+            return pending;
         }
 
         CompletableFuture<Void> result = new CompletableFuture<>();
@@ -61,6 +66,7 @@ public final class StompWebSocketClient implements WebSocket.Listener, AutoClose
         return result;
     }
 
+    @Override
     public String subscribe(String destination, Consumer<String> messageHandler) {
         requireConnected();
         String subscriptionId = UUID.randomUUID().toString();
@@ -73,6 +79,7 @@ public final class StompWebSocketClient implements WebSocket.Listener, AutoClose
         return subscriptionId;
     }
 
+    @Override
     public void unsubscribe(String subscriptionId) {
         if (subscriptionId == null) {
             return;
@@ -83,6 +90,7 @@ public final class StompWebSocketClient implements WebSocket.Listener, AutoClose
         }
     }
 
+    @Override
     public CompletableFuture<WebSocket> send(String destination, String jsonBody) {
         requireConnected();
         return sendFrame("SEND", Map.of(
@@ -92,6 +100,7 @@ public final class StompWebSocketClient implements WebSocket.Listener, AutoClose
         ), jsonBody);
     }
 
+    @Override
     public boolean isConnected() {
         WebSocket current = webSocket;
         CompletableFuture<Void> future = connectFuture.get();
@@ -119,21 +128,31 @@ public final class StompWebSocketClient implements WebSocket.Listener, AutoClose
 
     @Override
     public CompletionStage<?> onClose(WebSocket webSocket, int statusCode, String reason) {
-        this.webSocket = null;
-        failPendingConnection(new IllegalStateException(
-                "WebSocket closed: " + statusCode + (reason.isBlank() ? "" : " - " + reason)));
+        if (this.webSocket == webSocket) {
+            this.webSocket = null;
+        }
+        subscriptions.clear();
+        IllegalStateException error = new IllegalStateException(
+                "WebSocket closed: " + statusCode + (reason.isBlank() ? "" : " - " + reason));
+        failPendingConnection(error);
+        notifyDisconnected(error);
         return CompletableFuture.completedFuture(null);
     }
 
     @Override
     public void onError(WebSocket webSocket, Throwable error) {
-        this.webSocket = null;
+        if (this.webSocket == webSocket) {
+            this.webSocket = null;
+        }
+        subscriptions.clear();
         failPendingConnection(error);
         LOGGER.log(System.Logger.Level.ERROR, "STOMP WebSocket error", error);
+        notifyDisconnected(error);
     }
 
     @Override
     public void close() {
+        closing = true;
         WebSocket current = webSocket;
         subscriptions.clear();
         if (current != null && !current.isOutputClosed()) {
@@ -141,6 +160,11 @@ public final class StompWebSocketClient implements WebSocket.Listener, AutoClose
             current.sendClose(WebSocket.NORMAL_CLOSURE, "Client closed");
         }
         webSocket = null;
+    }
+
+    @Override
+    public void setDisconnectHandler(Consumer<Throwable> handler) {
+        disconnectHandler = handler == null ? ignored -> {} : handler;
     }
 
     private void processIncomingFrames() {
@@ -223,6 +247,12 @@ public final class StompWebSocketClient implements WebSocket.Listener, AutoClose
         CompletableFuture<Void> future = connectFuture.get();
         if (future != null && !future.isDone()) {
             future.completeExceptionally(error);
+        }
+    }
+
+    private void notifyDisconnected(Throwable error) {
+        if (!closing) {
+            disconnectHandler.accept(error);
         }
     }
 }

@@ -2,15 +2,12 @@ package secretchat.chat.service;
 
 import secretchat.chat.viewmodel.ChatViewModel;
 import secretchat.dto.response.MessageResponse;
+import secretchat.util.LinkUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class ConversationDetailsService {
-    private static final Pattern LINK_PATTERN = Pattern.compile("https?://\\S+");
-
     public List<SharedFile> files(List<ChatViewModel.MessageItem> messages) {
         return messages.stream()
                 .filter(item -> item.isFile() && !item.isDeleted() && !item.isDeletedForMe())
@@ -25,9 +22,8 @@ public class ConversationDetailsService {
         List<SharedLink> result = new ArrayList<>();
         for (ChatViewModel.MessageItem item : messages) {
             if (item.isDeleted() || item.isDeletedForMe() || item.getContent() == null) continue;
-            Matcher matcher = LINK_PATTERN.matcher(item.getContent());
-            while (matcher.find()) {
-                result.add(new SharedLink(matcher.group(), item.getSenderName(),
+            for (LinkUtils.LinkMatch link : LinkUtils.findLinks(item.getContent())) {
+                result.add(new SharedLink(link.value(), item.getSenderName(),
                         item.getResponse() == null ? item.getTime() : item.getResponse().getCreatedAt()));
             }
         }

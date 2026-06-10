@@ -719,6 +719,31 @@
     -fx-font-style: italic;
 }
 
+.my-message-text {
+    -fx-fill: #ffffff;
+}
+
+.other-message-text {
+    -fx-fill: #1e1b4b;
+}
+
+.message-hyperlink {
+    -fx-padding: 0;
+    -fx-border-color: transparent;
+    -fx-background-color: transparent;
+    -fx-text-fill: #2563eb;
+    -fx-underline: true;
+    -fx-cursor: hand;
+}
+
+.my-message .message-hyperlink {
+    -fx-text-fill: #ffffff;
+}
+
+.message-hyperlink:focused {
+    -fx-border-color: transparent;
+}
+
 .ai-loading-label {
     -fx-text-fill: #6d28d9;
     -fx-font-size: 12.5px;
@@ -1039,7 +1064,7 @@
 
 .ai-answer-text {
     -fx-font-size: 14px;
-    -fx-text-fill: #4c1d95;
+    -fx-fill: #4c1d95;
     -fx-line-spacing: 2px;
 }
 
@@ -1052,8 +1077,23 @@
 .ai-disclaimer-text {
     -fx-font-size: 12px;
     -fx-font-style: italic;
-    -fx-text-fill: #7e5aa6;
+    -fx-fill: #7e5aa6;
     -fx-line-spacing: 1px;
+}
+
+.details-link-row {
+    -fx-cursor: hand;
+    -fx-padding: 5;
+    -fx-background-radius: 4;
+}
+
+.details-link-row:hover {
+    -fx-background-color: rgba(99, 102, 241, 0.08);
+}
+
+.details-link-label {
+    -fx-text-fill: #2563eb;
+    -fx-underline: true;
 }
 
 .conversation-actions-panel {

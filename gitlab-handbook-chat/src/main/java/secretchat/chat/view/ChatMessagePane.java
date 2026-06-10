@@ -7,6 +7,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import javafx.scene.text.TextFlow;
 import javafx.util.Duration;
 import org.kordamp.ikonli.javafx.FontIcon;
 import secretchat.chat.viewmodel.ChatViewModel;
@@ -102,12 +103,13 @@ public final class ChatMessagePane {
                     (obs, oldText, newText) -> AiMessageView.update(bubble, newText));
             return bubble;
         }
-        Label bubble = new Label(item.getContent());
-        bubble.setWrapText(true);
+        String textStyle = item.isMe() ? "my-message-text" : "other-message-text";
+        TextFlow bubble = LinkTextView.create(item.getContent(), textStyle);
         bubble.setMaxWidth(350);
         bubble.getStyleClass().addAll(
                 "chat-message-bubble", item.isMe() ? "my-message" : "other-message");
-        item.contentProperty().addListener((obs, oldText, newText) -> bubble.setText(newText));
+        item.contentProperty().addListener(
+                (obs, oldText, newText) -> LinkTextView.update(bubble, newText, textStyle));
         return bubble;
     }
 

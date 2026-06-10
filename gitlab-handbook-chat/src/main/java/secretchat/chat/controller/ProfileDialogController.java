@@ -15,7 +15,7 @@ import secretchat.dto.response.UserResponse;
 import java.util.regex.Pattern;
 
 public class ProfileDialogController {
-    private static final Pattern USERNAME_PATTERN = Pattern.compile("^[A-Za-z0-9_]{3,50}$");
+    private static final Pattern USERNAME_PATTERN = Pattern.compile("^[A-Za-z0-9_]{2,50}$");
     private static final Pattern PHONE_PATTERN = Pattern.compile("^\\d{9,11}$");
 
     @FXML private TextField usernameField;

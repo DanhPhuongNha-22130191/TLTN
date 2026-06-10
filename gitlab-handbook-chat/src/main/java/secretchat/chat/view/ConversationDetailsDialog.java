@@ -12,6 +12,7 @@ import javafx.stage.*;
 import javafx.util.Duration;
 import secretchat.chat.service.ConversationDetailsService;
 import secretchat.chat.viewmodel.ChatViewModel;
+import secretchat.util.LinkUtils;
 import secretchat.dto.response.UserResponse;
 
 import java.awt.Desktop;
@@ -319,18 +320,31 @@ public final class ConversationDetailsDialog {
                 super.updateItem(item, empty);
                 if (empty || item == null) { setGraphic(null); return; }
                 ConversationDetailsService.SharedLink link = (ConversationDetailsService.SharedLink) item;
-                VBox info = new VBox(new Label(link.url()), new Label(link.sender() + " • " + safe(link.time())));
+                Label url = new Label(link.url());
+                url.getStyleClass().add("details-link-label");
+                VBox info = new VBox(url, new Label(link.sender() + " • " + safe(link.time())));
                 Region spacer = new Region(); HBox.setHgrow(spacer, Priority.ALWAYS);
                 Button open = actionButton("Mở link");
-                open.setOnAction(e -> {
-                    try { Desktop.getDesktop().browse(java.net.URI.create(link.url())); }
-                    catch (Exception ex) { new Alert(Alert.AlertType.ERROR, "Không thể mở link.").showAndWait(); }
-                });
+                open.setOnAction(e -> openLink(link.url()));
                 HBox row = new HBox(10, info, spacer, open);
                 row.setAlignment(Pos.CENTER_LEFT);
+                row.getStyleClass().add("details-link-row");
+                row.setOnMouseClicked(event -> {
+                    if (event.getButton() == javafx.scene.input.MouseButton.PRIMARY) {
+                        openLink(link.url());
+                    }
+                });
                 setGraphic(row);
             }
         });
+    }
+
+    private void openLink(String url) {
+        try {
+            LinkUtils.open(url);
+        } catch (Exception ex) {
+            new Alert(Alert.AlertType.ERROR, "Không thể mở link: " + url).showAndWait();
+        }
     }
 
     private void setFilteredItems(List<?> values, java.util.function.Function<Object, String> searchable) {

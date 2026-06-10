@@ -13,6 +13,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.Flow;
 import java.util.function.DoubleConsumer;
 
@@ -71,7 +72,12 @@ public class ApiClient {
     }
 
     private HttpResponse<String> sendWithRetry(HttpRequest.Builder builder, String accessToken) throws Exception {
-        builder.timeout(Duration.ofSeconds(30));
+        return sendWithRetry(builder, accessToken, Duration.ofSeconds(30));
+    }
+
+    private HttpResponse<String> sendWithRetry(
+            HttpRequest.Builder builder, String accessToken, Duration timeout) throws Exception {
+        builder.timeout(timeout);
         if (accessToken != null && !accessToken.isBlank()) {
             builder.setHeader("Authorization", "Bearer " + accessToken);
         }
@@ -96,16 +102,29 @@ public class ApiClient {
     }
 
     public <T, R> R post(String path, T requestBody, String accessToken, Class<R> responseClass) throws Exception {
-        String jsonBody = mapper.writeValueAsString(requestBody);
         String url = GatewayConfig.getInstance().getGatewayUrl() + path;
+        return postAbsolute(url, requestBody, accessToken, responseClass);
+    }
 
+    public <T, R> R postAbsolute(
+            String url, T requestBody, String accessToken, Class<R> responseClass) throws Exception {
+        return postAbsolute(url, requestBody, accessToken, responseClass, Duration.ofSeconds(30));
+    }
+
+    public <T, R> R postAbsolute(
+            String url,
+            T requestBody,
+            String accessToken,
+            Class<R> responseClass,
+            Duration timeout) throws Exception {
+        String jsonBody = mapper.writeValueAsString(requestBody);
         HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .header("Content-Type", "application/json")
                 .header("Accept", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(jsonBody));
 
-        HttpResponse<String> response = sendWithRetry(builder, accessToken);
+        HttpResponse<String> response = sendWithRetry(builder, accessToken, timeout);
 
         if (response.statusCode() >= 400) {
             throw GlobalExceptionHandler.handle(
@@ -219,27 +238,26 @@ public class ApiClient {
     public String uploadFile(
             String path, java.io.File file, String accessToken, DoubleConsumer progressListener) throws Exception {
         String url = GatewayConfig.getInstance().getGatewayUrl() + path;
-        
-        byte[] fileBytes = java.nio.file.Files.readAllBytes(file.toPath());
-        String boundary = "---" + java.util.UUID.randomUUID().toString();
-        
+
+        String boundary = "---" + java.util.UUID.randomUUID();
+        String safeFileName = file.getName().replace("\"", "_").replace("\r", "").replace("\n", "");
         String header = "--" + boundary + "\r\n" +
-                "Content-Disposition: form-data; name=\"file\"; filename=\"" + file.getName() + "\"\r\n" +
+                "Content-Disposition: form-data; name=\"file\"; filename=\"" + safeFileName + "\"\r\n" +
                 "Content-Type: application/octet-stream\r\n\r\n";
         String footer = "\r\n--" + boundary + "--\r\n";
-        
-        byte[] headerBytes = header.getBytes("UTF-8");
-        byte[] footerBytes = footer.getBytes("UTF-8");
-        
-        byte[] fullBody = new byte[headerBytes.length + fileBytes.length + footerBytes.length];
-        System.arraycopy(headerBytes, 0, fullBody, 0, headerBytes.length);
-        System.arraycopy(fileBytes, 0, fullBody, headerBytes.length, fileBytes.length);
-        System.arraycopy(footerBytes, 0, fullBody, headerBytes.length + fileBytes.length, footerBytes.length);
+
+        byte[] headerBytes = header.getBytes(StandardCharsets.UTF_8);
+        byte[] footerBytes = footer.getBytes(StandardCharsets.UTF_8);
+        long contentLength = headerBytes.length + file.length() + footerBytes.length;
+        HttpRequest.BodyPublisher multipartBody = HttpRequest.BodyPublishers.concat(
+                HttpRequest.BodyPublishers.ofByteArray(headerBytes),
+                HttpRequest.BodyPublishers.ofFile(file.toPath()),
+                HttpRequest.BodyPublishers.ofByteArray(footerBytes));
 
         HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .header("Content-Type", "multipart/form-data; boundary=" + boundary)
-                .POST(new ProgressBodyPublisher(fullBody, progressListener));
+                .POST(new ProgressBodyPublisher(multipartBody, contentLength, progressListener));
 
         HttpResponse<String> response = sendWithRetry(builder, accessToken);
 
@@ -251,54 +269,53 @@ public class ApiClient {
     }
 
     private static final class ProgressBodyPublisher implements HttpRequest.BodyPublisher {
-        private final byte[] body;
+        private final HttpRequest.BodyPublisher delegate;
+        private final long contentLength;
         private final DoubleConsumer progressListener;
 
-        private ProgressBodyPublisher(byte[] body, DoubleConsumer progressListener) {
-            this.body = body;
+        private ProgressBodyPublisher(
+                HttpRequest.BodyPublisher delegate,
+                long contentLength,
+                DoubleConsumer progressListener) {
+            this.delegate = delegate;
+            this.contentLength = contentLength;
             this.progressListener = progressListener;
         }
 
         @Override
         public long contentLength() {
-            return body.length;
+            return contentLength;
         }
 
         @Override
         public void subscribe(Flow.Subscriber<? super ByteBuffer> subscriber) {
             progressListener.accept(0);
-            subscriber.onSubscribe(new Flow.Subscription() {
-                private static final int CHUNK_SIZE = 64 * 1024;
-                private int offset;
-                private boolean cancelled;
-                private boolean completed;
+            delegate.subscribe(new Flow.Subscriber<>() {
+                private long transferred;
 
                 @Override
-                public synchronized void request(long count) {
-                    if (cancelled || completed) return;
-                    if (count <= 0) {
-                        completed = true;
-                        subscriber.onError(new IllegalArgumentException("Non-positive subscription request"));
-                        return;
-                    }
-                    long remainingRequests = count;
-                    while (!cancelled && remainingRequests-- > 0 && offset < body.length) {
-                        int size = Math.min(CHUNK_SIZE, body.length - offset);
-                        ByteBuffer chunk = ByteBuffer.wrap(body, offset, size).slice();
-                        offset += size;
-                        subscriber.onNext(chunk);
-                        progressListener.accept((double) offset / body.length);
-                    }
-                    if (!cancelled && offset >= body.length && !completed) {
-                        completed = true;
-                        progressListener.accept(1);
-                        subscriber.onComplete();
-                    }
+                public void onSubscribe(Flow.Subscription subscription) {
+                    subscriber.onSubscribe(subscription);
                 }
 
                 @Override
-                public synchronized void cancel() {
-                    cancelled = true;
+                public void onNext(ByteBuffer item) {
+                    transferred += item.remaining();
+                    subscriber.onNext(item);
+                    progressListener.accept(contentLength == 0
+                            ? 1
+                            : Math.min(1, (double) transferred / contentLength));
+                }
+
+                @Override
+                public void onError(Throwable error) {
+                    subscriber.onError(error);
+                }
+
+                @Override
+                public void onComplete() {
+                    progressListener.accept(1);
+                    subscriber.onComplete();
                 }
             });
         }
