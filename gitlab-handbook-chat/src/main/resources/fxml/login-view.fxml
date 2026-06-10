@@ -104,6 +104,10 @@
                                styleClass="error-label"
                                visible="false"
                                managed="false"/>
+
+                        <Button text="Quên mật khẩu?"
+                                onAction="#handleForgotPassword"
+                                styleClass="forgot-password-btn"/>
                     </VBox>
 
 

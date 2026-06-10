@@ -2,14 +2,20 @@ package secretchat.auth.controller;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import secretchat.auth.view.AuthFormBindings;
 import secretchat.auth.viewmodel.LoginViewModel;
 
 import java.net.URL;
+import java.io.IOException;
 import java.util.ResourceBundle;
 
 public class LoginController extends BaseAuthController implements Initializable {
@@ -68,5 +74,26 @@ public class LoginController extends BaseAuthController implements Initializable
     @FXML
     private void togglePasswordVisibility(ActionEvent event) {
         viewModel.togglePasswordVisibility();
+    }
+
+    @FXML
+    private void handleForgotPassword(ActionEvent event) {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/fxml/forgot-password-dialog.fxml"));
+            Parent root = loader.load();
+            Stage dialog = new Stage();
+            dialog.initOwner((Stage) usernameField.getScene().getWindow());
+            dialog.initModality(Modality.APPLICATION_MODAL);
+            dialog.initStyle(StageStyle.UNDECORATED);
+            dialog.setScene(new Scene(root));
+            dialog.setResizable(false);
+            dialog.showAndWait();
+        } catch (IOException error) {
+            lblMessage.setText("Không thể mở chức năng quên mật khẩu.");
+            lblMessage.setStyle("-fx-text-fill: #ff4d6d;");
+            lblMessage.setVisible(true);
+            lblMessage.setManaged(true);
+        }
     }
 }

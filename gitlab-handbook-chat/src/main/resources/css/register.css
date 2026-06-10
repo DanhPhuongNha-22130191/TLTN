@@ -219,6 +219,21 @@
 
     -fx-cursor: hand;
 }
+
+.forgot-password-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #6a8dff;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+    -fx-padding: 2 0;
+    -fx-cursor: hand;
+    -fx-alignment: center-right;
+}
+
+.forgot-password-btn:hover {
+    -fx-text-fill: #4f52e8;
+    -fx-underline: true;
+}
 .status-label {
     -fx-text-fill: white;
 

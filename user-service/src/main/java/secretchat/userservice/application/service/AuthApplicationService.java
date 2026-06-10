@@ -1,6 +1,7 @@
 package secretchat.userservice.application.service;
 
 import org.springframework.stereotype.Service;
+import secretchat.userservice.application.dto.ForgotPasswordCommand;
 import secretchat.userservice.application.dto.LoginCommand;
 import secretchat.userservice.application.dto.LoginResult;
 import secretchat.userservice.application.dto.LogoutCommand;
@@ -67,6 +68,13 @@ public class AuthApplicationService implements AuthUseCase {
     @Override
     public LoginResult login(LoginCommand command) {
         return keycloakTokenPort.login(command.username(), command.password());
+    }
+
+    @Override
+    public void forgotPassword(ForgotPasswordCommand command) {
+        userRepository.findByEmail(new Email(command.email()))
+                .ifPresent(user -> keycloakUserPort.sendPasswordResetEmail(
+                        user.getKeycloakUserId().getValue()));
     }
 
     @Override

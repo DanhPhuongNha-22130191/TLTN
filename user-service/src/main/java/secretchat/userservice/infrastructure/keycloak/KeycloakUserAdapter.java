@@ -76,6 +76,18 @@ public class KeycloakUserAdapter implements KeycloakUserPort {
     }
 
     @Override
+    public void sendPasswordResetEmail(String keycloakUserId) {
+        try {
+            keycloak.realm(realm).users().get(keycloakUserId)
+                    .executeActionsEmail(List.of("UPDATE_PASSWORD"));
+        } catch (NotFoundException e) {
+            throw new UserNotFoundException("User not found in Keycloak: " + keycloakUserId);
+        } catch (Exception e) {
+            throw new KeycloakException("Failed to send password reset email: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
     public void updateUser(String keycloakUserId, String username, String fullName, String newPassword) {
         try {
             UserRepresentation user = keycloak.realm(realm).users().get(keycloakUserId).toRepresentation();

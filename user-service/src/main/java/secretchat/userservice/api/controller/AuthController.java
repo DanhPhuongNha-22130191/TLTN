@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import secretchat.userservice.api.dto.*;
+import secretchat.userservice.application.dto.ForgotPasswordCommand;
 import secretchat.userservice.application.dto.LoginCommand;
 import secretchat.userservice.application.dto.LogoutCommand;
 import secretchat.userservice.application.dto.RegisterCommand;
@@ -13,6 +14,8 @@ import secretchat.userservice.application.usecase.AuthUseCase;
 @RestController
 @RequestMapping("/api/users/auth")
 public class AuthController {
+    private static final String PASSWORD_RESET_MESSAGE =
+            "Nếu email tồn tại, hướng dẫn đặt lại mật khẩu đã được gửi.";
 
     private final AuthUseCase authUseCase;
 
@@ -36,6 +39,13 @@ public class AuthController {
                 result.success(), result.message(),
                 result.accessToken(), result.refreshToken(), result.expiresIn()
         ));
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<ForgotPasswordResponse> forgotPassword(
+            @Valid @RequestBody ForgotPasswordRequest request) {
+        authUseCase.forgotPassword(new ForgotPasswordCommand(request.email()));
+        return ResponseEntity.ok(new ForgotPasswordResponse(PASSWORD_RESET_MESSAGE));
     }
 
     @PostMapping("/refresh")
