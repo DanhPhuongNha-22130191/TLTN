@@ -133,7 +133,7 @@ async def chat_endpoint(request: ChatRequest):
         # 2. Câu hỏi trùng khớp chính xác trong bộ dữ liệu (Exact QA)
         # 3. Câu trả lời báo không có thông tin hoặc từ chối trả lời
         if not is_greeting and not is_exact_qa and not is_no_info:
-            disclaimer = "\n\n*(Câu trả lời này chỉ mang tính chất tham khảo. Bạn hãy liên hệ bộ phận nhân sự hoặc quản lý để biết chính xác thông tin nhé!)*"
+            disclaimer = "\n\nLưu ý: Câu trả lời này chỉ mang tính chất tham khảo. Vui lòng liên hệ bộ phận nhân sự hoặc quản lý để xác nhận thông tin chính xác."
             answer = answer.strip() + disclaimer
             
         runtime_ms = (time.time() - start_time) * 1000

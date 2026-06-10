@@ -171,6 +171,7 @@ services:
 
     volumes:
       - ../ai-rag-bot/ai/src/pipeline/rag_pipeline.py:/app/ai/src/pipeline/rag_pipeline.py:ro
+      - ../AI Module/ai/src/api.py:/app/ai/src/api.py:ro
 
     depends_on:
       - user-service

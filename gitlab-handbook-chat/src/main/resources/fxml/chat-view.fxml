@@ -256,6 +256,11 @@
                         <ProgressIndicator fx:id="aiProgressIndicator"
                                            prefWidth="18" prefHeight="18"
                                            visible="false" managed="false"/>
+                        <Label fx:id="aiLoadingLabel"
+                               text="AI đang tìm câu trả lời cho bạn..."
+                               visible="false"
+                               managed="false"
+                               styleClass="ai-loading-label"/>
                         <Label fx:id="typingLabel" visible="false" managed="false" styleClass="typing-label"/>
                     </HBox>
                 </VBox>

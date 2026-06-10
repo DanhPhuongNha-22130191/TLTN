@@ -54,6 +54,7 @@ public class ChatController extends BaseChatController {
     @FXML private Button pinnedCollapseButton;
     @FXML private Label typingLabel;
     @FXML private ProgressIndicator aiProgressIndicator;
+    @FXML private Label aiLoadingLabel;
     @FXML private Button scrollBottomButton;
     @FXML private Label searchResultLabel;
     @FXML private Button aiAssistantButton;
@@ -113,6 +114,8 @@ public class ChatController extends BaseChatController {
         typingLabel.managedProperty().bind(typingLabel.visibleProperty());
         aiProgressIndicator.visibleProperty().bind(viewModel.aiLoadingProperty());
         aiProgressIndicator.managedProperty().bind(aiProgressIndicator.visibleProperty());
+        aiLoadingLabel.visibleProperty().bind(viewModel.aiLoadingProperty());
+        aiLoadingLabel.managedProperty().bind(aiLoadingLabel.visibleProperty());
         
         chatContentArea.visibleProperty().bind(viewModel.activeConversationProperty().isNotNull());
         chatContentArea.managedProperty().bind(viewModel.activeConversationProperty().isNotNull());
@@ -1066,16 +1069,21 @@ public class ChatController extends BaseChatController {
             contentNode = fileBox;
             attachFileClickHandler(fileBox, item);
         } else {
-            Label bubble = new Label(item.getContent());
-            bubble.setWrapText(true);
-            bubble.setMaxWidth(350);
-            if (!item.isMe() && "TRỢ LÝ AI".equals(item.getSenderName())) {
-                bubble.getStyleClass().addAll("chat-message-bubble", "ai-message");
+            boolean isAiMessage = !item.isMe() && "TRỢ LÝ AI".equals(item.getSenderName());
+            if (isAiMessage) {
+                VBox bubble = createAiMessageBubble(item.getContent());
+                contentNode = bubble;
+                item.contentProperty().addListener((obs, oldText, newText) ->
+                        updateAiMessageBubble(bubble, newText));
             } else {
-                bubble.getStyleClass().addAll("chat-message-bubble", item.isMe() ? "my-message" : "other-message");
+                Label bubble = new Label(item.getContent());
+                bubble.setWrapText(true);
+                bubble.setMaxWidth(350);
+                bubble.getStyleClass().addAll(
+                        "chat-message-bubble", item.isMe() ? "my-message" : "other-message");
+                contentNode = bubble;
+                item.contentProperty().addListener((obs, oldText, newText) -> bubble.setText(newText));
             }
-            contentNode = bubble;
-            item.contentProperty().addListener((obs, oldText, newText) -> bubble.setText(newText));
         }
 
         final HBox contentRow = new HBox(6);
@@ -1203,10 +1211,10 @@ public class ChatController extends BaseChatController {
     private ContextMenu createContextMenu(javafx.scene.Node node, ChatViewModel.MessageItem item, HBox wrapper) {
         ContextMenu contextMenu = new ContextMenu();
         
-        if (node instanceof Label && !item.isFile()) {
+        if (!item.isFile()) {
             MenuItem copyItem = new MenuItem("Sao chép");
             copyItem.setOnAction(e -> {
-                String text = ((Label) node).getText();
+                String text = item.getContent();
                 if (text != null && !text.isEmpty()) {
                     javafx.scene.input.Clipboard clipboard = javafx.scene.input.Clipboard.getSystemClipboard();
                     javafx.scene.input.ClipboardContent content = new javafx.scene.input.ClipboardContent();
@@ -1314,6 +1322,65 @@ public class ChatController extends BaseChatController {
         item.statusProperty().addListener((obs, oldValue, newValue) -> refresh.run());
         refresh.run();
         return pane;
+    }
+
+    private VBox createAiMessageBubble(String content) {
+        VBox bubble = new VBox();
+        bubble.setMaxWidth(420);
+        bubble.getStyleClass().addAll("chat-message-bubble", "ai-message");
+        updateAiMessageBubble(bubble, content);
+        return bubble;
+    }
+
+    private void updateAiMessageBubble(VBox bubble, String content) {
+        String text = content == null ? "" : content.trim();
+        String disclaimer = null;
+        int disclaimerStart = findDisclaimerStart(text);
+        if (disclaimerStart >= 0) {
+            disclaimer = text.substring(disclaimerStart).trim();
+            text = text.substring(0, disclaimerStart).trim();
+            disclaimer = stripMarkdownItalics(disclaimer);
+        }
+
+        Label answerLabel = new Label(text);
+        answerLabel.setWrapText(true);
+        answerLabel.setMaxWidth(390);
+        answerLabel.getStyleClass().add("ai-answer-text");
+        bubble.getChildren().setAll(answerLabel);
+
+        if (disclaimer != null && !disclaimer.isBlank()) {
+            Separator separator = new Separator();
+            separator.getStyleClass().add("ai-disclaimer-separator");
+
+            Label disclaimerLabel = new Label(disclaimer);
+            disclaimerLabel.setWrapText(true);
+            disclaimerLabel.setMaxWidth(390);
+            disclaimerLabel.getStyleClass().add("ai-disclaimer-text");
+            bubble.getChildren().addAll(separator, disclaimerLabel);
+        }
+    }
+
+    private int findDisclaimerStart(String text) {
+        String[] markers = {
+                "\n\nLưu ý:",
+                "\nLưu ý:",
+                "\n\n*(Câu trả lời này",
+                "\n*(Câu trả lời này",
+                "\n\n(Câu trả lời này",
+                "\n(Câu trả lời này"
+        };
+        for (String marker : markers) {
+            int index = text.indexOf(marker);
+            if (index >= 0) return index;
+        }
+        return -1;
+    }
+
+    private String stripMarkdownItalics(String text) {
+        String cleaned = text.trim();
+        if (cleaned.startsWith("*")) cleaned = cleaned.substring(1).trim();
+        if (cleaned.endsWith("*")) cleaned = cleaned.substring(0, cleaned.length() - 1).trim();
+        return cleaned;
     }
 
     private void attachFileClickHandler(javafx.scene.Node node, ChatViewModel.MessageItem item) {

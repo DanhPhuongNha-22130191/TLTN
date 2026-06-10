@@ -719,6 +719,13 @@
     -fx-font-style: italic;
 }
 
+.ai-loading-label {
+    -fx-text-fill: #6d28d9;
+    -fx-font-size: 12.5px;
+    -fx-font-style: italic;
+    -fx-font-weight: 600;
+}
+
 .scroll-bottom-button {
     -fx-background-color: #6366f1;
     -fx-text-fill: white;
@@ -1026,6 +1033,27 @@
     -fx-border-width: 1.5;
     -fx-background-radius: 6 6 6 2;
     -fx-border-radius: 6 6 6 2;
+    -fx-padding: 13 16;
+    -fx-spacing: 10;
+}
+
+.ai-answer-text {
+    -fx-font-size: 14px;
+    -fx-text-fill: #4c1d95;
+    -fx-line-spacing: 2px;
+}
+
+.ai-disclaimer-separator .line {
+    -fx-border-color: #d8b4fe;
+    -fx-border-width: 1 0 0 0;
+    -fx-opacity: 0.75;
+}
+
+.ai-disclaimer-text {
+    -fx-font-size: 12px;
+    -fx-font-style: italic;
+    -fx-text-fill: #7e5aa6;
+    -fx-line-spacing: 1px;
 }
 
 .conversation-actions-panel {
