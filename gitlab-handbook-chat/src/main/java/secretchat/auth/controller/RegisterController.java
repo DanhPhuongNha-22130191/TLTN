@@ -1,13 +1,12 @@
 package secretchat.auth.controller;
 
-import javafx.beans.binding.Bindings;
-import javafx.beans.property.StringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
+import secretchat.auth.view.AuthFormBindings;
 import secretchat.auth.viewmodel.RegisterViewModel;
 
 import java.net.URL;
@@ -48,11 +47,8 @@ public class RegisterController extends BaseAuthController implements Initializa
     @Override
     public void initialize(URL url, ResourceBundle resources) {
         bindInputs();
-        bindPasswordFields();
-        bindToggleButtons();
-        bindErrorLabels();
-        bindGlobalMessage();
-        bindLoadingState();
+        bindPasswords();
+        bindFeedback();
 
         viewModel.registerSuccessProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
@@ -72,66 +68,25 @@ public class RegisterController extends BaseAuthController implements Initializa
         termsCheckBox.selectedProperty().bindBidirectional(viewModel.termsAcceptedProperty());
     }
 
-    private void bindPasswordFields() {
-        passwordField.textProperty().bindBidirectional(viewModel.passwordProperty());
-        passwordTextField.textProperty().bindBidirectional(viewModel.passwordProperty());
-
-        confirmPasswordField.textProperty().bindBidirectional(viewModel.confirmPasswordProperty());
-        confirmPasswordTextField.textProperty().bindBidirectional(viewModel.confirmPasswordProperty());
-
-        passwordField.visibleProperty().bind(viewModel.showPasswordProperty().not());
-        passwordField.managedProperty().bind(viewModel.showPasswordProperty().not());
-
-        passwordTextField.visibleProperty().bind(viewModel.showPasswordProperty());
-        passwordTextField.managedProperty().bind(viewModel.showPasswordProperty());
-
-        confirmPasswordField.visibleProperty().bind(viewModel.showConfirmPasswordProperty().not());
-        confirmPasswordField.managedProperty().bind(viewModel.showConfirmPasswordProperty().not());
-
-        confirmPasswordTextField.visibleProperty().bind(viewModel.showConfirmPasswordProperty());
-        confirmPasswordTextField.managedProperty().bind(viewModel.showConfirmPasswordProperty());
+    private void bindPasswords() {
+        AuthFormBindings.bindPassword(
+                passwordField, passwordTextField, togglePasswordBtn,
+                viewModel.passwordProperty(), viewModel.showPasswordProperty());
+        AuthFormBindings.bindPassword(
+                confirmPasswordField, confirmPasswordTextField, toggleConfirmPasswordBtn,
+                viewModel.confirmPasswordProperty(), viewModel.showConfirmPasswordProperty());
     }
 
-    private void bindToggleButtons() {
-        togglePasswordBtn.textProperty().bind(
-                Bindings.when(viewModel.showPasswordProperty())
-                        .then("Hide")
-                        .otherwise("Show")
-        );
-
-        toggleConfirmPasswordBtn.textProperty().bind(
-                Bindings.when(viewModel.showConfirmPasswordProperty())
-                        .then("Hide")
-                        .otherwise("Show")
-        );
-    }
-
-    private void bindErrorLabels() {
-        bindErrorLabel(fullNameError, viewModel.fullNameErrorProperty());
-        bindErrorLabel(usernameError, viewModel.usernameErrorProperty());
-        bindErrorLabel(emailError, viewModel.emailErrorProperty());
-        bindErrorLabel(phoneError, viewModel.phoneErrorProperty());
-        bindErrorLabel(passwordError, viewModel.passwordErrorProperty());
-        bindErrorLabel(confirmPasswordError, viewModel.confirmPasswordErrorProperty());
-    }
-
-    private void bindErrorLabel(Label label, StringProperty errorProperty) {
-        label.textProperty().bind(errorProperty);
-        label.visibleProperty().bind(errorProperty.isNotEmpty());
-        label.managedProperty().bind(errorProperty.isNotEmpty());
-    }
-
-    private void bindGlobalMessage() {
-        lblMessage.textProperty().bind(viewModel.globalMessageProperty());
-        lblMessage.styleProperty().bind(viewModel.globalMessageStyleProperty());
-        lblMessage.visibleProperty().bind(viewModel.globalMessageProperty().isNotEmpty());
-        lblMessage.managedProperty().bind(viewModel.globalMessageProperty().isNotEmpty());
-    }
-
-    private void bindLoadingState() {
-        loadingBox.visibleProperty().bind(viewModel.isLoadingProperty());
-        loadingBox.managedProperty().bind(viewModel.isLoadingProperty());
-        registerButton.disableProperty().bind(viewModel.isLoadingProperty());
+    private void bindFeedback() {
+        AuthFormBindings.bindError(fullNameError, viewModel.fullNameErrorProperty());
+        AuthFormBindings.bindError(usernameError, viewModel.usernameErrorProperty());
+        AuthFormBindings.bindError(emailError, viewModel.emailErrorProperty());
+        AuthFormBindings.bindError(phoneError, viewModel.phoneErrorProperty());
+        AuthFormBindings.bindError(passwordError, viewModel.passwordErrorProperty());
+        AuthFormBindings.bindError(confirmPasswordError, viewModel.confirmPasswordErrorProperty());
+        AuthFormBindings.bindMessage(
+                lblMessage, viewModel.globalMessageProperty(), viewModel.globalMessageStyleProperty());
+        AuthFormBindings.bindLoading(loadingBox, registerButton, viewModel.isLoadingProperty());
     }
 
     @FXML

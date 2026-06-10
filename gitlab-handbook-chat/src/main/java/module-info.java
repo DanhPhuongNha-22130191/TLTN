@@ -26,6 +26,7 @@ module secretchat.secrectchat {
     // ── Chat module ──────────────────────────────────────────────────────────
     opens secretchat.chat.controller   to javafx.fxml;
     opens secretchat.chat.viewmodel    to javafx.fxml;
+    opens secretchat.common.ui         to javafx.fxml;
 
     // ── Application entry point ──────────────────────────────────────────────
     opens secretchat to javafx.fxml;

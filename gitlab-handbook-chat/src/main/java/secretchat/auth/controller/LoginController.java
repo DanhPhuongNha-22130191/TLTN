@@ -1,13 +1,12 @@
 package secretchat.auth.controller;
 
-import javafx.beans.binding.Bindings;
-import javafx.beans.property.StringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
+import secretchat.auth.view.AuthFormBindings;
 import secretchat.auth.viewmodel.LoginViewModel;
 
 import java.net.URL;
@@ -33,11 +32,14 @@ public class LoginController extends BaseAuthController implements Initializable
     @Override
     public void initialize(URL url, ResourceBundle resources) {
         bindInputs();
-        bindPasswordFields();
-        bindToggleButtons();
-        bindErrorLabels();
-        bindGlobalMessage();
-        bindLoadingState();
+        AuthFormBindings.bindPassword(
+                passwordField, passwordTextField, togglePasswordBtn,
+                viewModel.passwordProperty(), viewModel.showPasswordProperty());
+        AuthFormBindings.bindError(usernameError, viewModel.usernameErrorProperty());
+        AuthFormBindings.bindError(passwordError, viewModel.passwordErrorProperty());
+        AuthFormBindings.bindMessage(
+                lblMessage, viewModel.globalMessageProperty(), viewModel.globalMessageStyleProperty());
+        AuthFormBindings.bindLoading(loadingBox, registerButton, viewModel.isLoadingProperty());
 
         viewModel.loginSuccessProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
@@ -51,49 +53,6 @@ public class LoginController extends BaseAuthController implements Initializable
 
     private void bindInputs() {
         usernameField.textProperty().bindBidirectional(viewModel.usernameProperty());
-    }
-
-    private void bindPasswordFields() {
-        passwordField.textProperty().bindBidirectional(viewModel.passwordProperty());
-        passwordTextField.textProperty().bindBidirectional(viewModel.passwordProperty());
-
-        passwordField.visibleProperty().bind(viewModel.showPasswordProperty().not());
-        passwordField.managedProperty().bind(viewModel.showPasswordProperty().not());
-
-        passwordTextField.visibleProperty().bind(viewModel.showPasswordProperty());
-        passwordTextField.managedProperty().bind(viewModel.showPasswordProperty());
-    }
-
-    private void bindToggleButtons() {
-        togglePasswordBtn.textProperty().bind(
-                Bindings.when(viewModel.showPasswordProperty())
-                        .then("Hide")
-                        .otherwise("Show")
-        );
-    }
-
-    private void bindErrorLabels() {
-        bindErrorLabel(usernameError, viewModel.usernameErrorProperty());
-        bindErrorLabel(passwordError, viewModel.passwordErrorProperty());
-    }
-
-    private void bindErrorLabel(Label label, StringProperty errorProperty) {
-        label.textProperty().bind(errorProperty);
-        label.visibleProperty().bind(errorProperty.isNotEmpty());
-        label.managedProperty().bind(errorProperty.isNotEmpty());
-    }
-
-    private void bindGlobalMessage() {
-        lblMessage.textProperty().bind(viewModel.globalMessageProperty());
-        lblMessage.styleProperty().bind(viewModel.globalMessageStyleProperty());
-        lblMessage.visibleProperty().bind(viewModel.globalMessageProperty().isNotEmpty());
-        lblMessage.managedProperty().bind(viewModel.globalMessageProperty().isNotEmpty());
-    }
-
-    private void bindLoadingState() {
-        loadingBox.visibleProperty().bind(viewModel.isLoadingProperty());
-        loadingBox.managedProperty().bind(viewModel.isLoadingProperty());
-        registerButton.disableProperty().bind(viewModel.isLoadingProperty());
     }
 
     @FXML
