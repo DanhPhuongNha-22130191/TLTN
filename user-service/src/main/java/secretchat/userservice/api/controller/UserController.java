@@ -31,15 +31,35 @@ public class UserController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<UserResponse> getCurrentUser(@AuthenticationPrincipal Jwt jwt) {
+    public ResponseEntity<UserResponse> getCurrentUser(
+            @AuthenticationPrincipal Jwt jwt,
+            jakarta.servlet.http.HttpServletRequest servletRequest
+    ) {
+        System.out.println("[UserController] GET /me: jwt is null? " + (jwt == null) + ", authHeader=" + servletRequest.getHeader("Authorization"));
+        if (jwt != null) {
+            System.out.println("[UserController] GET /me: jwt subject=" + jwt.getSubject());
+        }
         if (jwt == null || jwt.getSubject() == null) {
+            System.out.println("[UserController] GET /me: returning FORBIDDEN (403)");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         return ResponseEntity.ok(UserResponse.from(userUseCase.getById(jwt.getSubject())));
     }
 
     @GetMapping("/{keycloakUserId}")
-    public ResponseEntity<UserResponse> getById(@PathVariable String keycloakUserId) {
+    public ResponseEntity<UserResponse> getById(
+            @PathVariable String keycloakUserId,
+            @AuthenticationPrincipal Jwt jwt,
+            jakarta.servlet.http.HttpServletRequest servletRequest
+    ) {
+        System.out.println("[UserController] GET /" + keycloakUserId + ": jwt is null? " + (jwt == null) + ", authHeader=" + servletRequest.getHeader("Authorization"));
+        if ("me".equals(keycloakUserId)) {
+            if (jwt == null || jwt.getSubject() == null) {
+                System.out.println("[UserController] GET /me (fallback): returning FORBIDDEN (403)");
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+            return ResponseEntity.ok(UserResponse.from(userUseCase.getById(jwt.getSubject())));
+        }
         return ResponseEntity.ok(UserResponse.from(userUseCase.getById(keycloakUserId)));
     }
 
@@ -65,9 +85,15 @@ public class UserController {
     @PutMapping("/me")
     public ResponseEntity<UserResponse> updateCurrentUser(
             @AuthenticationPrincipal Jwt jwt,
-            @Valid @RequestBody UpdateUserRequest request
+            @Valid @RequestBody UpdateUserRequest request,
+            jakarta.servlet.http.HttpServletRequest servletRequest
     ) {
+        System.out.println("[UserController] PUT /me: jwt is null? " + (jwt == null) + ", authHeader=" + servletRequest.getHeader("Authorization"));
+        if (jwt != null) {
+            System.out.println("[UserController] PUT /me: jwt subject=" + jwt.getSubject());
+        }
         if (jwt == null || jwt.getSubject() == null) {
+            System.out.println("[UserController] PUT /me: returning FORBIDDEN (403)");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         String authenticatedUserId = jwt.getSubject();

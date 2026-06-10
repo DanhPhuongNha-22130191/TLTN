@@ -1,0 +1,12 @@
+aiofiles
+fastapi
+uvicorn
+
+qdrant-client
+sentence-transformers
+underthesea
+
+# Optional runtime dependencies (if using GPU/models):
+# torch
+# transformers
+# sentence-transformers

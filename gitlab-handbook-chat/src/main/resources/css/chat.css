@@ -1080,3 +1080,20 @@
     -fx-icon-color: #777ca4;
 }
 
+.chat-header-info-container {
+    -fx-cursor: hand;
+    -fx-background-radius: 6;
+    -fx-padding: 4 8;
+}
+.chat-header-info-container:hover {
+    -fx-background-color: rgba(99, 102, 241, 0.08);
+}
+
+.context-menu .menu-item.danger-menu-item .label {
+    -fx-text-fill: #dc2626;
+}
+.context-menu .menu-item.danger-menu-item:hover .label,
+.context-menu .menu-item.danger-menu-item:focused .label {
+    -fx-text-fill: #b91c1c;
+}
+

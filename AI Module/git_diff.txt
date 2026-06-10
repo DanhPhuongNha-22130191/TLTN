@@ -1,0 +1,1303 @@
+diff --git a/tltn-internal-chat/AI Module/ai/scripts/09_evaluate.py b/tltn-internal-chat/AI Module/ai/scripts/09_evaluate.py
+index ca8aa01..fd49b23 100644
+--- a/tltn-internal-chat/AI Module/ai/scripts/09_evaluate.py	
++++ b/tltn-internal-chat/AI Module/ai/scripts/09_evaluate.py	
+@@ -1,340 +1,988 @@
+ import json
+ import os
+-import sys
+ import re
+-import csv
+-import datetime
+-import asyncio
+ import math
+-import nltk
++import argparse
++import hashlib
++from pathlib import Path
+ from typing import List, Dict, Any, Tuple, Optional
++import pandas as pd
++import numpy as np
+ 
+-# --- HOTFIX CHO TRANSFORMERS 4.45+ VÀ PYTHON 3.13 ---
+-import transformers.utils.import_utils
+-if not hasattr(transformers.utils.import_utils, 'is_torch_fx_available'):
+-    transformers.utils.import_utils.is_torch_fx_available = lambda: False
+-# ---------------------------------------------------
++# ==========================================
++# 1. TEXT PROCESSING HELPERS (PURE PYTHON)
++# ==========================================
+ 
+-from FlagEmbedding import BGEM3FlagModel
+-base_dir = os.path.dirname(os.path.abspath(__file__))
+-sys.path.append(base_dir)
++def clean_text(text: str) -> str:
++    """Lowercases, removes punctuation, and normalizes whitespaces."""
++    if not text:
++        return ""
++    text = text.lower()
++    # Replace punctuation with spaces
++    text = re.sub(r'[^\w\s\s_]', ' ', text)
++    # Normalize spaces
++    return re.sub(r'\s+', ' ', text).strip()
+ 
+-from importlib import import_module
+-init_pipeline = import_module("08_query_pipeline").init_pipeline
+-QwenGenerator = import_module("07_qwen_generator").QwenGenerator
++def tokenize(text: str) -> List[str]:
++    """Tokenizes text into lowercase words."""
++    cleaned = clean_text(text)
++    if not cleaned:
++        return []
++    return cleaned.split()
+ 
++def split_sentences(text: str) -> List[str]:
++    """Splits text into sentences based on punctuation."""
++    if not text:
++        return []
++    # Split on sentence boundaries (. ! ?) followed by space or end of string
++    raw_sentences = re.split(r'(?<=[.!?])\s+', text)
++    return [s.strip() for s in raw_sentences if s.strip()]
+ 
++def compute_lcs(x: List[str], y: List[str]) -> int:
++    """Computes the length of the Longest Common Subsequence between two lists of tokens.
++    
++    Uses space-optimized O(min(N, M)) dynamic programming.
++    """
++    n, m = len(x), len(y)
++    if n == 0 or m == 0:
++        return 0
++    # Ensure y is the shorter list to optimize space complexity
++    if n < m:
++        x, y = y, x
++        n, m = m, n
++    dp = [0] * (m + 1)
++    for i in range(1, n + 1):
++        prev = 0
++        for j in range(1, m + 1):
++            temp = dp[j]
++            if x[i-1] == y[j-1]:
++                dp[j] = prev + 1
++            else:
++                dp[j] = max(dp[j], dp[j-1])
++            prev = temp
++    return dp[m]
+ 
+-def parse_qa_dataset(filepath: str) -> list:
+-    pairs = []
+-    with open(filepath, "r", encoding="utf-8") as f:
+-        content = f.read()
++def compute_rouge_l(prediction: str, ground_truth: str) -> Dict[str, float]:
++    """Computes ROUGE-L Precision, Recall, and F1 scores."""
++    x = tokenize(ground_truth)
++    y = tokenize(prediction)
++    if not x or not y:
++        return {"precision": 0.0, "recall": 0.0, "f1": 0.0}
++    lcs_len = compute_lcs(x, y)
++    precision = lcs_len / len(y)
++    recall = lcs_len / len(x)
++    f1 = (2 * precision * recall) / (precision + recall) if (precision + recall) > 0 else 0.0
++    return {"precision": precision, "recall": recall, "f1": f1}
+ 
+-    matches1 = re.findall(
+-        r"(?:Q:|Question:)\s*(.*?)\n(?:A:|Answer:)\s*(.*?)(?=\nQ:|\nQuestion:|$)",
+-        content,
+-        re.DOTALL
+-    )
+ 
+-    matches2 = re.findall(
+-        r"\*\*Q\d+:\*\*\s*(.*?)\s*\*\*A:\*\*\s*(.*?)(?:\n\*\*ChunkID:\*\*\s*(.*?))?(?=\n\*\*Q\d+:|\Z)",
+-        content,
+-        re.DOTALL
+-    )
++# ==========================================
++# 2. TF-IDF & COSINE SIMILARITY (PURE PYTHON)
++# ==========================================
+ 
+-    for q, a in matches1:
+-        pairs.append({
+-            "question": q.strip(),
+-            "truth": a.strip(),
+-            "chunk_id": None
+-        })
+-    for q, a, cid in matches2:
+-        pairs.append({
+-            "question": q.strip(),
+-            "truth": a.strip(),
+-            "chunk_id": cid.strip() if cid else None
+-        })
+-    return pairs
+-
+-
+-class RAGEvaluator:
+-    def __init__(self, embed_model=None):
+-        print("Initializing Async RAG Evaluator...")
+-        self.results = []
+-        self.embed_model = embed_model
+-        if self.embed_model is None:
+-            try:
+-                from FlagEmbedding import BGEM3FlagModel
+-                self.embed_model = BGEM3FlagModel('BAAI/bge-m3', use_fp16=True)
+-                print("✅ BGE-M3 model loaded for semantic similarity.")
+-            except Exception as e:
+-                print(f"⚠️ Could not load BGE-M3: {e}")
+-                self.embed_model = None
++class SimpleTFIDF:
++    """A lightweight TF-IDF Vectorizer and similarity search index."""
++    def __init__(self):
++        self.idf: Dict[str, float] = {}
++        self.vocab: set = set()
++        
++    def fit(self, docs: List[List[str]]):
++        """Fits the vocabulary and computes IDF values."""
++        n_docs = len(docs)
++        if n_docs == 0:
++            return
++        doc_counts = {}
++        for doc in docs:
++            unique_words = set(doc)
++            for word in unique_words:
++                doc_counts[word] = doc_counts.get(word, 0) + 1
++        for word, count in doc_counts.items():
++            self.idf[word] = math.log((1 + n_docs) / (1 + count)) + 1
++            self.vocab.add(word)
++            
++    def get_vector(self, doc: List[str]) -> Dict[str, float]:
++        """Computes TF-IDF vector representing a document."""
++        tf = {}
++        for word in doc:
++            tf[word] = tf.get(word, 0) + 1
++        doc_len = len(doc)
++        vector = {}
++        if doc_len == 0:
++            return vector
++        for word, count in tf.items():
++            if word in self.idf:
++                vector[word] = (count / doc_len) * self.idf[word]
++        return vector
++
++def cosine_similarity(v1: Dict[str, float], v2: Dict[str, float]) -> float:
++    """Computes cosine similarity between two sparse TF-IDF vectors."""
++    dot_product = 0.0
++    for word, val in v1.items():
++        if word in v2:
++            dot_product += val * v2[word]
++    sum1 = sum(val * val for val in v1.values())
++    sum2 = sum(val * val for val in v2.values())
++    if sum1 == 0 or sum2 == 0:
++        return 0.0
++    return dot_product / (math.sqrt(sum1) * math.sqrt(sum2))
++
++
++# ==========================================
++# 3. HANDBOOK MARKDOWN PARSER & INDEX
++# ==========================================
++
++def parse_markdown_file(filepath: Path) -> List[Dict[str, Any]]:
++    """Parses a markdown file and splits it into chunks based on heading sections."""
++    try:
++        content = filepath.read_text(encoding="utf-8")
++    except Exception as e:
++        print(f"⚠️ Error reading {filepath}: {e}")
++        return []
++        
++    # Simple frontmatter parser
++    metadata = {}
++    frontmatter_match = re.match(r'^---\s*\n(.*?)\n---\s*\n', content, re.DOTALL)
++    if frontmatter_match:
++        frontmatter_text = frontmatter_match.group(1)
++        for line in frontmatter_text.split('\n'):
++            if ':' in line:
++                k, v = line.split(':', 1)
++                metadata[k.strip()] = v.strip().strip('"').strip("'")
++        content = content[frontmatter_match.end():]
++        
++    chunks = []
++    lines = content.split('\n')
++    current_heading = metadata.get("title", filepath.stem)
++    current_lines = []
++    chunk_index = 0
++    
++    for line in lines:
++        # Detect markdown headings
++        heading_match = re.match(r'^(#+)\s+(.+)$', line)
++        if heading_match:
++            if current_lines:
++                chunk_text = '\n'.join(current_lines).strip()
++                if chunk_text:
++                    # Generate stable chunk ID using filename, heading and chunk index
++                    stable_id = hashlib.md5(f"{filepath.name}_{current_heading}_{chunk_index}".encode('utf-8')).hexdigest()
++                    chunks.append({
++                        "chunk_id": stable_id,
++                        "content": chunk_text,
++                        "source_file": filepath.name,
++                        "heading": current_heading,
++                        "chunk_index": chunk_index
++                    })
++                    chunk_index += 1
++            current_heading = heading_match.group(2).strip()
++            current_lines = [line]
++        else:
++            current_lines.append(line)
++            
++    # Add the remaining text as the last chunk
++    if current_lines:
++        chunk_text = '\n'.join(current_lines).strip()
++        if chunk_text:
++            stable_id = hashlib.md5(f"{filepath.name}_{current_heading}_{chunk_index}".encode('utf-8')).hexdigest()
++            chunks.append({
++                "chunk_id": stable_id,
++                "content": chunk_text,
++                "source_file": filepath.name,
++                "heading": current_heading,
++                "chunk_index": chunk_index
++            })
++            
++    return chunks
++
++def parse_handbook_dir(handbook_dir: str) -> List[Dict[str, Any]]:
++    """Recursively parses all markdown files in a directory into chunks."""
++    all_chunks = []
++    dir_path = Path(handbook_dir)
++    if not dir_path.exists():
++        print(f"⚠️ Handbook directory does not exist: {handbook_dir}")
++        return []
++        
++    for md_file in dir_path.rglob("*.md"):
++        all_chunks.extend(parse_markdown_file(md_file))
++        
++    print(f"📖 Parsed {len(all_chunks)} chunks from handbook directory.")
++    return all_chunks
++
++
++# ==========================================
++# 4. OFFLINE RETRIEVAL METRICS
++# ==========================================
++
++def calculate_precision_at_k(retrieved: List[str], ground_truth: List[str], k: int) -> float:
++    """Calculates Precision@K."""
++    if not ground_truth or k <= 0:
++        return 0.0
++    ret_k = retrieved[:k]
++    hits = sum(1 for x in ret_k if x in ground_truth)
++    return hits / k
++
++def calculate_recall_at_k(retrieved: List[str], ground_truth: List[str], k: int) -> float:
++    """Calculates Recall@K."""
++    if not ground_truth:
++        return 0.0
++    ret_k = retrieved[:k]
++    hits = sum(1 for x in ret_k if x in ground_truth)
++    return hits / len(ground_truth)
++
++def calculate_hit_at_k(retrieved: List[str], ground_truth: List[str], k: int) -> float:
++    """Calculates Hit Rate@K."""
++    if not ground_truth:
++        return 0.0
++    ret_k = retrieved[:k]
++    for x in ret_k:
++        if x in ground_truth:
++            return 1.0
++    return 0.0
++
++def calculate_ndcg_at_k(retrieved: List[str], ground_truth: List[str], k: int) -> float:
++    """Calculates Normalized Discounted Cumulative Gain (nDCG@K)."""
++    if not ground_truth or k <= 0:
++        return 0.0
++    ret_k = retrieved[:k]
++    dcg = 0.0
++    for i, x in enumerate(ret_k):
++        if x in ground_truth:
++            dcg += 1.0 / math.log2(i + 2)
++    idcg = 0.0
++    for i in range(min(len(ground_truth), k)):
++        idcg += 1.0 / math.log2(i + 2)
++    return dcg / idcg if idcg > 0.0 else 0.0
++
++def calculate_context_precision(retrieved: List[str], ground_truth: List[str], k: int = 5) -> float:
++    """Calculates Context Precision (average precision of retrieved chunks)."""
++    if not ground_truth or k <= 0:
++        return 0.0
++    ret_k = retrieved[:k]
++    relevant_hits = 0
++    precision_sum = 0.0
++    for i, x in enumerate(ret_k):
++        if x in ground_truth:
++            relevant_hits += 1
++            precision_sum += relevant_hits / (i + 1)
++    if relevant_hits == 0:
++        return 0.0
++    return precision_sum / relevant_hits
++
++def calculate_context_recall(contexts: List[str], ground_truth: str) -> float:
++    """Heuristically evaluates Context Recall.
++    
++    Measures what fraction of sentences in the ground truth answer are present 
++    or highly matched in the retrieved contexts.
++    """
++    if not ground_truth:
++        return 1.0
++    if not contexts:
++        return 0.0
++        
++    gt_sentences = split_sentences(ground_truth)
++    gt_sentences = [s.strip() for s in gt_sentences if len(tokenize(s)) > 2] # Skip short noise
++    if not gt_sentences:
++        return 1.0
++        
++    matched_count = 0
++    combined_contexts = " ".join(contexts).lower()
++    
++    for sentence in gt_sentences:
++        s_clean = clean_text(sentence)
++        s_tokens = tokenize(s_clean)
++        if not s_tokens:
++            continue
++            
++        # 1. Direct substring match
++        if s_clean in combined_contexts:
++            matched_count += 1
++        else:
++            # 2. Fallback to word-level overlap check (sentence matches if overlap > 60%)
++            max_overlap = 0.0
++            for ctx in contexts:
++                ctx_tokens = set(tokenize(ctx))
++                if not ctx_tokens:
++                    continue
++                overlap = sum(1 for w in s_tokens if w in ctx_tokens) / len(s_tokens)
++                if overlap > max_overlap:
++                    max_overlap = overlap
++            if max_overlap >= 0.6:
++                matched_count += 1
+                 
+-        # Khởi tạo ma trận chiếu (projection matrix) để nén vector từ 1024 xuống 256 chiều
+-        # Dùng phương pháp random projection để giảm chiều nhưng giữ nguyên khoảng cách (theo định lý Johnson-Lindenstrauss)
+-        import numpy as np
+-        np.random.seed(42)
+-        self.compress_matrix = np.random.randn(1024, 256) / np.sqrt(256)
+-
+-
+-    def calculate_retrieval_metrics(self, retrieved_ids: List[str], ground_truth_ids: List[str], k: int) -> Dict[str, float]:
+-        if not ground_truth_ids:
+-            return {"recall": 0.0, "precision": 0.0, "hit_rate": 0.0, "mrr": 0.0, "ndcg": 0.0}
+-        retrieved_k = retrieved_ids[:k]
+-        relevant_and_retrieved = [rid for rid in retrieved_k if rid in ground_truth_ids]
+-        recall = len(set(relevant_and_retrieved)) / len(ground_truth_ids)
+-        precision = len(set(relevant_and_retrieved)) / k if k > 0 else 0.0
+-        hit_rate = 1.0 if len(relevant_and_retrieved) > 0 else 0.0
+-        mrr = 0.0
+-        for i, rid in enumerate(retrieved_k):
+-            if rid in ground_truth_ids:
+-                mrr = 1.0 / (i + 1)
+-                break
+-        dcg = 0.0
+-        for i, rid in enumerate(retrieved_k):
+-            if rid in ground_truth_ids:
+-                dcg += 1.0 / math.log2(i + 2)
+-        idcg = 0.0
+-        for i in range(min(len(ground_truth_ids), k)):
+-            idcg += 1.0 / math.log2(i + 2)
+-        ndcg = dcg / idcg if idcg > 0 else 0.0
+-        return {"recall": recall, "precision": precision, "hit_rate": hit_rate, "mrr": mrr, "ndcg": ndcg}
+-
+-
+-    def calculate_string_metrics(self, prediction: str, ground_truth: str) -> Dict[str, float]:
+-        if not ground_truth: return {"precision": 0.0, "recall": 0.0, "f1": 0.0, "em": 0.0}
+-        try:
+-            from rouge_score import rouge_scorer
+-            scorer = rouge_scorer.RougeScorer(['rougeL'], use_stemmer=True)
+-            scores = scorer.score(ground_truth, prediction)['rougeL']
+-            rouge_p = scores.precision
+-            rouge_r = scores.recall
+-            rouge_f = scores.fmeasure
+-        except: 
+-            rouge_p, rouge_r, rouge_f = 0.0, 0.0, 0.0
++    return matched_count / len(gt_sentences)
++
++
++# ==========================================
++# 5. OFFLINE GENERATION METRICS (HEURISTIC)
++# ==========================================
++
++def compute_answer_correctness(answer: str, ground_truth: str) -> float:
++    """Evaluates the semantic correctness of the answer compared to the ground truth.
++    
++    Can be replaced with an LLM judge. Currently calculated as a weighted average 
++    of ROUGE-L F1 (70%) and Jaccard word-level overlap (30%).
++    """
++    if not ground_truth:
++        return 0.0
++    if not answer:
++        return 0.0
++        
++    rouge = compute_rouge_l(answer, ground_truth)
++    f1 = rouge["f1"]
++    
++    ans_tokens = set(tokenize(answer))
++    gt_tokens = set(tokenize(ground_truth))
++    jaccard = 0.0
++    if ans_tokens or gt_tokens:
++        jaccard = len(ans_tokens.intersection(gt_tokens)) / len(ans_tokens.union(gt_tokens))
++        
++    return 0.7 * f1 + 0.3 * jaccard
++
++def compute_faithfulness(answer: str, contexts: List[str], tfidf_model: Optional[SimpleTFIDF] = None) -> float:
++    """Evaluates if the generated answer is grounded in the retrieved contexts.
++    
++    Measures what fraction of sentences in the generated answer are textually 
++    supported by the combined contexts. Supports token overlap and TF-IDF cosine similarity fallbacks.
++    """
++    if not answer:
++        return 1.0
++    if not contexts:
++        return 0.0
++        
++    ans_sentences = split_sentences(answer)
++    ans_sentences = [s.strip() for s in ans_sentences if len(tokenize(s)) > 2]
++    if not ans_sentences:
++        return 1.0
++        
++    combined_contexts = " ".join(contexts).lower()
++    supported_count = 0
++    
++    for sentence in ans_sentences:
++        s_clean = clean_text(sentence)
++        s_tokens = tokenize(s_clean)
++        if not s_tokens:
++            continue
+             
+-        em = 1.0 if prediction.strip().lower() == ground_truth.strip().lower() else 0.0
+-        return {"precision": rouge_p, "recall": rouge_r, "f1": rouge_f, "em": em}
+-
+-    async def calculate_semantic_similarity(self, text1: str, text2: str) -> float:
+-        if not text1 or not text2 or not self.embed_model: return 0.0
+-        embeddings = self.embed_model.encode([text1, text2], return_dense=True)
+-        from sklearn.metrics.pairwise import cosine_similarity
+-        import numpy as np
+-        
+-        vec_1 = embeddings['dense_vecs'][0]
+-        vec_2 = embeddings['dense_vecs'][1]
+-        
+-        # BƯỚC 1 (PolarQuant): Xoay và Nén vector bằng cách nhân với ma trận (Random Projection)
+-        if hasattr(self, 'compress_matrix') and vec_1.shape[0] == self.compress_matrix.shape[0]:
+-            vec_1 = np.dot(vec_1, self.compress_matrix)
+-            vec_2 = np.dot(vec_2, self.compress_matrix)
++        # 1. Exact string match in combined contexts
++        if s_clean in combined_contexts:
++            supported_count += 1
++            continue
+             
+-        # BƯỚC 2 (Scalar Quantization): Lượng tử hoá kiểu Float -> Int8
+-        def quantize_8bit(vec: np.ndarray):
+-            v_min, v_max = vec.min(), vec.max()
+-            if v_max == v_min:
+-                return np.zeros_like(vec, dtype=np.uint8), v_min, v_max
+-            scale = 255.0 / (v_max - v_min)
+-            # Ép kiểu giá trị về khoảng [0, 255] dưới dạng số nguyên 8-bit
+-            quantized = np.clip(np.round((vec - v_min) * scale), 0, 255).astype(np.uint8)
+-            return quantized, v_min, v_max
+-
+-        def dequantize_8bit(q_vec: np.ndarray, v_min: float, v_max: float):
+-            if v_max == v_min:
+-                return np.full(q_vec.shape, v_min, dtype=np.float32)
+-            scale = (v_max - v_min) / 255.0
+-            # Phục hồi giá trị về dạng Float32 để tính khoảng cách
+-            return (q_vec.astype(np.float32) * scale) + v_min
+-
+-        # Lượng tử hoá
+-        q_vec_1, min1, max1 = quantize_8bit(vec_1)
+-        q_vec_2, min2, max2 = quantize_8bit(vec_2)
+-        
+-        # (Ở thực tế: q_vec_1, min1, max1 sẽ được lưu vào Qdrant/Database tiết kiệm 4x RAM)
+-        
+-        # Mô phỏng giải lượng tử hoá (Dequantize) khi truy vấn
+-        deq_vec_1 = dequantize_8bit(q_vec_1, min1, max1)
+-        deq_vec_2 = dequantize_8bit(q_vec_2, min2, max2)
++        # 2. Token overlap or TF-IDF Cosine Similarity match
++        max_overlap = 0.0
++        max_cosine = 0.0
++        s_vec = tfidf_model.get_vector(s_tokens) if tfidf_model else None
++        
++        for ctx in contexts:
++            ctx_tokens = tokenize(ctx)
++            if not ctx_tokens:
++                continue
++                
++            # Token overlap (percentage of sentence words in context)
++            overlap = sum(1 for w in s_tokens if w in set(ctx_tokens)) / len(s_tokens)
++            if overlap > max_overlap:
++                max_overlap = overlap
++                
++            # Cosine similarity
++            if tfidf_model and s_vec is not None:
++                ctx_vec = tfidf_model.get_vector(ctx_tokens)
++                sim = cosine_similarity(s_vec, ctx_vec)
++                if sim > max_cosine:
++                    max_cosine = sim
++                    
++        # Grounding criteria: token overlap >= 0.65 or TF-IDF cosine similarity >= 0.45
++        if max_overlap >= 0.65 or max_cosine >= 0.45:
++            supported_count += 1
+             
+-        return float(cosine_similarity(deq_vec_1.reshape(1,-1), deq_vec_2.reshape(1,-1))[0][0])
+-
+-    async def evaluate_single(self, q: str, a: str, retrieved_docs: list, ground_truth_ids: list = None, expected_answer: str = "", k_val: int = 5):
+-        if ground_truth_ids is None: ground_truth_ids = []
+-        r_ids = [doc.get("chunk_id", "") for doc in retrieved_docs]
+-        ret_metrics = self.calculate_retrieval_metrics(r_ids, ground_truth_ids, k_val)
+-        str_metrics = self.calculate_string_metrics(a, expected_answer)
+-        
+-        print(f"      [Evaluator] -> Bắt đầu tính toán Semantic Similarity...", flush=True)
+-        semantic_sim = await self.calculate_semantic_similarity(a, expected_answer)
+-        print(f"      [Evaluator] -> Hoàn thành Semantic Similarity: {semantic_sim:.4f}", flush=True)
+-        
+-        res = {
+-            "question": q, "answer": a,
+-            "ans_cosine_sim": semantic_sim,
+-            "accuracy": 1.0 if semantic_sim >= 0.80 else 0.0,
+-            "precision": str_metrics["precision"],
+-            "recall": str_metrics["recall"],
+-            "f1_score": str_metrics["f1"],
+-            "ctx_recall@k": ret_metrics["recall"], "ctx_precision@k": ret_metrics["precision"],
+-            "ctx_hit_rate@k": ret_metrics["hit_rate"], "ctx_mrr@k": ret_metrics["mrr"], "ctx_ndcg@k": ret_metrics["ndcg"]
+-        }
+-        self.results.append(res)
+-        return res
+-
+-    def export(self, csv_filepath: str, log_filepath: str):
+-        if not self.results: return
+-        with open(csv_filepath, "w", encoding="utf-8-sig", newline="") as f:
+-            writer = csv.DictWriter(f, fieldnames=self.results[0].keys())
+-            writer.writeheader()
+-            writer.writerows(self.results)
+-        total = len(self.results)
+-        def avg(key): return sum(r[key] for r in self.results) / total
+-        
+-        # Build Table Terminal
+-        table_border = "================================================================================"
+-        term_table = f"\n{table_border}\n"
+-        term_table += f"{'📊 BẢNG KẾT QUẢ ĐÁNH GIÁ (SEMANTIC SIMILARITY & METRICS) 📊'.center(80)}\n"
+-        term_table += f"{table_border}\n"
+-        term_table += f"✅ Đã đánh giá xong: {total} cặp câu hỏi/văn bản.\n"
+-        term_table += "-" * 80 + "\n"
+-        term_table += f"| {'TIÊU CHÍ (MATH/STRING)'.ljust(35)} | {'GIÁ TRỊ TRUNG BÌNH'.center(20)} | {'PHẦN TRĂM (%)'.center(15)} |\n"
+-        term_table += "|" + "-"*37 + "|" + "-"*22 + "|" + "-"*17 + "|\n"
+-        
+-        math_mapping = [
+-            ("Cosine Similarity (Semantic)", avg('ans_cosine_sim')),
+-            ("Accuracy (Đúng/Sai > 0.8)", avg('accuracy')),
+-            ("Precision (Tránh Hallucination)", avg('precision')),
+-            ("Recall (Đủ ý)", avg('recall')),
+-            ("F1-score (Cân bằng)", avg('f1_score'))
+-        ]
+-        
+-        for name, score in math_mapping:
+-            percent = score * 100
+-            term_table += f"| {name.ljust(35)} | {f'{score:.4f} / 1.0'.center(20)} | {f'{percent:.1f}%'.center(15)} |\n"
++    return supported_count / len(ans_sentences)
++
++def compute_answer_relevancy(answer: str, question: str) -> float:
++    """Evaluates the relevance of the answer to the user query.
++    
++    Can be replaced with an LLM judge. Heuristically computed using 
++    Jaccard word-overlap (40%) and query-keyword matching recall (60%).
++    """
++    if not question or not answer:
++        return 0.0
++        
++    q_tokens = tokenize(question)
++    a_tokens = tokenize(answer)
++    
++    q_set = set(q_tokens)
++    a_set = set(a_tokens)
++    if not q_set or not a_set:
++        return 0.0
++        
++    jaccard = len(q_set.intersection(a_set)) / len(q_set.union(a_set))
++    
++    # Filter stopwords to find core query keywords
++    stopwords = {"là", "gì", "của", "và", "có", "ở", "trong", "các", "một", "cho", "để", "này", "với", "như", "khi", "những"}
++    q_keywords = {w for w in q_set if w not in stopwords}
++    if not q_keywords:
++        q_keywords = q_set
++        
++    keyword_recall = sum(1 for w in q_keywords if w in a_set) / len(q_keywords)
++    
++    return 0.4 * jaccard + 0.6 * keyword_recall
++
++def compute_answer_completeness(answer: str, ground_truth: str) -> float:
++    """Evaluates what fraction of the ground truth is addressed by the answer.
++    
++    Can be replaced with an LLM judge. Measures what fraction of sentences 
++    in the ground truth are covered in the generated answer.
++    """
++    if not ground_truth:
++        return 1.0
++    if not answer:
++        return 0.0
++        
++    gt_sentences = split_sentences(ground_truth)
++    gt_sentences = [s.strip() for s in gt_sentences if len(tokenize(s)) > 2]
++    if not gt_sentences:
++        return 1.0
++        
++    covered_count = 0
++    ans_lower = answer.lower()
++    
++    for sentence in gt_sentences:
++        s_clean = clean_text(sentence)
++        s_tokens = tokenize(s_clean)
++        if not s_tokens:
++            continue
+             
+-        term_table += f"{table_border}\n"
++        if s_clean in ans_lower:
++            covered_count += 1
++        else:
++            ans_tokens = set(tokenize(answer))
++            overlap = sum(1 for w in s_tokens if w in ans_tokens) / len(s_tokens)
++            if overlap >= 0.6:
++                covered_count += 1
++                
++    return covered_count / len(gt_sentences)
++
++
++# ==========================================
++# 6. LOG DATA NORMALIZER & DATASET EVALUATOR
++# ==========================================
++
++def parse_field_safely(val: Any) -> Any:
++    """Safely parses JSON strings in CSVs back into lists/dicts."""
++    if isinstance(val, (list, dict, np.ndarray)):
++        return val
++    try:
++        if pd.isna(val):
++            return None
++    except Exception:
++        pass
++    if isinstance(val, str):
++        val_stripped = val.strip()
++        if (val_stripped.startswith("[") and val_stripped.endswith("]")) or (val_stripped.startswith("{") and val_stripped.endswith("}")):
++            try:
++                return json.loads(val_stripped)
++            except Exception:
++                return val
++    return val
++
++
++def extract_chunk_ids(results: Any) -> List[str]:
++    """Helper to extract chunk IDs from a list of dicts, objects, or strings."""
++    if not results:
++        return []
++    results = parse_field_safely(results)
++    if isinstance(results, str):
++        return [results]
++    if isinstance(results, list):
++        ids = []
++        for item in results:
++            if isinstance(item, dict):
++                for key in ["chunk_id", "id", "doc_id"]:
++                    if key in item:
++                        ids.append(str(item[key]))
++                        break
++                else:
++                    ids.append(str(item))
++            else:
++                ids.append(str(item))
++        return ids
++    return [str(results)]
++
++def parse_qa_dataset(filepath: str) -> Dict[str, Dict[str, Any]]:
++    """Parses qa_dataset.md and returns a mapping from cleaned question to its QA info.
++    
++    QA info includes: 'question', 'ground_truth', 'chunk_id'
++    """
++    path = Path(filepath)
++    if not path.exists():
++        print(f"⚠️ QA Dataset not found: {filepath}")
++        return {}
++    
++    try:
++        content = path.read_text(encoding="utf-8")
++    except Exception as e:
++        print(f"⚠️ Error reading QA dataset {filepath}: {e}")
++        return {}
++        
++    qa_pairs = {}
++    
++    # Split content into individual QA blocks by looking for **Q<num>:**
++    blocks = re.split(r'\n\s*(?=\*\*Q\d+:\*\*)', content)
++    
++    for block in blocks:
++        block = block.strip()
++        if not block:
++            continue
++            
++        q_match = re.search(r'^\*\*Q\d+:\*\*\s*(.+?)(?=\n\s*\*\*A:\*\*|\Z)', block, re.DOTALL)
++        if not q_match:
++            continue
++            
++        question = q_match.group(1).strip()
++        
++        # Find answer and ChunkID within this block
++        a_match = re.search(r'\n\s*\*\*A:\*\*\s*(.+?)(?=\n\s*\*\*ChunkID:\*\*|\Z)', block, re.DOTALL)
++        if not a_match:
++            continue
++            
++        answer = a_match.group(1).strip()
+         
+-        print(term_table)
++        cid_match = re.search(r'\n\s*\*\*ChunkID:\*\*\s*([a-zA-Z0-9\-]+)', block)
++        chunk_id = cid_match.group(1).strip() if cid_match else None
+         
+-        with open(log_filepath, "w", encoding="utf-8") as f: f.write(term_table)
++        q_clean = clean_text(question)
++        qa_pairs[q_clean] = {
++            "question": question,
++            "ground_truth": answer,
++            "chunk_id": chunk_id
++        }
++        
++    print(f"🎯 Parsed {len(qa_pairs)} QA pairs from {filepath}")
++    return qa_pairs
+ 
++def load_processed_chunks(handbook_dir: Optional[str] = None) -> Dict[str, str]:
++    """Attempts to load pre-processed chunks from chunks.jsonl to resolve chunk text."""
++    paths_to_try = []
++    if handbook_dir:
++        h_path = Path(handbook_dir)
++        paths_to_try.append(h_path.parent / "processed" / "chunks.jsonl")
++        paths_to_try.append(h_path / "processed" / "chunks.jsonl")
++        paths_to_try.append(h_path / "chunks.jsonl")
++    
++    # Absolute fallback workspace locations
++    base_script_dir = Path(__file__).resolve().parent
++    paths_to_try.append(base_script_dir.parent / "data" / "processed" / "chunks.jsonl")
++    paths_to_try.append(base_script_dir.parent / "processed" / "chunks.jsonl")
++    paths_to_try.append(Path("/home/phuongnha/SourcesCode/TLTN/tltn-internal-chat/AI Module/ai/data/processed/chunks.jsonl"))
++    
++    for p in paths_to_try:
++        if p.exists():
++            print(f"📖 Loaded chunk text dictionary from: {p}")
++            chunks_map = {}
++            try:
++                with open(p, 'r', encoding='utf-8') as f:
++                    for line in f:
++                        if line.strip():
++                            item = json.loads(line)
++                            if "chunk_id" in item and "text" in item:
++                                chunks_map[item["chunk_id"]] = item["text"]
++                return chunks_map
++            except Exception as e:
++                print(f"⚠️ Error loading chunks.jsonl from {p}: {e}")
++    print("⚠️ No chunks.jsonl file found. Evaluator will fall back to truncated content_preview from logs.")
++    return {}
+ 
+-async def interactive_eval():
+-    print("\n" + "="*80)
+-    print("🤖 CHẾ ĐỘ HỎI ĐÁP & CHẤM ĐIỂM TRỰC TIẾP (INTERACTIVE RAG EVAL) 🤖".center(80))
+-    print("="*80)
++def print_reranker_diagnostics(failures: List[Dict], successes: List[Dict]):
++    """Prints diagnostic information about reranker performance."""
++    border = "-" * 70
++    print("\n" + "=" * 70)
++    print("🔍 RERANKER COMPARATIVE ANALYSIS DIAGNOSTICS 🔍".center(70))
++    print("=" * 70)
+     
+-    pipeline = init_pipeline()
+-    evaluator = RAGEvaluator(embed_model=pipeline.retriever.model)
++    print(f"Reranker Success Cases (Promoted to Top 5): {len(successes)}")
++    if successes:
++        for idx, item in enumerate(successes[:3]):
++            print(f"  {idx+1}. Question: {item['question']}")
++            print(f"     Ground Truth Chunk ID: {item['gt_ids']}")
++            print(f"     Pre-Rerank Top 5 Chunks: {item['pre_rerank_top5']}")
++            print(f"     Post-Rerank Top 5 Chunks: {item['post_rerank_top5']}")
++            print(border)
++        if len(successes) > 3:
++            print(f"  ... and {len(successes) - 3} more success cases.")
++            
++    print(f"\nReranker Failure Cases (Dropped from Top 5): {len(failures)}")
++    if failures:
++        for idx, item in enumerate(failures[:3]):
++            print(f"  {idx+1}. Question: {item['question']}")
++            print(f"     Ground Truth Chunk ID: {item['gt_ids']}")
++            print(f"     Pre-Rerank Top 5 Chunks: {item['pre_rerank_top5']}")
++            print(f"     Post-Rerank Top 5 Chunks: {item['post_rerank_top5']}")
++            print(border)
++        if len(failures) > 3:
++            print(f"  ... and {len(failures) - 3} more failure cases.")
++    print("=" * 70 + "\n")
++
++def evaluate_dataset(
++    logs_path: str, 
++    handbook_dir: Optional[str] = None,
++    qa_dataset_path: Optional[str] = None
++) -> pd.DataFrame:
++    """Loads evaluation logs and calculates offline RAG metrics.
+     
+-    print("\n💡 Gõ câu hỏi của bạn (hoặc 'exit'/ 'quit' để thoát).\n")
+-    i = 1
+-    while True:
+-        try:
+-            q = input(f"\n[Câu hỏi {i}] >> ").strip()
+-            if not q:
+-                continue
+-            if q.lower() in ['exit', 'quit']:
+-                print("Đóng chế độ tương tác.")
+-                break
++    Optionally indexes the handbook directory to map ground truth answers 
++    to chunk IDs if they are missing from the log entries.
++    """
++    logs_file = Path(logs_path)
++    if not logs_file.exists():
++        raise FileNotFoundError(f"Logs file not found: {logs_path}")
++        
++    # Support CSV and JSONL
++    if logs_file.suffix.lower() == '.csv':
++        df = pd.read_csv(logs_file)
++    else:
++        # Load JSONL
++        records = []
++        with open(logs_file, 'r', encoding='utf-8') as f:
++            for line in f:
++                if line.strip():
++                    records.append(json.loads(line))
++        df = pd.DataFrame(records)
++        
++    print(f"📋 Loaded {len(df)} query logs from {logs_path}")
++    
++    # Load QA dataset if provided
++    qa_dataset = {}
++    if qa_dataset_path:
++        qa_dataset = parse_qa_dataset(qa_dataset_path)
++    
++    # Load processed chunks map
++    chunks_map = load_processed_chunks(handbook_dir)
++    
++    # Build Handbook Index for Ground-Truth mapping (if handbook path provided)
++    handbook_chunks = []
++    tfidf_model = None
++    
++    if chunks_map:
++        tfidf_model = SimpleTFIDF()
++        chunk_tokens = [tokenize(text) for text in chunks_map.values()]
++        tfidf_model.fit(chunk_tokens)
++    elif handbook_dir:
++        handbook_chunks = parse_handbook_dir(handbook_dir)
++        if handbook_chunks:
++            tfidf_model = SimpleTFIDF()
++            chunk_tokens = [tokenize(c["content"]) for c in handbook_chunks]
++            tfidf_model.fit(chunk_tokens)
++            
++    # Standardize names
++    if "question" not in df.columns and "query" in df.columns:
++        df.rename(columns={"query": "question"}, inplace=True)
++    if "ground_truth" not in df.columns and "truth" in df.columns:
++        df.rename(columns={"truth": "ground_truth"}, inplace=True)
++        
++    # Ensure standard ground_truth and relevant_chunk_ids columns exist
++    if "ground_truth" not in df.columns:
++        df["ground_truth"] = ""
++    if "relevant_chunk_ids" not in df.columns:
++        df["relevant_chunk_ids"] = ""
++        
++    # Initialize metric columns
++    ret_metrics = [
++        "pre_hit@5", "pre_recall@5", "pre_precision@5", "pre_ndcg@5",
++        "post_hit@5", "post_recall@5", "post_precision@5", "post_ndcg@5",
++        "context_precision", "context_recall"
++    ]
++    gen_metrics = ["answer_correctness", "faithfulness", "answer_relevancy", "answer_completeness"]
++    e2e_metrics = ["task_success", "overall_quality_score"]
++    
++    for metric in ret_metrics + gen_metrics + e2e_metrics:
++        df[metric] = 0.0
++
++    # Reranker comparative tracking
++    reranker_failures = []
++    reranker_successes = []
++
++    # Calculate metrics row by row
++    for idx, row in df.iterrows():
++        question = str(row.get("question", ""))
++        
++        # Match with QA dataset if available to populate missing fields
++        q_clean = clean_text(question)
++        qa_item = qa_dataset.get(q_clean, None)
++        
++        # Try token overlap matching if exact match not found
++        if not qa_item and qa_dataset:
++            best_match_q = None
++            best_match_score = 0.0
++            q_tokens = set(tokenize(question))
++            for qa_q_clean, item in qa_dataset.items():
++                item_q_tokens = set(tokenize(item["question"]))
++                if not q_tokens or not item_q_tokens:
++                    continue
++                score = len(q_tokens.intersection(item_q_tokens)) / len(q_tokens.union(item_q_tokens))
++                if score > best_match_score:
++                    best_match_score = score
++                    best_match_q = qa_q_clean
++            if best_match_score > 0.8:
++                qa_item = qa_dataset[best_match_q]
+                 
+-            result = await pipeline.run(q)
+-            answer = result.get("answer", "")
++        ground_truth = str(row.get("ground_truth", ""))
++        if (not ground_truth or ground_truth.strip() == "" or ground_truth.strip().lower() == "nan") and qa_item:
++            ground_truth = qa_item["ground_truth"]
++            df.at[idx, "ground_truth"] = ground_truth
+             
+-            print("\n=== 🎯 CÂU TRẢ LỜI CỦA AI ===")
+-            print(answer)
+-            print("=============================\n")
++        answer = str(row.get("answer", ""))
++        
++        # Parse ground-truth chunk IDs
++        gt_ids = []
++        gt_val = parse_field_safely(row.get("relevant_chunk_ids", row.get("chunk_id", None)))
++        if gt_val:
++            if isinstance(gt_val, list):
++                gt_ids = [str(x) for x in gt_val]
++            else:
++                gt_ids = [str(gt_val)]
++                
++        # Fill ground truth chunk ID from QA dataset if missing
++        if not gt_ids and qa_item and qa_item.get("chunk_id"):
++            gt_ids = [qa_item["chunk_id"]]
++            df.at[idx, "relevant_chunk_ids"] = json.dumps(gt_ids)
++                
++        # Heuristic mapping: fallback to finding best chunk from handbook if still no relevant_chunk_ids provided
++        if not gt_ids and tfidf_model and ground_truth.strip():
++            best_chunk_id = ""
++            best_sim = 0.0
++            gt_tokens = tokenize(ground_truth)
++            gt_vec = tfidf_model.get_vector(gt_tokens)
+             
+-            print(f"      [Evaluator] Đang chuyển sang tính toán Semantic Similarity...")
+-            used_ctx = result.get('used_chunks', [])
++            # Use chunks_map values if available, else parsed handbook_chunks
++            if chunks_map:
++                for cid, c_text in chunks_map.items():
++                    c_tokens = tokenize(c_text)
++                    c_vec = tfidf_model.get_vector(c_tokens)
++                    sim = cosine_similarity(gt_vec, c_vec)
++                    if sim > best_sim:
++                        best_sim = sim
++                        best_chunk_id = cid
++            else:
++                for chunk in handbook_chunks:
++                    c_tokens = tokenize(chunk["content"])
++                    c_vec = tfidf_model.get_vector(c_tokens)
++                    sim = cosine_similarity(gt_vec, c_vec)
++                    if sim > best_sim:
++                        best_sim = sim
++                        best_chunk_id = chunk["chunk_id"]
++                    
++            if best_sim > 0.35: # Only map if similarity is high enough
++                gt_ids = [best_chunk_id]
++                df.at[idx, "relevant_chunk_ids"] = json.dumps(gt_ids)
++                
++        # Parse retrieved and reranked results
++        pre_rerank_ids = extract_chunk_ids(row.get("retriever_results", []))
++        if not pre_rerank_ids and "sources" in row:
++            pre_rerank_ids = extract_chunk_ids(row.get("sources", []))
++            
++        post_rerank_ids = extract_chunk_ids(row.get("reranker_results", []))
++        if not post_rerank_ids and "used_chunks" in row:
++            post_rerank_ids = extract_chunk_ids(row.get("used_chunks", []))
++        if not post_rerank_ids:
++            post_rerank_ids = pre_rerank_ids
++            
++        # Try to resolve contexts from full text chunks map first
++        contexts = []
++        if chunks_map:
++            for cid in post_rerank_ids:
++                if cid in chunks_map:
++                    contexts.append(chunks_map[cid])
++                    
++        # Fallback to truncated logs if map resolution failed or chunks_map empty
++        if not contexts:
++            contexts = parse_field_safely(row.get("contexts", []))
++            if not contexts and "used_chunks" in row:
++                used = parse_field_safely(row.get("used_chunks", []))
++                if isinstance(used, list):
++                    contexts = [c.get("content", "") for c in used if isinstance(c, dict)]
++                    
++            if not contexts and "sources" in row:
++                used = parse_field_safely(row.get("sources", []))
++                if isinstance(used, list):
++                    contexts = [c.get("content_preview", "") for c in used if isinstance(c, dict)]
++                    
++        if not contexts:
++            contexts = []
++            
++        # Calculate retrieval metrics
++        pre_hit = calculate_hit_at_k(pre_rerank_ids, gt_ids, k=5)
++        pre_recall = calculate_recall_at_k(pre_rerank_ids, gt_ids, k=5)
++        pre_precision = calculate_precision_at_k(pre_rerank_ids, gt_ids, k=5)
++        pre_ndcg = calculate_ndcg_at_k(pre_rerank_ids, gt_ids, k=5)
++        
++        post_hit = calculate_hit_at_k(post_rerank_ids, gt_ids, k=5)
++        post_recall = calculate_recall_at_k(post_rerank_ids, gt_ids, k=5)
++        post_precision = calculate_precision_at_k(post_rerank_ids, gt_ids, k=5)
++        post_ndcg = calculate_ndcg_at_k(post_rerank_ids, gt_ids, k=5)
++        
++        df.at[idx, "pre_hit@5"] = pre_hit
++        df.at[idx, "pre_recall@5"] = pre_recall
++        df.at[idx, "pre_precision@5"] = pre_precision
++        df.at[idx, "pre_ndcg@5"] = pre_ndcg
++        
++        df.at[idx, "post_hit@5"] = post_hit
++        df.at[idx, "post_recall@5"] = post_recall
++        df.at[idx, "post_precision@5"] = post_precision
++        df.at[idx, "post_ndcg@5"] = post_ndcg
++        
++        df.at[idx, "context_precision"] = calculate_context_precision(post_rerank_ids, gt_ids, k=5)
++        df.at[idx, "context_recall"] = calculate_context_recall(contexts, ground_truth)
++        
++        # Calculate generation metrics
++        df.at[idx, "answer_correctness"] = compute_answer_correctness(answer, ground_truth)
++        df.at[idx, "faithfulness"] = compute_faithfulness(answer, contexts, tfidf_model)
++        df.at[idx, "answer_relevancy"] = compute_answer_relevancy(answer, question)
++        df.at[idx, "answer_completeness"] = compute_answer_completeness(answer, ground_truth)
++        
++        # Calculate end-to-end metrics
++        correctness = df.at[idx, "answer_correctness"]
++        faith = df.at[idx, "faithfulness"]
++        relevancy = df.at[idx, "answer_relevancy"]
++        complete = df.at[idx, "answer_completeness"]
++        
++        overall = (correctness + faith + relevancy + complete) / 4.0
++        df.at[idx, "overall_quality_score"] = overall
++        df.at[idx, "task_success"] = 1.0 if correctness >= 0.65 else 0.0
++
++        # Reranker comparative tracking
++        if gt_ids and ("retriever_results" in row or "sources" in row):
++            # Check if retriever_results exists, if not we fall back to sources. 
++            # Note: pre_rerank_ids is used to compute pre_hit
++            if pre_hit == 1.0 and post_hit == 0.0:
++                reranker_failures.append({
++                    "question": question,
++                    "gt_ids": gt_ids,
++                    "pre_rerank_top5": pre_rerank_ids[:5],
++                    "post_rerank_top5": post_rerank_ids[:5]
++                })
++            elif pre_hit == 0.0 and post_hit == 1.0:
++                reranker_successes.append({
++                    "question": question,
++                    "gt_ids": gt_ids,
++                    "pre_rerank_top5": pre_rerank_ids[:5],
++                    "post_rerank_top5": post_rerank_ids[:5]
++                })
++
++    # Print Reranker Diagnostics if any tracked
++    if reranker_failures or reranker_successes:
++        print_reranker_diagnostics(reranker_failures, reranker_successes)
++        
++    return df
++
++
++# ==========================================
++# 7. SUMMARY REPORT GENERATOR
++# ==========================================
++
++def summarize_metrics(df: pd.DataFrame) -> Dict[str, Any]:
++    """Computes averages and summary statistics for the evaluation DataFrame."""
++    summary = {}
++    metric_cols = [
++        "pre_hit@5", "pre_recall@5", "pre_precision@5", "pre_ndcg@5",
++        "post_hit@5", "post_recall@5", "post_precision@5", "post_ndcg@5",
++        "context_precision", "context_recall",
++        "answer_correctness", "faithfulness", "answer_relevancy", "answer_completeness",
++        "overall_quality_score", "task_success"
++    ]
++    
++    # Average of main metrics
++    for col in metric_cols:
++        if col in df.columns:
++            summary[col] = float(df[col].mean())
+             
+-            eval_res = await evaluator.evaluate_single(
+-                q, 
+-                answer, 
+-                used_ctx, 
+-                ground_truth_ids=[], 
+-                expected_answer=""
+-            )
+-            i += 1
++    # System statistics
++    for stat in ["latency_ms", "num_tokens_prompt", "num_tokens_completion"]:
++        if stat in df.columns:
++            summary[f"avg_{stat}"] = float(df[stat].mean())
++            summary[f"max_{stat}"] = float(df[stat].max())
++            summary[f"min_{stat}"] = float(df[stat].min())
+             
+-        except KeyboardInterrupt:
+-            print("\nĐã thoát.")
+-            break
+-        except Exception as e:
+-            print(f"\nLỗi: {e}")
+-            break
+-
+-
+-async def evaluate(limit: Optional[int] = None, dataset_path: Optional[str] = None):
+-    if dataset_path is None:
+-        dataset_path = os.path.join(base_dir, "..", "data", "qa", "qa_dataset.md")
+-    
+-    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+-    report_csv_path = os.path.join(base_dir, "..", "logs", f"eval_results_{timestamp}.csv")
+-    report_log_path = os.path.join(base_dir, "..", "logs", f"eval_report_{timestamp}.log")
+-    
+-    if not os.path.exists(dataset_path):
+-        print(f"❌ Dataset not found at {dataset_path}")
+-        return
+-        
+-    pairs = parse_qa_dataset(dataset_path)
+-    if limit:
+-        pairs = pairs[:limit]
+-    pipeline = init_pipeline()
+-    
+-    evaluator = RAGEvaluator(embed_model=pipeline.retriever.model)
+-
+-    for i, pair in enumerate(pairs, 1):
+-        print(f"[{i}/{len(pairs)}] Query: {pair['question']} ...")
+-        result = await pipeline.run(pair["question"])
+-        ground_truth_ids = [pair["chunk_id"]] if pair.get("chunk_id") else []
+-        print(f"      [Log - AI Generator Output]: {result.get('answer', '')}")
+-        used_ctx = result.get('used_chunks', [])
+-        if used_ctx:
+-             print(f"      [Log - Top 1 Context]: {used_ctx[0].get('content', '')[:150]}...")
+-             
+-        eval_res = await evaluator.evaluate_single(
+-            pair["question"], 
+-            result.get("answer", ""), 
+-            used_ctx, 
+-            ground_truth_ids, 
+-            expected_answer=pair["truth"]
+-        )
+-        print(f"\n      [Hoàn thành] Đã chấm xong Câu {i}:")
+-        print("      " + "-"*65)
+-        print("      " + f"| {'Tiêu chí (Aspect)'.ljust(30)} | {'Điểm số'.center(12)} |")
+-        print("      " + "-"*65)
+-        ans_sim = eval_res.get("ans_cosine_sim", 0)
+-        acc = eval_res.get("accuracy", 0)
+-        prec = eval_res.get("precision", 0)
+-        rec = eval_res.get("recall", 0)
+-        f1 = eval_res.get("f1_score", 0)
+-        
+-        print("      " + f"| {'Cosine Similarity'.ljust(30)} | {f'{ans_sim:.4f}'.center(12)} |")
+-        print("      " + f"| {'Accuracy (>0.8)'.ljust(30)} | {f'{acc:.4f}'.center(12)} |")
+-        print("      " + f"| {'Precision'.ljust(30)} | {f'{prec:.4f}'.center(12)} |")
+-        print("      " + f"| {'Recall'.ljust(30)} | {f'{rec:.4f}'.center(12)} |")
+-        print("      " + f"| {'F1-score'.ljust(30)} | {f'{f1:.4f}'.center(12)} |")
+-        print("      " + "-"*65 + "\n")
+-    evaluator.export(report_csv_path, report_log_path)
+-
+-async def main():
+-    import argparse
+-    parser = argparse.ArgumentParser(description="Advanced RAG Evaluator")
+-    parser.add_argument("--limit", type=int, default=None, help="Limit number of QA pairs to evaluate")
+-    parser.add_argument("--dataset", type=str, default=None, help="Path to the dataset file")
+-    parser.add_argument("--mode", type=str, choices=["auto", "interactive"], default="auto", help="Evaluation mode")
+-    
+-    args, unknown = parser.parse_known_args()
+-    
+-    if args.mode == "interactive":
+-        await interactive_eval()
+-        return
+-
+-    # Auto mode logic
+-    await evaluate(limit=args.limit, dataset_path=args.dataset)
++    return summary
++
++def print_summary_table(summary: Dict[str, Any], count: int):
++    """Prints a beautiful summary table to the terminal."""
++    border = "=" * 70
++    print("\n" + border)
++    print("📊 OFFLINE RAG PIPELINE EVALUATION REPORT 📊".center(70))
++    print(border)
++    print(f"Total Evaluated Samples: {count}")
++    print("-" * 70)
++    print(f"| {'Metric Name'.ljust(35)} | {'Average Value'.center(25)} |")
++    print("-" * 70)
++    
++    groups = {
++        "Retrieval (Pre-Rerank)": ["pre_hit@5", "pre_recall@5", "pre_precision@5", "pre_ndcg@5"],
++        "Retrieval (Post-Rerank)": ["post_hit@5", "post_recall@5", "post_precision@5", "post_ndcg@5"],
++        "Context Diagnostics": ["context_precision", "context_recall"],
++        "Generation Heuristics": ["answer_correctness", "faithfulness", "answer_relevancy", "answer_completeness"],
++        "End-to-End Metrics": ["overall_quality_score", "task_success"]
++    }
++    
++    for group_name, metrics in groups.items():
++        print(f"| -- {group_name.ljust(63)} |")
++        for metric in metrics:
++            if metric in summary:
++                val = summary[metric]
++                print(f"|    {metric.ljust(32)} | {f'{val:.4f} ({val*100:.1f}%)'.center(25)} |")
++        print("-" * 70)
++        
++    print(border)
++    if "avg_latency_ms" in summary:
++        print(f"Latency: Avg {summary['avg_latency_ms']:.1f}ms (Min {summary['min_latency_ms']:.1f}ms - Max {summary['max_latency_ms']:.1f}ms)")
++    if "avg_num_tokens_prompt" in summary:
++        print(f"Prompt Tokens: Avg {summary['avg_num_tokens_prompt']:.1f} | Completion Tokens: Avg {summary['avg_num_tokens_completion']:.1f}")
++    print(border + "\n")
++
++
++# ==========================================
++# 8. CLI ENTRYPOINT
++# ==========================================
++
++def main():
++    parser = argparse.ArgumentParser(description="Vietnamese Internal RAG Offline Evaluator")
++    parser.add_argument(
++        "--logs",
++        type=str,
++        required=True,
++        help="Path to pipeline log file (JSONL or CSV format)"
++    )
++    parser.add_argument(
++        "--handbook-dir",
++        type=str,
++        default=None,
++        help="Path to directory containing handbook markdown files (.md) for mapping ground truths"
++    )
++    parser.add_argument(
++        "--qa-dataset",
++        type=str,
++        default=None,
++        help="Path to qa_dataset.md containing ground truth questions, answers and ChunkIDs"
++    )
++    parser.add_argument(
++        "--output",
++        type=str,
++        default="eval_output.csv",
++        help="Path to save evaluation output metrics CSV file"
++    )
++    
++    args = parser.parse_args()
++    
++    try:
++        evaluated_df = evaluate_dataset(args.logs, args.handbook_dir, args.qa_dataset)
++        
++        # Save output to CSV
++        evaluated_df.to_csv(args.output, index=False, encoding="utf-8-sig")
++        print(f"💾 Saved detailed metrics to: {args.output}")
++        
++        # Print summary report
++        summary = summarize_metrics(evaluated_df)
++        print_summary_table(summary, len(evaluated_df))
++        
++    except Exception as e:
++        print(f"❌ Evaluation failed: {e}")
++        import traceback
++        traceback.print_exc()
+ 
+ if __name__ == "__main__":
+-    asyncio.run(main())
+\ No newline at end of file
++    main()
+\ No newline at end of file

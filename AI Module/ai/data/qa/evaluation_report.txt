@@ -1,0 +1,113 @@
+
+================================================================================
+BÁO CÁO ĐÁNH GIÁ MÔ HÌNH RAG - CHUẨN KHOA HỌC
+================================================================================
+
+Số lượng mẫu đánh giá: 100
+
+--------------------------------------------------------------------------------
+KẾT QUẢ THEO TỪNG METRIC
+--------------------------------------------------------------------------------
+
+1. EXACT MATCH (giống tuyệt đối)
+
+   - Kết quả:
+     100/100
+     = 100.0%
+
+   - Threshold:
+     1.0
+
+   - Reference:
+     Rajpurkar et al., EMNLP 2016
+
+2. COSINE SIMILARITY (semantic similarity)
+
+   - Trung bình:
+     1.0000
+     ±
+     0.0000
+
+   - Min:
+     1.0000
+
+   - Max:
+     1.0000
+
+   - Threshold:
+     0.85
+
+   - Số lượng đạt:
+     100/100
+
+   - Reference:
+     Reimers & Gurevych, EMNLP 2019
+
+3. ROUGE-1 F1 SCORE (token overlap)
+
+   - Trung bình:
+     1.0000
+     ±
+     0.0000
+
+   - Min:
+     1.0000
+
+   - Max:
+     1.0000
+
+   - Threshold:
+     0.9
+
+   - Số lượng đạt:
+     100/100
+
+   - Reference:
+     Lin, ACL 2004
+
+--------------------------------------------------------------------------------
+KẾT QUẢ TỔNG KẾT
+--------------------------------------------------------------------------------
+
+Độ chính xác tổng thể:
+100/100
+=
+100.0%
+
+Thời gian trung bình:
+68.76 ms
+
+Thời gian tối thiểu:
+51.88 ms
+
+Thời gian tối đa:
+379.91 ms
+
+--------------------------------------------------------------------------------
+BẢNG TỔNG KẾT
+--------------------------------------------------------------------------------
+
+| Metric              | Công thức / Ý nghĩa          | Kết quả              | Ngưỡng |
+|---------------------|------------------------------|----------------------|--------|
+| Exact Match         | pred == true                 | 100.0% | 1.0 |
+| Cosine Similarity   | cosine(pred, true)           | 1.0000 ± 0.0000 | 0.85 |
+| ROUGE-1 F1          | ROUGE overlap score          | 1.0000 ± 0.0000 | 0.9 |
+| Overall Accuracy    | correct / total              | 100.0% | - |
+
+================================================================================
+TÀI LIỆU THAM KHẢO
+================================================================================
+
+[1] Rajpurkar et al. (2016)
+    SQuAD: 100,000+ Questions for Machine Comprehension of Text.
+    EMNLP 2016.
+
+[2] Reimers & Gurevych (2019)
+    Sentence-BERT: Sentence Embeddings using Siamese BERT-Networks.
+    EMNLP 2019.
+
+[3] Lin, C.-Y. (2004)
+    ROUGE: A Package for Automatic Evaluation of Summaries.
+    ACL 2004.
+
+================================================================================

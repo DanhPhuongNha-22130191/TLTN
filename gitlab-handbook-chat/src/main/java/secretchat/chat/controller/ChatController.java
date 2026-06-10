@@ -34,6 +34,7 @@ public class ChatController extends BaseChatController {
     @FXML private ListView<String> privateChatList;
     @FXML private ListView<String> groupChatList;
     @FXML private TabPane chatTabPane;
+    @FXML private HBox chatHeaderInfoContainer;
     @FXML private Label chatTitleLabel;
     @FXML private Label chatStatusLabel;
     @FXML private ScrollPane messageScrollPane;
@@ -56,6 +57,8 @@ public class ChatController extends BaseChatController {
     @FXML private Button scrollBottomButton;
     @FXML private Label searchResultLabel;
     @FXML private Button aiAssistantButton;
+    @FXML private VBox chatContentArea;
+    @FXML private VBox inputArea;
 
     private static final System.Logger LOGGER = System.getLogger(ChatController.class.getName());
     private ChatViewModel viewModel;
@@ -69,6 +72,8 @@ public class ChatController extends BaseChatController {
     private boolean pinnedCollapsed = true;
     private boolean pinnedExpandedByUser;
     private boolean pinnedContextMenuOpen;
+    private String lastSelectedPrivateChat = null;
+    private String lastSelectedGroupChat = null;
 
     @FXML
     public void initialize() {
@@ -76,7 +81,29 @@ public class ChatController extends BaseChatController {
         
         // Setup bindings
         privateChatList.setItems(viewModel.getPrivateChatList());
+        Runnable selectDefault = () -> {
+            if (viewModel.activeConversationProperty().get() == null && !privateChatList.getItems().isEmpty()) {
+                privateChatList.getSelectionModel().select(0);
+                handleSelectPrivateChat();
+            }
+        };
+        privateChatList.getItems().addListener((ListChangeListener<String>) change -> {
+            Platform.runLater(selectDefault);
+        });
+        Platform.runLater(selectDefault);
         groupChatList.setItems(viewModel.getGroupChatList());
+        Runnable selectDefaultGroup = () -> {
+            boolean isGroupTab = chatTabPane.getSelectionModel().getSelectedItem() != null 
+                    && "Nhóm".equals(chatTabPane.getSelectionModel().getSelectedItem().getText());
+            if (isGroupTab && viewModel.activeConversationProperty().get() == null && !groupChatList.getItems().isEmpty()) {
+                groupChatList.getSelectionModel().select(0);
+                handleSelectGroupChat();
+            }
+        };
+        groupChatList.getItems().addListener((ListChangeListener<String>) change -> {
+            Platform.runLater(selectDefaultGroup);
+        });
+        Platform.runLater(selectDefaultGroup);
         pinnedMessageList.setItems(viewModel.getPinnedMessageList());
         updatePinnedPanel();
         viewModel.getPinnedMessageList().addListener(
@@ -86,6 +113,11 @@ public class ChatController extends BaseChatController {
         typingLabel.managedProperty().bind(typingLabel.visibleProperty());
         aiProgressIndicator.visibleProperty().bind(viewModel.aiLoadingProperty());
         aiProgressIndicator.managedProperty().bind(aiProgressIndicator.visibleProperty());
+        
+        chatContentArea.visibleProperty().bind(viewModel.activeConversationProperty().isNotNull());
+        chatContentArea.managedProperty().bind(viewModel.activeConversationProperty().isNotNull());
+        inputArea.visibleProperty().bind(viewModel.activeConversationProperty().isNotNull());
+        inputArea.managedProperty().bind(viewModel.activeConversationProperty().isNotNull());
         typingLabel.textProperty().unbind();
         typingAnimation.setCycleCount(Timeline.INDEFINITE);
         typingAnimation.getKeyFrames().setAll(
@@ -199,11 +231,28 @@ public class ChatController extends BaseChatController {
         chatTabPane.getSelectionModel().selectedItemProperty().addListener((obs, oldTab, newTab) -> {
             boolean isGroupTab = newTab != null && "Nhóm".equals(newTab.getText());
             if (oldTab != null && oldTab != newTab) {
-                clearConversationUI();
                 if (isGroupTab) {
-                    groupChatList.getSelectionModel().clearSelection();
+                    if (lastSelectedGroupChat != null && groupChatList.getItems().contains(lastSelectedGroupChat)) {
+                        groupChatList.getSelectionModel().select(lastSelectedGroupChat);
+                        handleSelectGroupChat();
+                    } else if (!groupChatList.getItems().isEmpty()) {
+                        groupChatList.getSelectionModel().select(0);
+                        handleSelectGroupChat();
+                    } else {
+                        clearConversationUI();
+                        groupChatList.getSelectionModel().clearSelection();
+                    }
                 } else {
-                    privateChatList.getSelectionModel().clearSelection();
+                    if (lastSelectedPrivateChat != null && privateChatList.getItems().contains(lastSelectedPrivateChat)) {
+                        privateChatList.getSelectionModel().select(lastSelectedPrivateChat);
+                        handleSelectPrivateChat();
+                    } else if (!privateChatList.getItems().isEmpty()) {
+                        privateChatList.getSelectionModel().select(0);
+                        handleSelectPrivateChat();
+                    } else {
+                        clearConversationUI();
+                        privateChatList.getSelectionModel().clearSelection();
+                    }
                 }
             }
             updateRightPanel(isGroupTab);
@@ -211,6 +260,7 @@ public class ChatController extends BaseChatController {
 
         updateRightPanel(false);
         viewModel.init();
+        chatHeaderInfoContainer.setOnMouseClicked(event -> handleOpenActiveChatProfile());
 
         Platform.runLater(() -> {
             if (messageInput.getScene() != null && messageInput.getScene().getWindow() != null) {
@@ -290,11 +340,27 @@ public class ChatController extends BaseChatController {
                         moreButton.setGraphic(moreIcon);
                         moreButton.getStyleClass().add("conversation-more-button");
                         ContextMenu menu = new ContextMenu();
+                        
+                        MenuItem viewProfile = new MenuItem("Xem hồ sơ");
+                        viewProfile.setOnAction(event -> {
+                            secretchat.dto.response.UserResponse user = viewModel.getUserByName(item);
+                            if (user != null) {
+                                secretchat.chat.view.ConversationDetailsDialog.showUserProfile(
+                                        viewModel, getScene().getWindow(), user
+                                );
+                            }
+                        });
+                        
                         MenuItem removeFriend = new MenuItem("Xóa bạn bè");
+                        removeFriend.getStyleClass().add("danger-menu-item");
                         removeFriend.setOnAction(event -> confirmRemoveFriend(item));
-                        menu.getItems().add(removeFriend);
+                        
+                        menu.getItems().addAll(viewProfile, removeFriend);
                         moreButton.setOnAction(event -> {
                             menu.show(moreButton, javafx.geometry.Side.BOTTOM, 0, 0);
+                            if (menu.getScene() != null) {
+                                menu.getScene().getStylesheets().add(getClass().getResource("/css/chat.css").toExternalForm());
+                            }
                             event.consume();
                         });
                         HBox.setMargin(moreButton, new javafx.geometry.Insets(0, 0, 0, 8));
@@ -351,6 +417,14 @@ public class ChatController extends BaseChatController {
                 menu.setOnShowing(event -> {
                     pinnedContextMenuOpen = true;
                     pinnedCollapsePause.stop();
+                    Platform.runLater(() -> {
+                        if (menu.getScene() != null && menu.getScene().getRoot() != null) {
+                            menu.getScene().getRoot().setOnMouseExited(e -> {
+                                menu.hide();
+                                collapsePinnedPanel();
+                            });
+                        }
+                    });
                 });
                 menu.setOnHidden(event -> {
                     pinnedContextMenuOpen = false;
@@ -361,6 +435,9 @@ public class ChatController extends BaseChatController {
                 more.setOnMouseClicked(event -> event.consume());
                 more.setOnAction(event -> {
                     menu.show(more, javafx.geometry.Side.BOTTOM, 0, 0);
+                    if (menu.getScene() != null) {
+                        menu.getScene().getStylesheets().add(getClass().getResource("/css/chat.css").toExternalForm());
+                    }
                     event.consume();
                 });
                 HBox row = new HBox(10, typeIcon, text, more);
@@ -513,6 +590,7 @@ public class ChatController extends BaseChatController {
 
     private void openConversation(ChatViewModel.NewMessageEvent event) {
         if (event.group()) {
+            lastSelectedGroupChat = event.chatName();
             chatTabPane.getSelectionModel().select(1);
             groupChatList.getSelectionModel().select(event.chatName());
             chatTitleLabel.setText(event.chatName());
@@ -522,6 +600,7 @@ public class ChatController extends BaseChatController {
             viewModel.selectGroupChat(event.chatName());
             groupChatList.refresh();
         } else {
+            lastSelectedPrivateChat = event.chatName();
             chatTabPane.getSelectionModel().select(0);
             privateChatList.getSelectionModel().select(event.chatName());
             chatTitleLabel.setText(event.chatName());
@@ -547,6 +626,22 @@ public class ChatController extends BaseChatController {
                 }
             }
         });
+    }
+
+    private void handleOpenActiveChatProfile() {
+        var activeConv = viewModel.activeConversationProperty().get();
+        if (activeConv == null) return;
+        
+        boolean isGroup = "GROUP".equalsIgnoreCase(activeConv.getType());
+        String currentChatName = chatTitleLabel.getText();
+        if (!isGroup && !"TRỢ LÝ AI".equals(currentChatName)) {
+            secretchat.dto.response.UserResponse user = viewModel.getUserByName(currentChatName);
+            if (user != null) {
+                secretchat.chat.view.ConversationDetailsDialog.showUserProfile(
+                        viewModel, messageInput.getScene().getWindow(), user
+                );
+            }
+        }
     }
 
     private String extractMemberName(String displayedText) {
@@ -595,6 +690,7 @@ public class ChatController extends BaseChatController {
     }
 
     private void openPrivateChatFromMemberDialog(String memberName) {
+        lastSelectedPrivateChat = memberName;
         chatTabPane.getSelectionModel().select(0);
         chatTitleLabel.setText(memberName);
         chatStatusLabel.setText("Chat cá nhân");
@@ -606,6 +702,7 @@ public class ChatController extends BaseChatController {
     private void handleSelectPrivateChat() {
         String selectedUserStr = privateChatList.getSelectionModel().getSelectedItem();
         if (selectedUserStr == null) return;
+        lastSelectedPrivateChat = selectedUserStr;
 
         chatTitleLabel.setText(selectedUserStr);
         chatStatusLabel.setText("Chat cá nhân");
@@ -628,6 +725,7 @@ public class ChatController extends BaseChatController {
     private void handleSelectGroupChat() {
         String selectedGroupStr = groupChatList.getSelectionModel().getSelectedItem();
         if (selectedGroupStr == null) return;
+        lastSelectedGroupChat = selectedGroupStr;
 
         chatTitleLabel.setText(selectedGroupStr);
         GroupResponse g = viewModel.getGroupByName(selectedGroupStr);
@@ -980,38 +1078,63 @@ public class ChatController extends BaseChatController {
             item.contentProperty().addListener((obs, oldText, newText) -> bubble.setText(newText));
         }
 
+        final HBox contentRow = new HBox(6);
+        contentRow.setAlignment(item.isMe() ? javafx.geometry.Pos.CENTER_RIGHT : javafx.geometry.Pos.CENTER_LEFT);
+
+        final javafx.scene.Node[] pMoreButton = new javafx.scene.Node[1];
+        final javafx.scene.Node[] pContentNode = new javafx.scene.Node[1];
+
         // Apply delete/recall styling initially
         if (item.isDeleted() || item.isDeletedForMe()) {
-            if (contentNode instanceof Label bubble) {
-                bubble.setText(item.isDeleted() ? (item.isMe() ? "Bạn đã thu hồi tin nhắn này" : "Tin nhắn đã bị thu hồi") 
-                                                : (item.isMe() ? "Bạn đã xóa tin nhắn này" : "Bạn đã xóa tin nhắn này"));
-                bubble.setStyle("-fx-font-style: italic; -fx-text-fill: " + (item.isMe() ? "white" : "gray") + ";");
-            } else if (contentNode instanceof VBox) {
-                Label fallback = new Label(item.isDeleted() ? (item.isMe() ? "Bạn đã thu hồi file này" : "File đã bị thu hồi") 
-                                                            : (item.isMe() ? "Bạn đã xóa file này" : "Bạn đã xóa file này"));
-                fallback.getStyleClass().addAll("chat-message-bubble", item.isMe() ? "my-message" : "other-message");
-                fallback.setStyle("-fx-font-style: italic; -fx-text-fill: " + (item.isMe() ? "white" : "gray") + ";");
-                contentNode = fallback;
-            }
+            Label fallback = new Label(item.isDeleted() ? (item.isMe() ? "Bạn đã thu hồi tin nhắn này" : "Tin nhắn đã bị thu hồi") 
+                                                        : "Bạn đã xóa tin nhắn này");
+            fallback.getStyleClass().addAll("chat-message-bubble", item.isMe() ? "my-message" : "other-message");
+            fallback.setStyle("-fx-font-style: italic; -fx-text-fill: " + (item.isMe() ? "white" : "gray") + ";");
+            contentNode = fallback;
+            contentRow.getChildren().add(contentNode);
         } else {
-            ContextMenu messageMenu = attachContextMenu(contentNode, item, wrapper);
+            final javafx.scene.Node fContentNode = contentNode;
+            fContentNode.setOnContextMenuRequested(e -> {
+                ContextMenu messageMenu = createContextMenu(fContentNode, item, wrapper);
+                if (!messageMenu.getItems().isEmpty()) {
+                    messageMenu.show(fContentNode, e.getScreenX(), e.getScreenY());
+                }
+            });
             Button moreButton = new Button("⋮");
             moreButton.getStyleClass().add("message-more-button");
-            moreButton.setOnAction(event -> messageMenu.show(
-                    moreButton, javafx.geometry.Side.BOTTOM, 0, 0));
-            box.getChildren().add(moreButton);
+            moreButton.setOnAction(event -> {
+                ContextMenu messageMenu = createContextMenu(fContentNode, item, wrapper);
+                if (!messageMenu.getItems().isEmpty()) {
+                    messageMenu.show(moreButton, javafx.geometry.Side.BOTTOM, 0, 0);
+                }
+            });
+            pMoreButton[0] = moreButton;
+            if (item.isMe()) {
+                contentRow.getChildren().addAll(moreButton, contentNode);
+            } else {
+                contentRow.getChildren().addAll(contentNode, moreButton);
+            }
         }
+
+        pContentNode[0] = contentNode;
 
         // Listen for future deletes/recalls
         item.isDeletedProperty().addListener((obs, oldV, newV) -> {
             if (newV) {
                 Platform.runLater(() -> {
-                    Label l = new Label("Bạn đã thu hồi tin nhắn này");
-                    l.getStyleClass().addAll("chat-message-bubble", "my-message");
-                    l.setStyle("-fx-font-style: italic; -fx-text-fill: white;");
+                    Label l = new Label(item.isMe() ? "Bạn đã thu hồi tin nhắn này" : "Tin nhắn đã bị thu hồi");
+                    l.getStyleClass().addAll("chat-message-bubble", item.isMe() ? "my-message" : "other-message");
+                    l.setStyle("-fx-font-style: italic; -fx-text-fill: " + (item.isMe() ? "white" : "gray") + ";");
                     
-                    int idx = item.isMe() ? 0 : 1;
-                    box.getChildren().set(idx, l);
+                    if (pMoreButton[0] != null) {
+                        contentRow.getChildren().remove(pMoreButton[0]);
+                        pMoreButton[0] = null;
+                    }
+                    int contentIdx = contentRow.getChildren().indexOf(pContentNode[0]);
+                    if (contentIdx != -1) {
+                        contentRow.getChildren().set(contentIdx, l);
+                        pContentNode[0] = l;
+                    }
                 });
             }
         });
@@ -1023,13 +1146,20 @@ public class ChatController extends BaseChatController {
                     l.getStyleClass().addAll("chat-message-bubble", item.isMe() ? "my-message" : "other-message");
                     l.setStyle("-fx-font-style: italic; -fx-text-fill: " + (item.isMe() ? "white" : "gray") + ";");
                     
-                    int idx = item.isMe() ? 0 : 1;
-                    box.getChildren().set(idx, l);
+                    if (pMoreButton[0] != null) {
+                        contentRow.getChildren().remove(pMoreButton[0]);
+                        pMoreButton[0] = null;
+                    }
+                    int contentIdx = contentRow.getChildren().indexOf(pContentNode[0]);
+                    if (contentIdx != -1) {
+                        contentRow.getChildren().set(contentIdx, l);
+                        pContentNode[0] = l;
+                    }
                 });
             }
         });
 
-        box.getChildren().add(contentNode);
+        box.getChildren().add(contentRow);
         
         Label timeLabel = new Label(item.getTime());
         timeLabel.setStyle("-fx-font-size: 10px; -fx-text-fill: #9ca3af;");
@@ -1070,7 +1200,7 @@ public class ChatController extends BaseChatController {
         messageContainer.getChildren().add(wrapper);
     }
 
-    private ContextMenu attachContextMenu(javafx.scene.Node node, ChatViewModel.MessageItem item, HBox wrapper) {
+    private ContextMenu createContextMenu(javafx.scene.Node node, ChatViewModel.MessageItem item, HBox wrapper) {
         ContextMenu contextMenu = new ContextMenu();
         
         if (node instanceof Label && !item.isFile()) {
@@ -1160,11 +1290,6 @@ public class ChatController extends BaseChatController {
             }
         }
         
-        if (!contextMenu.getItems().isEmpty()) {
-            node.setOnContextMenuRequested(e -> {
-                contextMenu.show(node, e.getScreenX(), e.getScreenY());
-            });
-        }
         return contextMenu;
     }
 

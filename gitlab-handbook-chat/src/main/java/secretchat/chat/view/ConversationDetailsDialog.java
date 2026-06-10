@@ -358,4 +358,74 @@ public final class ConversationDetailsDialog {
         FadeTransition fade = new FadeTransition(Duration.millis(180), root);
         fade.setFromValue(0); fade.setToValue(1); fade.play();
     }
+
+    public static void showUserProfile(ChatViewModel vm, Window owner, UserResponse profile) {
+        Stage profileStage = new Stage(StageStyle.TRANSPARENT);
+        profileStage.initOwner(owner);
+        profileStage.initModality(Modality.WINDOW_MODAL);
+
+        String displayName = profile.getFullName() != null && !profile.getFullName().isBlank()
+                ? profile.getFullName() : profile.getUsername();
+        if (displayName == null || displayName.isBlank()) displayName = "Người dùng";
+
+        Label avatar = new Label(displayName.substring(0, 1).toUpperCase());
+        avatar.getStyleClass().add("member-profile-avatar");
+        Label title = new Label("Hồ sơ cá nhân");
+        title.getStyleClass().add("member-profile-title");
+        Label role = new Label("Bạn bè");
+        role.getStyleClass().add("member-profile-role");
+        VBox heading = new VBox(3, title, role);
+        HBox header = new HBox(14, avatar, heading);
+        header.setAlignment(Pos.CENTER_LEFT);
+        header.getStyleClass().add("member-profile-header");
+
+        ProgressIndicator loading = new ProgressIndicator();
+        loading.setPrefSize(34, 34);
+        VBox content = new VBox(12, loading);
+        content.setAlignment(Pos.CENTER);
+        content.getStyleClass().add("member-profile-content");
+        VBox.setVgrow(content, Priority.ALWAYS);
+
+        Button close = new Button("Đóng");
+        close.getStyleClass().add("details-secondary-button");
+        close.setOnAction(event -> profileStage.close());
+        HBox footer = new HBox(close);
+        footer.setAlignment(Pos.CENTER_RIGHT);
+        footer.getStyleClass().add("member-profile-footer");
+
+        VBox profileRoot = new VBox(header, content, footer);
+        profileRoot.getStyleClass().add("member-profile-dialog");
+        Scene profileScene = new Scene(profileRoot, 460, 410);
+        profileScene.setFill(null);
+        profileScene.getStylesheets().add(
+                ConversationDetailsDialog.class.getResource("/css/conversation-details.css").toExternalForm());
+        profileStage.setScene(profileScene);
+        profileStage.show();
+
+        vm.loadGroupMemberProfile(profile.getKeycloakUserId())
+                .whenComplete((fullProfile, error) -> javafx.application.Platform.runLater(() -> {
+                    content.getChildren().clear();
+                    if (error != null) {
+                        Label failure = new Label("Không thể tải hồ sơ thành viên.");
+                        failure.getStyleClass().add("member-profile-error");
+                        content.getChildren().add(failure);
+                        return;
+                    }
+                    content.setAlignment(Pos.TOP_LEFT);
+                    content.getChildren().addAll(
+                            profileFieldStatic("Tên đăng nhập", fullProfile.getUsername()),
+                            profileFieldStatic("Họ và tên", fullProfile.getFullName()),
+                            profileFieldStatic("Email", fullProfile.getEmail()),
+                            profileFieldStatic("Số điện thoại", fullProfile.getPhoneNumber()));
+                }));
+    }
+
+    private static VBox profileFieldStatic(String label, String value) {
+        Label name = new Label(label);
+        name.getStyleClass().add("member-profile-field-label");
+        Label data = new Label(value == null || value.isBlank() ? "Chưa cập nhật" : value);
+        data.getStyleClass().add("member-profile-field-value");
+        data.setWrapText(true);
+        return new VBox(3, name, data);
+    }
 }

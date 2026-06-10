@@ -134,26 +134,32 @@
                         <Insets top="14" right="22" bottom="14" left="22"/>
                     </padding>
 
-                    <!-- Avatar placeholder -->
-                    <StackPane styleClass="header-avatar">
-                        <FontIcon iconLiteral="fa-user"
-                                  styleClass="header-avatar-icon"/>
-                    </StackPane>
+                    <!-- Clickable Profile Header Container -->
+                    <HBox fx:id="chatHeaderInfoContainer"
+                          alignment="CENTER_LEFT"
+                          spacing="14"
+                          styleClass="chat-header-info-container">
+                        <!-- Avatar placeholder -->
+                        <StackPane styleClass="header-avatar">
+                            <FontIcon iconLiteral="fa-user"
+                                      styleClass="header-avatar-icon"/>
+                        </StackPane>
 
-                    <VBox spacing="3">
-                        <Label fx:id="chatTitleLabel"
-                               text="Chọn cuộc trò chuyện"
-                               styleClass="chat-title">
-                            <font><Font size="17"/></font>
-                        </Label>
-                        <HBox alignment="CENTER_LEFT" spacing="6">
-                            <FontIcon iconLiteral="fa-circle"
-                                      styleClass="online-dot"/>
-                            <Label fx:id="chatStatusLabel"
-                                   text="Cá nhân / Nhóm"
-                                   styleClass="chat-subtitle"/>
-                        </HBox>
-                    </VBox>
+                        <VBox spacing="3">
+                            <Label fx:id="chatTitleLabel"
+                                   text="Chọn cuộc trò chuyện"
+                                   styleClass="chat-title">
+                                <font><Font size="17"/></font>
+                            </Label>
+                            <HBox alignment="CENTER_LEFT" spacing="6">
+                                <FontIcon iconLiteral="fa-circle"
+                                          styleClass="online-dot"/>
+                                <Label fx:id="chatStatusLabel"
+                                       text="Cá nhân / Nhóm"
+                                       styleClass="chat-subtitle"/>
+                            </HBox>
+                        </VBox>
+                    </HBox>
 
                     <Region HBox.hgrow="ALWAYS"/>
 
@@ -168,9 +174,8 @@
                 </HBox>
             </top>
 
-            <!-- MESSAGES -->
             <center>
-                <VBox>
+                <VBox fx:id="chatContentArea">
                     <VBox spacing="5" styleClass="conversation-search-panel">
                         <HBox alignment="CENTER_LEFT" spacing="8" styleClass="conversation-search-bar">
                             <FontIcon iconLiteral="fa-search" styleClass="conversation-search-icon"/>
@@ -298,7 +303,7 @@
 
             <!-- INPUT BAR -->
             <bottom>
-                <VBox styleClass="input-area">
+                <VBox fx:id="inputArea" styleClass="input-area">
 
                     <!-- FILE PREVIEW -->
                     <HBox fx:id="filePreviewBox"

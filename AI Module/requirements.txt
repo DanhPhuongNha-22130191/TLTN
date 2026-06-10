@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+pydantic
+qdrant-client
+sentence-transformers
+numpy
+rouge-score
+FlagEmbedding
+python-multipart

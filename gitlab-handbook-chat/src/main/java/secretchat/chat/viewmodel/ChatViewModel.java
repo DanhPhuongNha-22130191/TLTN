@@ -216,15 +216,24 @@ public class ChatViewModel {
         try {
             FriendResponse[] friends = chatService.getFriends(currentUserId, token);
             if (friends != null) {
-                Platform.runLater(() -> {
-                    for (FriendResponse friend : friends) {
-                        String displayName = friend.getFriendUsername() != null && !friend.getFriendUsername().isBlank()
-                                ? friend.getFriendUsername()
-                                : "Người dùng " + friend.getFriendId();
-
-                        addFriendToList(friend, displayName);
+                for (FriendResponse friend : friends) {
+                    String displayName = friend.getFriendUsername();
+                    try {
+                        UserResponse u = chatService.getUserById(friend.getFriendId(), token);
+                        if (u != null && u.getFullName() != null && !u.getFullName().isBlank()) {
+                            displayName = u.getFullName();
+                        }
+                    } catch (Exception ex) {
+                        // fallback
                     }
-                });
+                    if (displayName == null || displayName.isBlank()) {
+                        displayName = "Người dùng " + friend.getFriendId();
+                    }
+                    final String finalDisplayName = displayName;
+                    Platform.runLater(() -> {
+                        addFriendToList(friend, finalDisplayName);
+                    });
+                }
             }
         } catch (Exception e) {
             // Ignore
@@ -234,13 +243,12 @@ public class ChatViewModel {
     private String fetchUserDisplayName(String userId) {
         String displayName = null;
         try {
-            UserProfileResponse profile = chatService.getUserProfileById(userId, token);
-            if (profile != null && profile.getUsername() != null && !profile.getUsername().isBlank()) {
-                displayName = profile.getUsername();
-            } else {
-                profile = chatService.getUserProfileByExternalSub(userId, token);
-                if (profile != null && profile.getUsername() != null && !profile.getUsername().isBlank()) {
-                    displayName = profile.getUsername();
+            UserResponse u = chatService.getUserById(userId, token);
+            if (u != null) {
+                if (u.getFullName() != null && !u.getFullName().isBlank()) {
+                    displayName = u.getFullName();
+                } else if (u.getUsername() != null && !u.getUsername().isBlank()) {
+                    displayName = u.getUsername();
                 }
             }
         } catch (Exception ex) {
@@ -267,6 +275,7 @@ public class ChatViewModel {
         String fetched = fetchUserDisplayName(userId);
         UserResponse user = new UserResponse();
         user.setId(userId);
+        user.setKeycloakUserId(userId);
         user.setUsername(fetched);
         user.setFullName(fetched);
         Platform.runLater(() -> {
@@ -628,9 +637,22 @@ public class ChatViewModel {
 
     private void handleRealtimeFriend(FriendResponse friend) {
         if (friend == null || friend.getFriendId() == null) return;
-        String displayName = friend.getFriendUsername() != null && !friend.getFriendUsername().isBlank()
-                ? friend.getFriendUsername() : "Người dùng " + friend.getFriendId();
-        Platform.runLater(() -> addFriendToList(friend, displayName));
+        CompletableFuture.runAsync(() -> {
+            String displayName = friend.getFriendUsername();
+            try {
+                UserResponse u = chatService.getUserById(friend.getFriendId(), token);
+                if (u != null && u.getFullName() != null && !u.getFullName().isBlank()) {
+                    displayName = u.getFullName();
+                }
+            } catch (Exception ex) {
+                // fallback
+            }
+            if (displayName == null || displayName.isBlank()) {
+                displayName = "Người dùng " + friend.getFriendId();
+            }
+            final String finalDisplayName = displayName;
+            Platform.runLater(() -> addFriendToList(friend, finalDisplayName));
+        });
     }
 
     private void addFriendToList(FriendResponse friend, String displayName) {
@@ -639,7 +661,7 @@ public class ChatViewModel {
         friendUser.setId(friend.getFriendId());
         friendUser.setKeycloakUserId(friend.getFriendId());
         friendUser.setUsername(friend.getFriendUsername());
-        friendUser.setFullName(friend.getFriendUsername());
+        friendUser.setFullName(displayName);
         nameToUserMap.put(displayName, friendUser);
         displayNameToUserId.put(displayName, friend.getFriendId());
         privateChatList.add(displayName);
@@ -930,28 +952,39 @@ public class ChatViewModel {
     }
 
     public void addFriend(String username) {
-        try {
-            AddFriendRequest request = new AddFriendRequest();
-            request.setUserId(currentUserId);
-            request.setUsername(username.trim());
+        CompletableFuture.runAsync(() -> {
+            try {
+                AddFriendRequest request = new AddFriendRequest();
+                request.setUserId(currentUserId);
+                request.setUsername(username.trim());
 
-            FriendResponse friend = chatService.addFriend(request, token);
-            if (friend == null || friend.getFriendId() == null) {
-                errorMessage.set("Không thể thêm bạn. Vui lòng thử lại.");
-                return;
+                FriendResponse friend = chatService.addFriend(request, token);
+                if (friend == null || friend.getFriendId() == null) {
+                    Platform.runLater(() -> errorMessage.set("Không thể thêm bạn. Vui lòng thử lại."));
+                    return;
+                }
+
+                String displayName = friend.getFriendUsername();
+                try {
+                    UserResponse u = chatService.getUserById(friend.getFriendId(), token);
+                    if (u != null && u.getFullName() != null && !u.getFullName().isBlank()) {
+                        displayName = u.getFullName();
+                    }
+                } catch (Exception ex) {
+                    // fallback
+                }
+                if (displayName == null || displayName.isBlank()) {
+                    displayName = "Người dùng " + friend.getFriendId();
+                }
+                final String finalDisplayName = displayName;
+                Platform.runLater(() -> {
+                    addFriendToList(friend, finalDisplayName);
+                    notificationMessage.set("Đã thêm bạn: " + finalDisplayName);
+                });
+            } catch (Exception e) {
+                Platform.runLater(() -> errorMessage.set("Không thể thêm bạn: " + e.getMessage()));
             }
-
-            String displayName = friend.getFriendUsername() != null && !friend.getFriendUsername().isBlank()
-                    ? friend.getFriendUsername() : "Người dùng " + friend.getFriendId();
-
-            Platform.runLater(() -> {
-                addFriendToList(friend, displayName);
-            });
-
-            notificationMessage.set("Đã thêm bạn: " + displayName);
-        } catch (Exception e) {
-            errorMessage.set("Không thể thêm bạn: " + e.getMessage());
-        }
+        });
     }
 
     public void addGroupMember(String selectedUserStr) {
@@ -1596,9 +1629,9 @@ public class ChatViewModel {
                         currentUserResponse == null ? null : currentUserResponse.getKeycloakUserId())) {
             return;
         }
-        String displayName = profile.getUsername();
+        String displayName = profile.getFullName();
         if (displayName == null || displayName.isBlank()) {
-            displayName = profile.getFullName();
+            displayName = profile.getUsername();
         }
         if (displayName == null || displayName.isBlank()) return;
         nameToUserMap.put(displayName, profile);
@@ -1660,6 +1693,10 @@ public class ChatViewModel {
 
     public String getUserIdByDisplayName(String displayName) {
         return displayNameToUserId.get(displayName);
+    }
+
+    public UserResponse getUserByName(String displayName) {
+        return nameToUserMap.get(displayName);
     }
     
     public GroupResponse getGroupByName(String groupName) {

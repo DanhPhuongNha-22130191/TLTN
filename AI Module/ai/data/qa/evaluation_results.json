@@ -1,0 +1,1302 @@
+[
+  {
+    "index": 1,
+    "question": "Chúng ta cần bao lâu để quản lý việc ký Quy tắc ứng xử và đạo đức kinh doanh?",
+    "expected_answer": "Hàng năm vào tháng 2/tháng 3",
+    "generated_answer": "Hàng năm vào tháng 2/tháng 3",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 379.9123764038086
+  },
+  {
+    "index": 2,
+    "question": "Tôi cần làm gì sau khi tôi hoàn thành một hợp đồng?",
+    "expected_answer": "Bạn nên cho phép một thành viên trong nhóm đánh giá ngang hàng giúp bạn. Điều này có thể được thực hiện bằng cách đăng liên kết tài liệu trong kênh thông tin riêng tư của People Operations.",
+    "generated_answer": "Bạn nên cho phép một thành viên trong nhóm đánh giá ngang hàng giúp bạn. Điều này có thể được thực hiện bằng cách đăng liên kết tài liệu trong kênh thông tin riêng tư của People Operations.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 66.90573692321777
+  },
+  {
+    "index": 3,
+    "question": "Các hoạt động hệ thống và mạng bị cấm bao gồm những gì?",
+    "expected_answer": "Các hoạt động hệ thống và mạng bị cấm bao gồm nhưng không giới hạn ở những hoạt động sau:\n- Vi phạm quyền của bất kỳ cá nhân hoặc công ty nào được bảo vệ bởi bản quyền, bí mật thương mại, bằng sáng chế hoặc tài sản trí tuệ khác hoặc các luật hoặc quy định tương tự.\n- Sao chép, phân phối hoặc sử dụng trái phép tài liệu có bản quyền.\n- Xuất khẩu phần mềm, thông tin kỹ thuật, phần mềm mã hóa, công nghệ vi phạm pháp luật kiểm soát xuất khẩu quốc tế hoặc quốc gia.\n- Cố ý đưa các chương trình độc hại vào mạng GitLab hoặc bất kỳ thiết bị điện toán nào do GitLab quản lý.\n- Cố ý lạm dụng bất kỳ thiết bị điện toán nào do GitLab quản lý hoặc mạng GitLab (ví dụ: để khai thác tiền điện tử, kiểm soát mạng botnet, v.v.).",
+    "generated_answer": "Các hoạt động hệ thống và mạng bị cấm bao gồm nhưng không giới hạn ở những hoạt động sau:\n- Vi phạm quyền của bất kỳ cá nhân hoặc công ty nào được bảo vệ bởi bản quyền, bí mật thương mại, bằng sáng chế hoặc tài sản trí tuệ khác hoặc các luật hoặc quy định tương tự.\n- Sao chép, phân phối hoặc sử dụng trái phép tài liệu có bản quyền.\n- Xuất khẩu phần mềm, thông tin kỹ thuật, phần mềm mã hóa, công nghệ vi phạm pháp luật kiểm soát xuất khẩu quốc tế hoặc quốc gia.\n- Cố ý đưa các chương trình độc hại vào mạng GitLab hoặc bất kỳ thiết bị điện toán nào do GitLab quản lý.\n- Cố ý lạm dụng bất kỳ thiết bị điện toán nào do GitLab quản lý hoặc mạng GitLab (ví dụ: để khai thác tiền điện tử, kiểm soát mạng botnet, v.v.).",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 89.5376205444336
+  },
+  {
+    "index": 4,
+    "question": "Làm thế nào để nhận lương khi tham gia làm nhiệm vụ bồi thẩm đoàn?",
+    "expected_answer": "Tài liệu không đề cập đến việc trả tiền cho công tác bồi thẩm đoàn.",
+    "generated_answer": "Tài liệu không đề cập đến việc trả tiền cho công tác bồi thẩm đoàn.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 58.817148208618164
+  },
+  {
+    "index": 5,
+    "question": "Tôi sẽ nhận được tiền thưởng nếu thực tập sinh mà tôi giới thiệu được chuyển đổi thành thành viên nhóm cấp trung, toàn thời gian?",
+    "expected_answer": "Bạn sẽ được trả tiền thưởng giới thiệu nếu người giới thiệu (thực tập sinh) được chuyển đổi thành thành viên nhóm cấp trung, toàn thời gian.",
+    "generated_answer": "Bạn sẽ được trả tiền thưởng giới thiệu nếu người giới thiệu (thực tập sinh) được chuyển đổi thành thành viên nhóm cấp trung, toàn thời gian.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 61.62261962890625
+  },
+  {
+    "index": 6,
+    "question": "Tôi cần lưu ý gì sau khi nhận được xác nhận về các bước tiếp theo từ người quản lý trực tiếp?",
+    "expected_answer": "Hãy nhớ lưu chủ đề trong hồ sơ của thành viên nhóm vào Ngày làm việc trong thư mục tài liệu 'Phê duyệt - Bí mật'.",
+    "generated_answer": "Hãy nhớ lưu chủ đề trong hồ sơ của thành viên nhóm vào Ngày làm việc trong thư mục tài liệu 'Phê duyệt - Bí mật'.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 58.63332748413086
+  },
+  {
+    "index": 7,
+    "question": "Việc sử dụng thiết bị lưu trữ ngoài như USB có được phép trên tài sản công ty không?",
+    "expected_answer": "Việc sử dụng các thiết bị lưu trữ ngoài và di động như ổ flash USB và ổ đĩa sao lưu bên ngoài trên các thiết bị do công ty quản lý là không được phép và bị chặn theo mặc định.",
+    "generated_answer": "Việc sử dụng các thiết bị lưu trữ ngoài và di động như ổ flash USB và ổ đĩa sao lưu bên ngoài trên các thiết bị do công ty quản lý là không được phép và bị chặn theo mặc định.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 83.79983901977539
+  },
+  {
+    "index": 8,
+    "question": "Công ty chia sẻ quy trình, văn hóa và chiến lược như thế nào?",
+    "expected_answer": "Tài liệu không đề cập cụ thể về cách thức công ty chia sẻ quy trình, văn hóa và chiến lược.",
+    "generated_answer": "Tài liệu không đề cập cụ thể về cách thức công ty chia sẻ quy trình, văn hóa và chiến lược.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 70.2054500579834
+  },
+  {
+    "index": 9,
+    "question": "Khi nào lương được điều chỉnh và theo tiêu chí nào?",
+    "expected_answer": "Khi được thăng chức, mức lương sẽ được điều chỉnh để phù hợp với phạm vi thị trường cho vai trò và cấp độ mới. Điều này có thể bao gồm những thay đổi về Tổng tiền mặt mục tiêu (TTC), trợ cấp vốn cổ phần và cơ cấu trả lương thay đổi.",
+    "generated_answer": "Khi được thăng chức, mức lương sẽ được điều chỉnh để phù hợp với phạm vi thị trường cho vai trò và cấp độ mới. Điều này có thể bao gồm những thay đổi về Tổng tiền mặt mục tiêu (TTC), trợ cấp vốn cổ phần và cơ cấu trả lương thay đổi.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 103.29818725585938
+  },
+  {
+    "index": 10,
+    "question": "Nhóm Điều hành Nhân sự có thể nhận hỗ trợ từ nhóm nào khi cần truyền đạt yêu cầu pháp lý?",
+    "expected_answer": "Nhóm Điều hành Nhân sự có thể nhận hỗ trợ từ nhóm Pháp lý, Việc làm để truyền đạt yêu cầu pháp lý cụ thể của quốc gia cho các thành viên trong nhóm.",
+    "generated_answer": "Nhóm Điều hành Nhân sự có thể nhận hỗ trợ từ nhóm Pháp lý, Việc làm để truyền đạt yêu cầu pháp lý cụ thể của quốc gia cho các thành viên trong nhóm.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 68.86029243469238
+  },
+  {
+    "index": 11,
+    "question": "Ai có thể nhận giải thưởng hiệu quả?",
+    "expected_answer": "Thành viên trong nhóm đã giúp đạt được tiến bộ nhanh chóng, ví dụ như ủng hộ việc viết ra mọi thứ, đón nhận sự thay đổi hoặc trở thành người quản lý một nhóm.",
+    "generated_answer": "Thành viên trong nhóm đã giúp đạt được tiến bộ nhanh chóng, ví dụ như ủng hộ việc viết ra mọi thứ, đón nhận sự thay đổi hoặc trở thành người quản lý một nhóm.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 71.04182243347168
+  },
+  {
+    "index": 12,
+    "question": "Tôi có thể thanh toán lương bằng nội tệ của tôi thay vì USD hoặc EUR không?",
+    "expected_answer": "Nếu bạn hiện đang được thanh toán bằng loại tiền không phải địa phương, bạn có thể yêu cầu chuyển về đồng nội tệ của mình. Khi một thành viên trong nhóm đã yêu cầu chuyển về đồng nội tệ của họ, quyết định này sẽ là quyết định cuối cùng.",
+    "generated_answer": "Nếu bạn hiện đang được thanh toán bằng loại tiền không phải địa phương, bạn có thể yêu cầu chuyển về đồng nội tệ của mình. Khi một thành viên trong nhóm đã yêu cầu chuyển về đồng nội tệ của họ, quyết định này sẽ là quyết định cuối cùng.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 78.25160026550293
+  },
+  {
+    "index": 13,
+    "question": "Tôi cần thêm thời gian sau khi đã dùng hết quyền nghỉ phép nuôi con, tôi nên làm gì?",
+    "expected_answer": "Bạn có thể sử dụng chính sách Thời gian nghỉ được trả lương linh hoạt của GitLab với sự phối hợp của người quản lý. Nếu thời hạn quan trọng trong kinh doanh bị bỏ lỡ, Người quản lý của bạn có thể yêu cầu bạn thay đổi ngày.",
+    "generated_answer": "Bạn có thể sử dụng chính sách Thời gian nghỉ được trả lương linh hoạt của GitLab với sự phối hợp của người quản lý. Nếu thời hạn quan trọng trong kinh doanh bị bỏ lỡ, Người quản lý của bạn có thể yêu cầu bạn thay đổi ngày.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 79.9872875213623
+  },
+  {
+    "index": 14,
+    "question": "Quy trình đề cử thưởng gồm những gì?",
+    "expected_answer": "Gửi bằng Nominator Bot với:\n- Giá trị TÍN DỤNG nào đã được chứng minh - với các ví dụ cụ thể\n- Công việc đã vượt quá vai trò bình thường của họ như thế nào\n- Các liên kết hoặc hiện vật cụ thể hiển thị tác phẩm\n- Tác động có thể đo lường được đối với tổ chức rộng hơn",
+    "generated_answer": "Gửi bằng Nominator Bot với:\n- Giá trị TÍN DỤNG nào đã được chứng minh - với các ví dụ cụ thể\n- Công việc đã vượt quá vai trò bình thường của họ như thế nào\n- Các liên kết hoặc hiện vật cụ thể hiển thị tác phẩm\n- Tác động có thể đo lường được đối với tổ chức rộng hơn",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 71.75278663635254
+  },
+  {
+    "index": 15,
+    "question": "Khi nào X tham gia hỗ trợ nhóm phụ trợ?",
+    "expected_answer": "Khi nhóm phụ trợ không có mặt, X đã tham gia để bỏ chặn một hoạt động triển khai quan trọng.",
+    "generated_answer": "Khi nhóm phụ trợ không có mặt, X đã tham gia để bỏ chặn một hoạt động triển khai quan trọng.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 67.35515594482422
+  },
+  {
+    "index": 16,
+    "question": "Tôi có thể làm quen với đồng nghiệp mới như thế nào theo tài liệu này?",
+    "expected_answer": "Theo tài liệu, bạn có thể làm quen với đồng nghiệp mới thông qua việc lên lịch trò chuyện cà phê, giới thiệu bản thân trong kênh rảnh rỗi new_team_members hoặc tham gia cuộc gọi điện video.",
+    "generated_answer": "Theo tài liệu, bạn có thể làm quen với đồng nghiệp mới thông qua việc lên lịch trò chuyện cà phê, giới thiệu bản thân trong kênh rảnh rỗi new_team_members hoặc tham gia cuộc gọi điện video.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 54.837703704833984
+  },
+  {
+    "index": 17,
+    "question": "Tôi nên làm gì nếu tôi nghĩ mình đang bị trả thù sau khi nộp đơn khiếu nại về hành vi quấy rối?",
+    "expected_answer": "Nếu bạn cho rằng mình đã bị trả thù, vui lòng liên hệ với Giám đốc nhân sự, Quan hệ thành viên nhóm hoặc People Business Partner để bắt đầu điều tra.",
+    "generated_answer": "Nếu bạn cho rằng mình đã bị trả thù, vui lòng liên hệ với Giám đốc nhân sự, Quan hệ thành viên nhóm hoặc People Business Partner để bắt đầu điều tra.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 51.88322067260742
+  },
+  {
+    "index": 18,
+    "question": "Các đề cử không hoạt động trong hơn 90 ngày sẽ như thế nào?",
+    "expected_answer": "Các đề cử không hoạt động trong hơn 90 ngày sẽ tự động bị hủy.",
+    "generated_answer": "Các đề cử không hoạt động trong hơn 90 ngày sẽ tự động bị hủy.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 60.93239784240723
+  },
+  {
+    "index": 19,
+    "question": "Nghỉ ốm có được hưởng lương không và cần giấy tờ gì?",
+    "expected_answer": "Nghỉ ốm có được hưởng lương hoàn toàn trong thời gian 25 ngày làm việc thông qua chính sách GitLab Sick Time. Cần cung cấp bằng chứng phù hợp với yêu cầu địa phương để xin nghỉ phép.",
+    "generated_answer": "Nghỉ ốm có được hưởng lương hoàn toàn trong thời gian 25 ngày làm việc thông qua chính sách GitLab Sick Time. Cần cung cấp bằng chứng phù hợp với yêu cầu địa phương để xin nghỉ phép.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 53.324222564697266
+  },
+  {
+    "index": 20,
+    "question": "Để xin nghỉ phép nuôi con, cần làm gì?",
+    "expected_answer": "Để xin nghỉ phép nuôi con:\n1. Lưu ý các điều kiện và quy định.\n2. Xác nhận thông tin với người quản lý.\n3. Nhập ngày vào Ngày làm việc.",
+    "generated_answer": "Để xin nghỉ phép nuôi con:\n1. Lưu ý các điều kiện và quy định.\n2. Xác nhận thông tin với người quản lý.\n3. Nhập ngày vào Ngày làm việc.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 64.28122520446777
+  },
+  {
+    "index": 21,
+    "question": "Tôi cần làm gì khi phải nghỉ phép vì ốm hơn 6 ngày liên tiếp?",
+    "expected_answer": "Bạn nên thông báo cho Nhóm quản lý vắng mặt bằng cách gửi phiếu HelpLab. Điều này cho phép GitLab chia sẻ thêm về Chính sách về thời gian nghỉ ốm, xem xét lợi ích theo luật định mà bạn có thể đủ điều kiện nhận và hướng dẫn bạn các bước tiếp theo khác.",
+    "generated_answer": "Bạn nên thông báo cho Nhóm quản lý vắng mặt bằng cách gửi phiếu HelpLab. Điều này cho phép GitLab chia sẻ thêm về Chính sách về thời gian nghỉ ốm, xem xét lợi ích theo luật định mà bạn có thể đủ điều kiện nhận và hướng dẫn bạn các bước tiếp theo khác.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 62.01887130737305
+  },
+  {
+    "index": 22,
+    "question": "Các thành viên trong nhóm có thể sử dụng thời gian, thiết bị của công ty để làm việc bên ngoài không?",
+    "expected_answer": "Các thành viên trong nhóm không được sử dụng cơ sở vật chất, thiết bị, thời gian, nhãn hiệu, thương hiệu hoặc danh tiếng của GitLab liên quan đến bất kỳ hoạt động bên ngoài nào.",
+    "generated_answer": "Các thành viên trong nhóm không được sử dụng cơ sở vật chất, thiết bị, thời gian, nhãn hiệu, thương hiệu hoặc danh tiếng của GitLab liên quan đến bất kỳ hoạt động bên ngoài nào.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 69.84686851501465
+  },
+  {
+    "index": 23,
+    "question": "Nếu công việc của tôi bị cáo buộc có vấn đề nghiêm trọng, liệu công ty sẽ tạm ngừng chi trả lương cho tôi?",
+    "expected_answer": "Trong trường hợp các cáo buộc được đưa ra có tính chất nghiêm trọng, Công ty có quyền đình chỉ (những) thủ phạm bị cáo buộc trả đủ lương để chờ điều tra.",
+    "generated_answer": "Trong trường hợp các cáo buộc được đưa ra có tính chất nghiêm trọng, Công ty có quyền đình chỉ (những) thủ phạm bị cáo buộc trả đủ lương để chờ điều tra.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 60.343027114868164
+  },
+  {
+    "index": 24,
+    "question": "Tôi muốn biết về mức lương và thưởng được cung cấp cho nhân viên mới như thế nào?",
+    "expected_answer": "Tài liệu này không đề cập cụ thể đến mức lương hay thưởng của nhân viên mới. Nếu bạn có bất kỳ câu hỏi nào về khoản trợ cấp nào sẽ được cung cấp cho nhân viên mới, vui lòng liên hệ với nhóm Bồi thường và Phúc lợi qua email tới total-rewards@gitlab.com. Các tài liệu tham khảo và thông tin về Mức trợ cấp được lưu giữ trong phần tổng quan về khoản bồi thường.",
+    "generated_answer": "Tài liệu này không đề cập cụ thể đến mức lương hay thưởng của nhân viên mới. Nếu bạn có bất kỳ câu hỏi nào về khoản trợ cấp nào sẽ được cung cấp cho nhân viên mới, vui lòng liên hệ với nhóm Bồi thường và Phúc lợi qua email tới total-rewards@gitlab.com. Các tài liệu tham khảo và thông tin về Mức trợ cấp được lưu giữ trong phần tổng quan về khoản bồi thường.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 160.21251678466797
+  },
+  {
+    "index": 25,
+    "question": "Quy định về nghỉ liên quan đến nội dung này là gì?",
+    "expected_answer": "1. Báo cáo trước: Cần thông báo trước ít nhất gấp đôi số ngày so với thời gian vắng mặt theo kế hoạch của bạn. 2. Minh bạch: Thông báo trước càng nhiều càng tốt về thời gian nghỉ theo kế hoạch của bạn. 3. Hỗ trợ: Có thể cần liên hệ với người quản lý và PBP để nhận hỗ trợ có giá trị trong thời gian nghỉ phép và khi trở về. 4. Kết nối hoàn toàn: Ngắt kết nối hoàn toàn khi đi xa để quản lý thời gian hiệu quả và đảm bảo các dự án không bị bỏ sót.",
+    "generated_answer": "1. Báo cáo trước: Cần thông báo trước ít nhất gấp đôi số ngày so với thời gian vắng mặt theo kế hoạch của bạn. 2. Minh bạch: Thông báo trước càng nhiều càng tốt về thời gian nghỉ theo kế hoạch của bạn. 3. Hỗ trợ: Có thể cần liên hệ với người quản lý và PBP để nhận hỗ trợ có giá trị trong thời gian nghỉ phép và khi trở về. 4. Kết nối hoàn toàn: Ngắt kết nối hoàn toàn khi đi xa để quản lý thời gian hiệu quả và đảm bảo các dự án không bị bỏ sót.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 53.40981483459473
+  },
+  {
+    "index": 26,
+    "question": "Thành viên trong nhóm cần làm gì để phục hồi sau khi nghỉ phép quân sự?",
+    "expected_answer": "Thành viên trong nhóm phải thông báo cho người sử dụng lao động về việc cần nghỉ phép quân sự, được trả tự do trong điều kiện danh dự và trở lại nộp đơn xin làm việc lại. Nếu nghỉ phép dưới 31 ngày, thành viên phải đi làm vào kỳ làm việc thường xuyên đầu tiên sau khi hoàn thành nghĩa vụ quân sự; nếu nghỉ phép từ 31 đến 180 ngày, cần nộp đơn xin phục hồi trong vòng 14 ngày sau khi hoàn thành nghĩa vụ quân sự. Nếu nghỉ phép quá 180 ngày, phải nộp đơn xin phục hồi không quá 90 ngày sau khi hoàn thành nghĩa vụ quân sự.",
+    "generated_answer": "Thành viên trong nhóm phải thông báo cho người sử dụng lao động về việc cần nghỉ phép quân sự, được trả tự do trong điều kiện danh dự và trở lại nộp đơn xin làm việc lại. Nếu nghỉ phép dưới 31 ngày, thành viên phải đi làm vào kỳ làm việc thường xuyên đầu tiên sau khi hoàn thành nghĩa vụ quân sự; nếu nghỉ phép từ 31 đến 180 ngày, cần nộp đơn xin phục hồi trong vòng 14 ngày sau khi hoàn thành nghĩa vụ quân sự. Nếu nghỉ phép quá 180 ngày, phải nộp đơn xin phục hồi không quá 90 ngày sau khi hoàn thành nghĩa vụ quân sự.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 71.7477798461914
+  },
+  {
+    "index": 27,
+    "question": "Giải thưởng được trao cho thành viên nhóm nào?",
+    "expected_answer": "Thành viên nhóm đã vượt lên trên để đạt được kết quả quan trọng nhằm tạo ra tác động trên toàn công ty.",
+    "generated_answer": "Thành viên nhóm đã vượt lên trên để đạt được kết quả quan trọng nhằm tạo ra tác động trên toàn công ty.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 59.96584892272949
+  },
+  {
+    "index": 28,
+    "question": "Chính sách này nhằm mục đích gì?",
+    "expected_answer": "Chính sách này nêu rõ các yêu cầu liên quan đến việc Thành viên nhóm GitLab sử dụng tài nguyên máy tính và tài sản dữ liệu để bảo vệ khách hàng, Thành viên nhóm, nhà thầu, công ty và các đối tác khác của chúng tôi khỏi bị tổn hại do sử dụng sai mục đích cố ý và vô ý.",
+    "generated_answer": "Chính sách này nêu rõ các yêu cầu liên quan đến việc Thành viên nhóm GitLab sử dụng tài nguyên máy tính và tài sản dữ liệu để bảo vệ khách hàng, Thành viên nhóm, nhà thầu, công ty và các đối tác khác của chúng tôi khỏi bị tổn hại do sử dụng sai mục đích cố ý và vô ý.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 54.82292175292969
+  },
+  {
+    "index": 29,
+    "question": "Quá trình theo dõi các vai trò tạm thời/diễn xuất bao gồm những gì?",
+    "expected_answer": "Quy trình theo dõi các vai trò tạm thời/diễn xuất như sau: 1.",
+    "generated_answer": "Quy trình theo dõi các vai trò tạm thời/diễn xuất như sau: 1.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 152.94265747070312
+  },
+  {
+    "index": 30,
+    "question": "Làm thế nào để biết thông tin về thành tích, hạn ngạch hoặc hoa hồng trong thời gian Người chăm sóc nghỉ ốm?",
+    "expected_answer": "Để biết thông tin về thành tích, hạn ngạch hoặc hoa hồng trong thời gian nghỉ phép không phải của cha mẹ, chính sách này trong sổ tay nội bộ có thể hữu ích. Nếu điều này không trả lời được câu hỏi của bạn hoặc bạn có câu hỏi cụ thể về tình huống của mình, vui lòng gửi vé HelpLab trực tiếp cho nhóm hoa hồng bán hàng vì họ quản lý các chính sách Khuyến khích bán hàng áp dụng cho các thành viên nhóm đủ điều kiện hoa hồng khi nghỉ phép.",
+    "generated_answer": "Để biết thông tin về thành tích, hạn ngạch hoặc hoa hồng trong thời gian nghỉ phép không phải của cha mẹ, chính sách này trong sổ tay nội bộ có thể hữu ích. Nếu điều này không trả lời được câu hỏi của bạn hoặc bạn có câu hỏi cụ thể về tình huống của mình, vui lòng gửi vé HelpLab trực tiếp cho nhóm hoa hồng bán hàng vì họ quản lý các chính sách Khuyến khích bán hàng áp dụng cho các thành viên nhóm đủ điều kiện hoa hồng khi nghỉ phép.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 60.85991859436035
+  },
+  {
+    "index": 31,
+    "question": "Các khoản trợ cấp vốn cổ phần phải được phê duyệt bởi ai?",
+    "expected_answer": "Hội đồng quản trị",
+    "generated_answer": "Hội đồng quản trị",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 53.0855655670166
+  },
+  {
+    "index": 32,
+    "question": "Thiết bị cá nhân có thể sử dụng để truy cập vào tài sản công ty không?",
+    "expected_answer": "Theo nguyên tắc chung, các thiết bị không phải của công ty không được phép truy cập vào tài sản của công ty.",
+    "generated_answer": "Theo nguyên tắc chung, các thiết bị không phải của công ty không được phép truy cập vào tài sản của công ty.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 52.033185958862305
+  },
+  {
+    "index": 33,
+    "question": "Việc sử dụng công cụ chụp ảnh màn hình có bị cấm không?",
+    "expected_answer": "Công cụ chụp và chia sẻ ảnh chụp màn hình lên các trang web được lưu trữ trực tuyến đều bị cấm nếu không có sự chấp thuận rõ ràng của Bộ phận An ninh và Pháp lý.Ảnh chụp màn hình phải được lưu trữ cục bộ hoặc trong các thư mục Google Drive được liên kết với tài khoản GitLab.com của bạn.",
+    "generated_answer": "Công cụ chụp và chia sẻ ảnh chụp màn hình lên các trang web được lưu trữ trực tuyến đều bị cấm nếu không có sự chấp thuận rõ ràng của Bộ phận An ninh và Pháp lý.Ảnh chụp màn hình phải được lưu trữ cục bộ hoặc trong các thư mục Google Drive được liên kết với tài khoản GitLab.com của bạn.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 64.14914131164551
+  },
+  {
+    "index": 34,
+    "question": "Tôi nên làm gì nếu tôi cảm thấy mình bị quấy rối?",
+    "expected_answer": "Nếu bạn cảm thấy mình là mục tiêu của bất kỳ hình thức quấy rối nào, bạn được khuyến khích giải quyết ngay lập tức và trực tiếp với kẻ quấy rối, cho họ biết rằng hành vi của họ là không được hoan nghênh, mang tính xúc phạm và phải dừng lại ngay lập tức. Nếu bạn không muốn giải quyết trực tiếp hoặc nếu hành vi vẫn tiếp tục, hãy báo cáo hành vi sai trái đó cho Giám đốc nhân sự, Quan hệ thành viên nhóm hoặc People Business Partner.",
+    "generated_answer": "Nếu bạn cảm thấy mình là mục tiêu của bất kỳ hình thức quấy rối nào, bạn được khuyến khích giải quyết ngay lập tức và trực tiếp với kẻ quấy rối, cho họ biết rằng hành vi của họ là không được hoan nghênh, mang tính xúc phạm và phải dừng lại ngay lập tức. Nếu bạn không muốn giải quyết trực tiếp hoặc nếu hành vi vẫn tiếp tục, hãy báo cáo hành vi sai trái đó cho Giám đốc nhân sự, Quan hệ thành viên nhóm hoặc People Business Partner.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 66.58077239990234
+  },
+  {
+    "index": 35,
+    "question": "Mức lương tại GitLab được xác định như thế nào?",
+    "expected_answer": "Tại GitLab, chúng tôi cam kết thanh toán một cách cạnh tranh và công bằng. Do đó, chúng tôi đặt ra các đề nghị dựa trên mức lương thị trường thay vì lịch sử trả lương của ứng viên.",
+    "generated_answer": "Tại GitLab, chúng tôi cam kết thanh toán một cách cạnh tranh và công bằng. Do đó, chúng tôi đặt ra các đề nghị dựa trên mức lương thị trường thay vì lịch sử trả lương của ứng viên.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 68.61042976379395
+  },
+  {
+    "index": 36,
+    "question": "Làm thế nào để tiếp cận đúng thành viên của Nhóm Điều hành Nhân sự?",
+    "expected_answer": "Bạn nên liên hệ với @gl-people-ops-team hoặc gửi yêu cầu đến @people-ops-team.",
+    "generated_answer": "Bạn nên liên hệ với @gl-people-ops-team hoặc gửi yêu cầu đến @people-ops-team.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 53.319692611694336
+  },
+  {
+    "index": 37,
+    "question": "Tôi cần liên hệ về vấn đề bồi thường và lợi ích. Tôi nên liên hệ với ai?",
+    "expected_answer": "Bạn có thể liên hệ với Bộ phận Hoạt động Nhân sự qua HelpLab để được trả lời câu hỏi hoặc chuyển hướng đến người/nhóm thích hợp.",
+    "generated_answer": "Bạn có thể liên hệ với Bộ phận Hoạt động Nhân sự qua HelpLab để được trả lời câu hỏi hoặc chuyển hướng đến người/nhóm thích hợp.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 54.85844612121582
+  },
+  {
+    "index": 38,
+    "question": "Các thực thể nào đủ điều kiện tham gia vào chương trình ESPP của GitLab?",
+    "expected_answer": "Các thực thể GitLab ESPP đủ điều kiện bao gồm:\n- CÔNG TY CỔ PHẦN GITLAB CANADA (Canada)\n- GitLab GmbH (Đức)\n- GitLab B.V. (Hà Lan/Bỉ/Phần Lan)\n- GitLab Inc. (Mỹ)\n- GitLab Liên bang, LLC (Hoa Kỳ)\n- GitLab UK Limited (Vương quốc Anh)\n- GITLAB PTY LTD (Úc/New Zealand)\n- CÔNG TY TNHH GITLAB IRELAND (Ireland)\n- GitLab Pháp S.A.S.",
+    "generated_answer": "Các thực thể GitLab ESPP đủ điều kiện bao gồm:\n- CÔNG TY CỔ PHẦN GITLAB CANADA (Canada)\n- GitLab GmbH (Đức)\n- GitLab B.V. (Hà Lan/Bỉ/Phần Lan)\n- GitLab Inc. (Mỹ)\n- GitLab Liên bang, LLC (Hoa Kỳ)\n- GitLab UK Limited (Vương quốc Anh)\n- GITLAB PTY LTD (Úc/New Zealand)\n- CÔNG TY TNHH GITLAB IRELAND (Ireland)\n- GitLab Pháp S.A.S.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 53.84969711303711
+  },
+  {
+    "index": 39,
+    "question": "Tôi muốn biết thông tin về lương khi cha mẹ tôi nghỉ phép?",
+    "expected_answer": "Để biết thông tin về thành tích, hạn ngạch hoặc hoa hồng trong thời gian nghỉ phép của cha mẹ, bạn có thể tham khảo sổ tay nội bộ. Nếu cần thêm thông tin cụ thể về tình huống của mình, vui lòng gửi vé HelpLab đến nhóm hoa hồng bán hàng vì họ quản lý các chính sách Khuyến khích bán hàng áp dụng cho các thành viên đủ điều kiện hoa hồng trên LOA.",
+    "generated_answer": "Để biết thông tin về thành tích, hạn ngạch hoặc hoa hồng trong thời gian nghỉ phép của cha mẹ, bạn có thể tham khảo sổ tay nội bộ. Nếu cần thêm thông tin cụ thể về tình huống của mình, vui lòng gửi vé HelpLab đến nhóm hoa hồng bán hàng vì họ quản lý các chính sách Khuyến khích bán hàng áp dụng cho các thành viên đủ điều kiện hoa hồng trên LOA.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 75.77776908874512
+  },
+  {
+    "index": 40,
+    "question": "Các dịch vụ lợi ích cạnh tranh bao gồm những gì?",
+    "expected_answer": "Các dịch vụ lợi ích cạnh tranh bao gồm các chương trình theo luật định được áp dụng ở mọi quốc gia nơi bạn làm việc, cũng như các dịch vụ cốt lõi về y tế, đời sống và lương hưu thông qua các kế hoạch theo luật định hoặc bổ sung. Ngoài ra, còn có các cải tiến dành riêng cho từng quốc gia dựa trên tiêu chuẩn thị trường cạnh tranh, nhu cầu và quy định của địa phương.",
+    "generated_answer": "Các dịch vụ lợi ích cạnh tranh bao gồm các chương trình theo luật định được áp dụng ở mọi quốc gia nơi bạn làm việc, cũng như các dịch vụ cốt lõi về y tế, đời sống và lương hưu thông qua các kế hoạch theo luật định hoặc bổ sung. Ngoài ra, còn có các cải tiến dành riêng cho từng quốc gia dựa trên tiêu chuẩn thị trường cạnh tranh, nhu cầu và quy định của địa phương.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 59.99350547790527
+  },
+  {
+    "index": 41,
+    "question": "Khi nào cần ghi thêm thông tin chi tiết về hợp đồng của thành viên nhóm vào Nhiệm vụ hoạt động con người Tracker?",
+    "expected_answer": "Trên trang này, bạn sẽ chỉ định chủ sở hữu thành viên Nhóm Điều hành Nhân sự, nếu bạn là chủ sở hữu, hãy nhớ ghi lại ngày kết thúc và bắt đầu quy trình bên dưới 2 tháng trước ngày kết thúc.",
+    "generated_answer": "Trên trang này, bạn sẽ chỉ định chủ sở hữu thành viên Nhóm Điều hành Nhân sự, nếu bạn là chủ sở hữu, hãy nhớ ghi lại ngày kết thúc và bắt đầu quy trình bên dưới 2 tháng trước ngày kết thúc.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 55.840492248535156
+  },
+  {
+    "index": 42,
+    "question": "Tôi muốn biết về quy định lương và thưởng của công ty?",
+    "expected_answer": "Tài liệu không cung cấp thông tin chi tiết về quy định lương và thưởng.",
+    "generated_answer": "Tài liệu không cung cấp thông tin chi tiết về quy định lương và thưởng.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 66.18475914001465
+  },
+  {
+    "index": 43,
+    "question": "Công ty quy định thế nào về nội dung này?",
+    "expected_answer": "Công ty quy định rằng ngoài EthicsPoint, GitLab đã hợp tác với Lighthouse Services để cung cấp đường dây nóng báo cáo ẩn danh. Điều này nhằm đảm bảo rằng bất kỳ thành viên nào trong nhóm muốn gửi báo cáo ẩn danh về hành vi được đề cập trong Quy tắc ứng xử và đạo đức kinh doanh đều có thể làm như vậy mà không sợ bị trả thù.",
+    "generated_answer": "Công ty quy định rằng ngoài EthicsPoint, GitLab đã hợp tác với Lighthouse Services để cung cấp đường dây nóng báo cáo ẩn danh. Điều này nhằm đảm bảo rằng bất kỳ thành viên nào trong nhóm muốn gửi báo cáo ẩn danh về hành vi được đề cập trong Quy tắc ứng xử và đạo đức kinh doanh đều có thể làm như vậy mà không sợ bị trả thù.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 62.23583221435547
+  },
+  {
+    "index": 44,
+    "question": "Các khoản thanh toán hoa hồng tiêu chuẩn sẽ tiếp tục như thế nào trong suốt thời gian đảm nhiệm vai trò tạm thời?",
+    "expected_answer": "Các khoản thanh toán hoa hồng tiêu chuẩn sẽ tiếp tục trong suốt thời gian đảm nhiệm vai trò tạm thời.",
+    "generated_answer": "Các khoản thanh toán hoa hồng tiêu chuẩn sẽ tiếp tục trong suốt thời gian đảm nhiệm vai trò tạm thời.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 60.26959419250488
+  },
+  {
+    "index": 45,
+    "question": "Tôi nên dùng công cụ nào khi muốn đề xuất ai đó nhận thưởng tùy ý?",
+    "expected_answer": "Vui lòng sử dụng Nominator Bot cho các yêu cầu thưởng tùy ý thay vì Ngày làm việc.",
+    "generated_answer": "Vui lòng sử dụng Nominator Bot cho các yêu cầu thưởng tùy ý thay vì Ngày làm việc.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 54.468393325805664
+  },
+  {
+    "index": 46,
+    "question": "Phạm vi đền bù lương của GitLab dựa trên gì?",
+    "expected_answer": "Phạm vi đền bù lương của GitLab được xác định dựa trên chi phí lao động ở mỗi khu vực theo dữ liệu thị trường từ Radford.",
+    "generated_answer": "Phạm vi đền bù lương của GitLab được xác định dựa trên chi phí lao động ở mỗi khu vực theo dữ liệu thị trường từ Radford.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 62.2105598449707
+  },
+  {
+    "index": 47,
+    "question": "Các công ty tương tự như GitLab làm gì để nâng cao hiểu biết giữa tất cả các thực thể?",
+    "expected_answer": "Chúng tôi hợp tác với các nhà cung cấp và mạng lưới hàng đầu để so sánh với các công ty tương tự, nhằm nâng cao hiểu biết giữa tất cả các thực thể GitLab.",
+    "generated_answer": "Chúng tôi hợp tác với các nhà cung cấp và mạng lưới hàng đầu để so sánh với các công ty tương tự, nhằm nâng cao hiểu biết giữa tất cả các thực thể GitLab.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 55.355072021484375
+  },
+  {
+    "index": 48,
+    "question": "Tôi cần thực hiện những bước gì sau khi đã được Pháp lý phê duyệt mẫu hợp đồng mới?",
+    "expected_answer": "Sau khi được Pháp lý phê duyệt, bạn cần thực hiện các bước sau:\n1. Thư xin việc và hợp đồng mới trong DocuSign và gửi chữ ký trước cho Người ký tên công ty.\n2. Gửi thư xin việc và hợp đồng đã ký cho thành viên nhóm.\n3. Tải tài liệu đã ký lên thư mục tài liệu của thành viên nhóm trong Workday.\n4. Nếu có thể, thực hiện cập nhật hồ sơ Ngày làm việc của thành viên nhóm.\n5. Gửi email tới Total Rewards (Total-rewards@ gitlab. com) và Payroll (uspayroll@ gitlab. com hoặc nonuspayroll@ gitlab. com) để thông báo về những thay đổi.",
+    "generated_answer": "Sau khi được Pháp lý phê duyệt, bạn cần thực hiện các bước sau:\n1. Thư xin việc và hợp đồng mới trong DocuSign và gửi chữ ký trước cho Người ký tên công ty.\n2. Gửi thư xin việc và hợp đồng đã ký cho thành viên nhóm.\n3. Tải tài liệu đã ký lên thư mục tài liệu của thành viên nhóm trong Workday.\n4. Nếu có thể, thực hiện cập nhật hồ sơ Ngày làm việc của thành viên nhóm.\n5. Gửi email tới Total Rewards (Total-rewards@ gitlab. com) và Payroll (uspayroll@ gitlab. com hoặc nonuspayroll@ gitlab. com) để thông báo về những thay đổi.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 59.72170829772949
+  },
+  {
+    "index": 49,
+    "question": "Thời gian nghỉ làm có tác dụng gì theo tài liệu?",
+    "expected_answer": "Thời gian nghỉ làm không chỉ có lợi—nó còn quan trọng như đạo đức làm việc của bạn và có thể góp phần nâng cao năng suất. Nó giúp duy trì sức khỏe tinh thần, ngăn ngừa kiệt sức, làm mới khả năng sáng tạo và giải quyết vấn đề, tăng cường mối quan hệ cá nhân và kết nối gia đình, đạt được những quan điểm mới giúp nâng cao sự đóng góp của bạn, và thể hiện cam kết của chúng tôi về hiệu suất bền vững, hiệu quả và tập trung vào kết quả.",
+    "generated_answer": "Thời gian nghỉ làm không chỉ có lợi—nó còn quan trọng như đạo đức làm việc của bạn và có thể góp phần nâng cao năng suất. Nó giúp duy trì sức khỏe tinh thần, ngăn ngừa kiệt sức, làm mới khả năng sáng tạo và giải quyết vấn đề, tăng cường mối quan hệ cá nhân và kết nối gia đình, đạt được những quan điểm mới giúp nâng cao sự đóng góp của bạn, và thể hiện cam kết của chúng tôi về hiệu suất bền vững, hiệu quả và tập trung vào kết quả.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 68.48692893981934
+  },
+  {
+    "index": 50,
+    "question": "Tôi cần biết quy định về việc xử lý việc nghỉ phép theo lịch cho một thành viên trong nhóm?",
+    "expected_answer": "Vui lòng xem trang Đang gọi để biết thông tin về cách xử lý việc nghỉ phép theo lịch cho một người nào đó trong nhóm Đang gọi.",
+    "generated_answer": "Vui lòng xem trang Đang gọi để biết thông tin về cách xử lý việc nghỉ phép theo lịch cho một người nào đó trong nhóm Đang gọi.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 60.463905334472656
+  },
+  {
+    "index": 51,
+    "question": "Phạm vi trả lương tại GitLab được xác định như thế nào?",
+    "expected_answer": "Phạm vi trả lương đầy đủ được xây dựng bằng cách đặt mức sàn và mức trần xung quanh điểm giữa. Điểm giữa của phạm vi được tính dựa trên phân vị thứ 50 từ dữ liệu thị trường, sau đó áp dụng tỷ lệ so sánh là 0,80 đến 1,20 để xác định tối thiểu và tối đa trong phạm vi bù. Ví dụ: nếu điểm giữa là 100.000 USD thì mức sàn sẽ là 80.000 USD (tỷ lệ 0,80) và mức trần sẽ là 120.000 USD (tỷ lệ 1,20).",
+    "generated_answer": "Phạm vi trả lương đầy đủ được xây dựng bằng cách đặt mức sàn và mức trần xung quanh điểm giữa. Điểm giữa của phạm vi được tính dựa trên phân vị thứ 50 từ dữ liệu thị trường, sau đó áp dụng tỷ lệ so sánh là 0,80 đến 1,20 để xác định tối thiểu và tối đa trong phạm vi bù. Ví dụ: nếu điểm giữa là 100.000 USD thì mức sàn sẽ là 80.000 USD (tỷ lệ 0,80) và mức trần sẽ là 120.000 USD (tỷ lệ 1,20).",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 58.07685852050781
+  },
+  {
+    "index": 52,
+    "question": "Tôi nên làm gì nếu có thắc mắc về việc nghỉ phép?",
+    "expected_answer": "Bạn nên liên hệ trực tiếp với Tilt theo địa chỉ LeaveSupport@ourtilt. com, thông qua biểu mẫu liên hệ hoặc nhắn tin qua (970) 449-0178.",
+    "generated_answer": "Bạn nên liên hệ trực tiếp với Tilt theo địa chỉ LeaveSupport@ourtilt. com, thông qua biểu mẫu liên hệ hoặc nhắn tin qua (970) 449-0178.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 69.1525936126709
+  },
+  {
+    "index": 53,
+    "question": "Tôi cần hỗ trợ khẩn cấp, tôi nên làm gì?",
+    "expected_answer": "Nếu các thành viên trong nhóm cần hỗ trợ khẩn cấp từ nhóm Mọi người của GitLab, vui lòng tạo một trường hợp trong HelpLab. HelpLab được giám sát trong hầu hết các giờ làm việc và là nền tảng hỗ trợ tập trung cho tất cả các truy vấn liên quan đến mọi người.",
+    "generated_answer": "Nếu các thành viên trong nhóm cần hỗ trợ khẩn cấp từ nhóm Mọi người của GitLab, vui lòng tạo một trường hợp trong HelpLab. HelpLab được giám sát trong hầu hết các giờ làm việc và là nền tảng hỗ trợ tập trung cho tất cả các truy vấn liên quan đến mọi người.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 71.48861885070801
+  },
+  {
+    "index": 54,
+    "question": "Công ty cung cấp bao nhiêu tiền thưởng khi có thành viên nhóm mới làm việc được 3 tháng?",
+    "expected_answer": "$1.500 tiền thưởng giới thiệu cơ bản cho nhân viên mới.",
+    "generated_answer": "$1.500 tiền thưởng giới thiệu cơ bản cho nhân viên mới.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 63.527822494506836
+  },
+  {
+    "index": 55,
+    "question": "Nhóm GitLab có ưu tiên gì trong quá trình phỏng vấn?",
+    "expected_answer": "Ưu tiên hàng đầu của nhóm GitLab là trải nghiệm ứng viên tích cực và thoải mái.",
+    "generated_answer": "Ưu tiên hàng đầu của nhóm GitLab là trải nghiệm ứng viên tích cực và thoải mái.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 66.42723083496094
+  },
+  {
+    "index": 56,
+    "question": "Tôi cần làm gì nếu tôi không chắc chắn về cách phân loại thời gian nghỉ của mình trong Ngày làm việc?",
+    "expected_answer": "Nếu bạn không chắc chắn về cách phân loại thời gian nghỉ của mình trong Ngày làm việc (tức là Nghỉ ốm, Tang chế, Nghỉ phép khẩn cấp), vui lòng liên hệ với nhóm Quản lý Vắng mặt.",
+    "generated_answer": "Nếu bạn không chắc chắn về cách phân loại thời gian nghỉ của mình trong Ngày làm việc (tức là Nghỉ ốm, Tang chế, Nghỉ phép khẩn cấp), vui lòng liên hệ với nhóm Quản lý Vắng mặt.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 63.94195556640625
+  },
+  {
+    "index": 57,
+    "question": "Gói thù lao ban đầu của thành viên nhóm được xác định như thế nào?",
+    "expected_answer": "Gói thù lao ban đầu của thành viên nhóm được xác định khi họ tham gia GitLab. Điều này bao gồm lương cơ bản (hoặc OTE cho vai trò bán hàng), trợ cấp vốn cổ phần và các lợi ích áp dụng. Ưu đãi này dựa trên phạm vi thị trường cho vai trò và cấp độ, vị trí của vai trò, kinh nghiệm và kỹ năng liên quan đến vị trí công việc.",
+    "generated_answer": "Gói thù lao ban đầu của thành viên nhóm được xác định khi họ tham gia GitLab. Điều này bao gồm lương cơ bản (hoặc OTE cho vai trò bán hàng), trợ cấp vốn cổ phần và các lợi ích áp dụng. Ưu đãi này dựa trên phạm vi thị trường cho vai trò và cấp độ, vị trí của vai trò, kinh nghiệm và kỹ năng liên quan đến vị trí công việc.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 55.12881278991699
+  },
+  {
+    "index": 58,
+    "question": "Các thành viên trong nhóm không đủ điều kiện tham gia ESPP sẽ nhận RSU như thế nào?",
+    "expected_answer": "Các Thành viên nhóm trong ESPP thay thế sẽ đủ điều kiện nhận RSU dựa trên thu nhập dự kiến ​​như thể họ có thể tham gia ESPP.",
+    "generated_answer": "Các Thành viên nhóm trong ESPP thay thế sẽ đủ điều kiện nhận RSU dựa trên thu nhập dự kiến ​​như thể họ có thể tham gia ESPP.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 57.079315185546875
+  },
+  {
+    "index": 59,
+    "question": "Chúng tôi được phân bổ bao nhiêu ngày nghỉ lễ?",
+    "expected_answer": "Chúng tôi được phân bổ 12 ngày nghỉ lễ.",
+    "generated_answer": "Chúng tôi được phân bổ 12 ngày nghỉ lễ.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 62.46757507324219
+  },
+  {
+    "index": 60,
+    "question": "Làm cách nào để chuyển đổi từ đồng nội tệ sang USD hoặc EUR?",
+    "expected_answer": "Vui lòng liên hệ với Bộ phận Hoạt động Nhân sự thông qua HelpLab để biết liệu bạn có đủ điều kiện cập nhật đơn vị tiền tệ của mình thành USD hoặc EUR và bắt đầu quá trình này hay không.",
+    "generated_answer": "Vui lòng liên hệ với Bộ phận Hoạt động Nhân sự thông qua HelpLab để biết liệu bạn có đủ điều kiện cập nhật đơn vị tiền tệ của mình thành USD hoặc EUR và bắt đầu quá trình này hay không.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 53.43437194824219
+  },
+  {
+    "index": 61,
+    "question": "Tôi cần biết ai là người được chỉ định để xử lý công việc trong trường hợp khẩn cấp?",
+    "expected_answer": "Chỉ định một cá nhân dự phòng trong trường hợp khẩn cấp và tóm tắt cho họ về các dự án quan trọng.",
+    "generated_answer": "Chỉ định một cá nhân dự phòng trong trường hợp khẩn cấp và tóm tắt cho họ về các dự án quan trọng.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 54.76808547973633
+  },
+  {
+    "index": 62,
+    "question": "Sổ tay công ty có nội dung gì?",
+    "expected_answer": "Sổ tay công ty bao gồm cơ cấu tổ chức, hồ sơ người và hồ sơ đội.",
+    "generated_answer": "Sổ tay công ty bao gồm cơ cấu tổ chức, hồ sơ người và hồ sơ đội.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 55.22036552429199
+  },
+  {
+    "index": 63,
+    "question": "Nhân viên mới có được quyền truy cập vào những công cụ nào?",
+    "expected_answer": "Các nhân viên mới sẽ được cấp quyền truy cập vào các công cụ mà họ sẽ sử dụng trong vai trò của mình.",
+    "generated_answer": "Các nhân viên mới sẽ được cấp quyền truy cập vào các công cụ mà họ sẽ sử dụng trong vai trò của mình.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 60.89448928833008
+  },
+  {
+    "index": 64,
+    "question": "Công ty có công bố và ghi lại các lợi ích của mình không?",
+    "expected_answer": "Có, công ty công bố và ghi lại các lợi ích của mình để cập nhật và chia sẻ nội bộ các kế hoạch sắp tới trước khi triển khai.",
+    "generated_answer": "Có, công ty công bố và ghi lại các lợi ích của mình để cập nhật và chia sẻ nội bộ các kế hoạch sắp tới trước khi triển khai.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 54.811954498291016
+  },
+  {
+    "index": 65,
+    "question": "Hồ sơ công việc và tiêu đề doanh nghiệp có mối quan hệ như thế nào?",
+    "expected_answer": "Hồ sơ công việc phân loại nội bộ được tiêu chuẩn hóa trong Ngày làm việc, xác định phạm vi bù. Trong khi đó, tiêu đề doanh nghiệp tùy chỉnh, công khai cho mạng, danh thiếp và LinkedIn, không cần phải phù hợp với hồ sơ công việc.",
+    "generated_answer": "Hồ sơ công việc phân loại nội bộ được tiêu chuẩn hóa trong Ngày làm việc, xác định phạm vi bù. Trong khi đó, tiêu đề doanh nghiệp tùy chỉnh, công khai cho mạng, danh thiếp và LinkedIn, không cần phải phù hợp với hồ sơ công việc.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 53.71546745300293
+  },
+  {
+    "index": 66,
+    "question": "Tôi có thể sử dụng PTO để làm gì?",
+    "expected_answer": "Bạn có thể sử dụng PTO để thực hiện nghĩa vụ cá nhân, nghỉ ngơi hoặc nạp lại năng lượng, tận hưởng kỳ nghỉ hoặc dành thời gian cho gia đình và bạn bè.",
+    "generated_answer": "Bạn có thể sử dụng PTO để thực hiện nghĩa vụ cá nhân, nghỉ ngơi hoặc nạp lại năng lượng, tận hưởng kỳ nghỉ hoặc dành thời gian cho gia đình và bạn bè.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 57.372331619262695
+  },
+  {
+    "index": 67,
+    "question": "Có bao nhiêu loại giải thưởng trong Giải thưởng Giá trị và mỗi giải thưởng mang lại bao nhiêu tiền?",
+    "expected_answer": "Có sáu loại giải thưởng, gồm hợp tác, kết quả, hiệu quả, đa dạng, hòa nhập và thuộc về, lặp lại và minh bạch. Người nhận mỗi giải thưởng sẽ được nhận một lần tiền thưởng tương đương 5.000 USD theo tỷ giá hối đoái.",
+    "generated_answer": "Có sáu loại giải thưởng, gồm hợp tác, kết quả, hiệu quả, đa dạng, hòa nhập và thuộc về, lặp lại và minh bạch. Người nhận mỗi giải thưởng sẽ được nhận một lần tiền thưởng tương đương 5.000 USD theo tỷ giá hối đoái.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 57.74712562561035
+  },
+  {
+    "index": 68,
+    "question": "Các quyết định khen thưởng được đưa ra khi nào?",
+    "expected_answer": "Các quyết định khen thưởng được đưa ra vào những thời điểm cụ thể trong năm.",
+    "generated_answer": "Các quyết định khen thưởng được đưa ra vào những thời điểm cụ thể trong năm.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 66.79058074951172
+  },
+  {
+    "index": 69,
+    "question": "Ai có thể nộp đơn?",
+    "expected_answer": "Các chính sách và thực tiễn của GitLab liên quan đến tuyển dụng chỉ dựa trên thành tích, không liên quan đến tất cả các tầng lớp được pháp luật bảo vệ, bao gồm nhưng không giới hạn ở chủng tộc, màu da, tôn giáo, tổ tiên, giới tính (bao gồm mang thai, khuynh hướng tình dục hoặc nhận dạng giới tính), nguồn gốc quốc gia, tuổi tác, quốc tịch, tình trạng hôn nhân, nhận dạng giới tính, khuyết tật và thông tin di truyền (bao gồm cả lịch sử y tế gia đình) và bất kỳ tình trạng nào khác được luật liên bang, tiểu bang hoặc địa phương bảo vệ.",
+    "generated_answer": "Các chính sách và thực tiễn của GitLab liên quan đến tuyển dụng chỉ dựa trên thành tích, không liên quan đến tất cả các tầng lớp được pháp luật bảo vệ, bao gồm nhưng không giới hạn ở chủng tộc, màu da, tôn giáo, tổ tiên, giới tính (bao gồm mang thai, khuynh hướng tình dục hoặc nhận dạng giới tính), nguồn gốc quốc gia, tuổi tác, quốc tịch, tình trạng hôn nhân, nhận dạng giới tính, khuyết tật và thông tin di truyền (bao gồm cả lịch sử y tế gia đình) và bất kỳ tình trạng nào khác được luật liên bang, tiểu bang hoặc địa phương bảo vệ.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 57.62219429016113
+  },
+  {
+    "index": 70,
+    "question": "Những thành viên nào sẽ nhận được biểu tượng xác nhận tại GitLab?",
+    "expected_answer": "Những người kỷ niệm ngày thuê lần thứ nhất, thứ ba, thứ năm và thứ mười sẽ nhận được một biểu tượng xác nhận.",
+    "generated_answer": "Những người kỷ niệm ngày thuê lần thứ nhất, thứ ba, thứ năm và thứ mười sẽ nhận được một biểu tượng xác nhận.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 55.77373504638672
+  },
+  {
+    "index": 71,
+    "question": "Tôi nên làm gì nếu tôi vắng mặt vì người chăm sóc bị ốm liên tục trong 6 ngày?",
+    "expected_answer": "Bạn nên thông báo cho Nhóm quản lý vắng mặt bằng cách gửi phiếu HelpLab. Điều này sẽ giúp chia sẻ thêm về Chính sách thời gian ốm của người chăm sóc GitLab, xem xét các phúc lợi theo luật định mà bạn có thể đủ điều kiện nhận và hướng dẫn bạn thực hiện bất kỳ bước tiếp theo nào khác.",
+    "generated_answer": "Bạn nên thông báo cho Nhóm quản lý vắng mặt bằng cách gửi phiếu HelpLab. Điều này sẽ giúp chia sẻ thêm về Chính sách thời gian ốm của người chăm sóc GitLab, xem xét các phúc lợi theo luật định mà bạn có thể đủ điều kiện nhận và hướng dẫn bạn thực hiện bất kỳ bước tiếp theo nào khác.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 87.01086044311523
+  },
+  {
+    "index": 72,
+    "question": "Công ty có cung cấp phần thưởng cạnh tranh cho nhân viên không?",
+    "expected_answer": "Chúng tôi làm việc với các chuyên gia trong ngành để đánh giá các dịch vụ của chúng tôi so với các công ty công nghệ hàng đầu khác, đảm bảo bạn nhận được tổng phần thưởng cạnh tranh.",
+    "generated_answer": "Chúng tôi làm việc với các chuyên gia trong ngành để đánh giá các dịch vụ của chúng tôi so với các công ty công nghệ hàng đầu khác, đảm bảo bạn nhận được tổng phần thưởng cạnh tranh.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 67.42978096008301
+  },
+  {
+    "index": 73,
+    "question": "Tính năng Nghỉ phép của Deel đồng bộ hóa với những ứng dụng nào?",
+    "expected_answer": "Tính năng Nghỉ phép (Time Off) của Deel đồng bộ hóa với Workday, Slack và Lịch Google.",
+    "generated_answer": "Tính năng Nghỉ phép (Time Off) của Deel đồng bộ hóa với Workday, Slack và Lịch Google.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 60.11343002319336
+  },
+  {
+    "index": 74,
+    "question": "Khi gia hạn hợp đồng có thời hạn 12 tháng, khung thời gian sẽ được xem như thế nào?",
+    "expected_answer": "Hợp đồng 12 tháng đầu tiên bắt đầu từ ngày 14 tháng 6 năm 2019.",
+    "generated_answer": "Hợp đồng 12 tháng đầu tiên bắt đầu từ ngày 14 tháng 6 năm 2019.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 56.77366256713867
+  },
+  {
+    "index": 75,
+    "question": "Công ty có yêu cầu nhân viên tham gia vào các thỏa thuận cấm thuê lại không?",
+    "expected_answer": "Công ty sẽ không yêu cầu thành viên nhóm tham gia bất kỳ thỏa thuận nào nếu mục đích hoặc tác dụng của thỏa thuận ngăn cản nhân viên tiết lộ hoặc thảo luận về hành vi cấu thành hành vi phân biệt đối xử, quấy rối hoặc tấn công tình dục.",
+    "generated_answer": "Công ty sẽ không yêu cầu thành viên nhóm tham gia bất kỳ thỏa thuận nào nếu mục đích hoặc tác dụng của thỏa thuận ngăn cản nhân viên tiết lộ hoặc thảo luận về hành vi cấu thành hành vi phân biệt đối xử, quấy rối hoặc tấn công tình dục.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 58.328866958618164
+  },
+  {
+    "index": 76,
+    "question": "Làm thế nào để đề cử người khác nhận thưởng?",
+    "expected_answer": "Gửi bằng Nominator Bot với:\n Giá trị TÍN DỤNG nào đã được chứng minh - với các ví dụ cụ thể\n Công việc đã vượt quá vai trò bình thường của họ như thế nào\n Các liên kết hoặc hiện vật cụ thể hiển thị tác phẩm\n Tác động có thể đo lường được đối với tổ chức rộng hơn",
+    "generated_answer": "Gửi bằng Nominator Bot với:\n Giá trị TÍN DỤNG nào đã được chứng minh - với các ví dụ cụ thể\n Công việc đã vượt quá vai trò bình thường của họ như thế nào\n Các liên kết hoặc hiện vật cụ thể hiển thị tác phẩm\n Tác động có thể đo lường được đối với tổ chức rộng hơn",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 64.03970718383789
+  },
+  {
+    "index": 77,
+    "question": "Công ty quy định như thế nào về lương và các khoản phụ cấp?",
+    "expected_answer": "Công ty quy định lương và các khoản phụ cấp như sau:\n- Lương cơ bản: được xác định dựa trên vai trò, cấp độ và vị trí.\n- Phụ cấp thuê mới: là một phần của gói ưu đãi dành cho thành viên trong nhóm.\n- Phụ cấp làm mới vốn chủ sở hữu: được cung cấp thông qua đánh giá lương thưởng hàng năm dựa trên hiệu suất và tiềm năng tăng trưởng.\n- Phụ cấp khuyến mãi khi thăng tiến lên cấp độ mới: có thể được nhận khi thăng tiến.",
+    "generated_answer": "Công ty quy định lương và các khoản phụ cấp như sau:\n- Lương cơ bản: được xác định dựa trên vai trò, cấp độ và vị trí.\n- Phụ cấp thuê mới: là một phần của gói ưu đãi dành cho thành viên trong nhóm.\n- Phụ cấp làm mới vốn chủ sở hữu: được cung cấp thông qua đánh giá lương thưởng hàng năm dựa trên hiệu suất và tiềm năng tăng trưởng.\n- Phụ cấp khuyến mãi khi thăng tiến lên cấp độ mới: có thể được nhận khi thăng tiến.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 58.50982666015625
+  },
+  {
+    "index": 78,
+    "question": "Điều gì xảy ra với các ngày nghỉ lễ trong khi tôi đang trong thời gian Nghỉ chăm con?",
+    "expected_answer": "Chính sách GitLab’s Public Holiday cung cấp cho mỗi thành viên trong nhóm số dư ngày lễ để sử dụng linh hoạt nhằm kỷ niệm những gì quan trọng đối với họ và phải được sử dụng trong năm dương lịch đó. Những ngày nghỉ lễ chưa sử dụng sẽ không được chuyển sang năm dương lịch tiếp theo trong thời gian nghỉ phép nuôi con, trừ khi luật pháp yêu cầu.",
+    "generated_answer": "Chính sách GitLab’s Public Holiday cung cấp cho mỗi thành viên trong nhóm số dư ngày lễ để sử dụng linh hoạt nhằm kỷ niệm những gì quan trọng đối với họ và phải được sử dụng trong năm dương lịch đó. Những ngày nghỉ lễ chưa sử dụng sẽ không được chuyển sang năm dương lịch tiếp theo trong thời gian nghỉ phép nuôi con, trừ khi luật pháp yêu cầu.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 59.82017517089844
+  },
+  {
+    "index": 79,
+    "question": "Làm thế nào để quyết định người nhận Giải thưởng Giá trị?",
+    "expected_answer": "Sau khi kỹ thuật và Bán hàng đề cử hai thành viên trong nhóm cho Giải thưởng DZ, DRI Truyền thông và Gắn kết Nhân dân cùng Đối tác Kinh doanh Nhân dân sẽ hiệu chỉnh giữa các đề cử bộ phận với lãnh đạo Nhóm E để chọn một đề cử thành viên nhóm cho Giải thưởng DZ và tối đa một thành viên nhóm cho mỗi Giá trị cho Giải thưởng Giá trị.",
+    "generated_answer": "Sau khi kỹ thuật và Bán hàng đề cử hai thành viên trong nhóm cho Giải thưởng DZ, DRI Truyền thông và Gắn kết Nhân dân cùng Đối tác Kinh doanh Nhân dân sẽ hiệu chỉnh giữa các đề cử bộ phận với lãnh đạo Nhóm E để chọn một đề cử thành viên nhóm cho Giải thưởng DZ và tối đa một thành viên nhóm cho mỗi Giá trị cho Giải thưởng Giá trị.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 63.5530948638916
+  },
+  {
+    "index": 80,
+    "question": "Tôi cần làm gì nếu tôi phải nghỉ phép vì chăm sóc người thân trong vòng 5 ngày liên tục?",
+    "expected_answer": "Bạn cần thông báo cho người quản lý về sự vắng mặt của bạn và nhập thời gian nghỉ trong Ngày làm việc bằng cách chọn nhãn “Người chăm sóc ốm”. Thời gian ốm sẽ tự động cập nhật trong Time Off của Deel.",
+    "generated_answer": "Bạn cần thông báo cho người quản lý về sự vắng mặt của bạn và nhập thời gian nghỉ trong Ngày làm việc bằng cách chọn nhãn “Người chăm sóc ốm”. Thời gian ốm sẽ tự động cập nhật trong Time Off của Deel.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 55.774688720703125
+  },
+  {
+    "index": 81,
+    "question": "Dịch vụ khách hàng E-TRADE có hỗ trợ mua bán chứng khoán không?",
+    "expected_answer": "Có, dịch vụ khách hàng E-TRADE có thể hỗ trợ mua bán chứng khoán trong tài khoản môi giới của bạn.",
+    "generated_answer": "Có, dịch vụ khách hàng E-TRADE có thể hỗ trợ mua bán chứng khoán trong tài khoản môi giới của bạn.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 55.207014083862305
+  },
+  {
+    "index": 82,
+    "question": "Làm thế nào quy trình đề cử giải thưởng được thực hiện?",
+    "expected_answer": "Tất cả các thành viên trong nhóm có thể đề cử cho cả Giải thưởng DZ và Giải thưởng Giá trị. Khi bạn gửi đề cử, DRI Truyền thông & Gắn kết Nhân dân sẽ tạo một vòng lặp tài liệu trong người quản lý và Trưởng bộ phận của bạn. Cuối cùng, mỗi Trưởng bộ phận có thể đưa ra 1 đề cử cho Giải thưởng DZ và 1 đề cử cho mỗi giá trị. Trưởng bộ phận nên liên hệ với Đối tác kinh doanh nhân dân của họ để xem xét các đề cử cuối cùng.",
+    "generated_answer": "Tất cả các thành viên trong nhóm có thể đề cử cho cả Giải thưởng DZ và Giải thưởng Giá trị. Khi bạn gửi đề cử, DRI Truyền thông & Gắn kết Nhân dân sẽ tạo một vòng lặp tài liệu trong người quản lý và Trưởng bộ phận của bạn. Cuối cùng, mỗi Trưởng bộ phận có thể đưa ra 1 đề cử cho Giải thưởng DZ và 1 đề cử cho mỗi giá trị. Trưởng bộ phận nên liên hệ với Đối tác kinh doanh nhân dân của họ để xem xét các đề cử cuối cùng.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 77.00634002685547
+  },
+  {
+    "index": 83,
+    "question": "Làm thế nào để yêu cầu truy cập hệ thống hoặc cấp quyền?",
+    "expected_answer": "Để yêu cầu quyền truy cập vào hệ thống hoặc cấp quyền, vui lòng thực hiện theo các bước sau:\n1. Mở yêu cầu quyền truy cập với loại tài khoản được yêu cầu truy cập và nhu cầu của doanh nghiệp.\n2. Chỉ định yêu cầu truy cập cho Anesia Chan @anechan và Laura Janssen @Laura-Janssen.\n3. Xem xét và phê duyệt yêu cầu của bạn.\n4. Nếu cần, bạn có thể chỉ định quyền truy cập cho Quản trị viên tài khoản, Survey Creator hoặc Phân tích dữ liệu khảo sát.\nHãy nhớ rằng quyền truy cập quản trị viên sẽ không được cấp cho các thành viên nhóm bên ngoài nhóm Mọi người nếu không có sự cho phép của Giám đốc nhân sự.",
+    "generated_answer": "Để yêu cầu quyền truy cập vào hệ thống hoặc cấp quyền, vui lòng thực hiện theo các bước sau:\n1. Mở yêu cầu quyền truy cập với loại tài khoản được yêu cầu truy cập và nhu cầu của doanh nghiệp.\n2. Chỉ định yêu cầu truy cập cho Anesia Chan @anechan và Laura Janssen @Laura-Janssen.\n3. Xem xét và phê duyệt yêu cầu của bạn.\n4. Nếu cần, bạn có thể chỉ định quyền truy cập cho Quản trị viên tài khoản, Survey Creator hoặc Phân tích dữ liệu khảo sát.\nHãy nhớ rằng quyền truy cập quản trị viên sẽ không được cấp cho các thành viên nhóm bên ngoài nhóm Mọi người nếu không có sự cho phép của Giám đốc nhân sự.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 64.92733955383301
+  },
+  {
+    "index": 84,
+    "question": "Nhà quản lý nhân sự có thể tặng gì cho thành viên nhóm khi họ nghỉ hưu?",
+    "expected_answer": "Nhà quản lý nhân sự được khuyến khích tặng quà phù hợp cho sự kiện quan trọng trong đời này trong giới hạn của Chính sách chi phí và đi lại toàn cầu của chúng tôi.",
+    "generated_answer": "Nhà quản lý nhân sự được khuyến khích tặng quà phù hợp cho sự kiện quan trọng trong đời này trong giới hạn của Chính sách chi phí và đi lại toàn cầu của chúng tôi.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 84.65766906738281
+  },
+  {
+    "index": 85,
+    "question": "Các thành viên trong nhóm có thể đủ điều kiện được nghỉ phép theo luật định theo chính sách gì?",
+    "expected_answer": "Chính sách Nghỉ phép quân sự của GitLab",
+    "generated_answer": "Chính sách Nghỉ phép quân sự của GitLab",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 56.296348571777344
+  },
+  {
+    "index": 86,
+    "question": "Hoạt động mạng và hệ thống không được chấp nhận bao gồm những gì?",
+    "expected_answer": "Cố ý lạm dụng bất kỳ thiết bị điện toán nào do GitLab quản lý hoặc mạng GitLab (ví dụ: để khai thác tiền điện tử, kiểm soát mạng botnet, v.v.). Chia sẻ thông tin xác thực của bạn cho bất kỳ máy tính nào do GitLab quản lý hoặc dịch vụ của bên thứ 3 mà GitLab sử dụng với người khác hoặc cho phép người khác sử dụng tài khoản của bạn hoặc máy tính do GitLab quản lý. Sử dụng tài sản điện toán GitLab để mua hoặc truyền tải tài liệu vi phạm chính sách quấy rối tình dục hoặc tạo ra môi trường làm việc thù địch. Đưa ra các đề nghị lừa đảo về sản phẩm, mặt hàng hoặc dịch vụ có nguồn gốc từ bất kỳ tài khoản GitLab nào.",
+    "generated_answer": "Cố ý lạm dụng bất kỳ thiết bị điện toán nào do GitLab quản lý hoặc mạng GitLab (ví dụ: để khai thác tiền điện tử, kiểm soát mạng botnet, v.v.). Chia sẻ thông tin xác thực của bạn cho bất kỳ máy tính nào do GitLab quản lý hoặc dịch vụ của bên thứ 3 mà GitLab sử dụng với người khác hoặc cho phép người khác sử dụng tài khoản của bạn hoặc máy tính do GitLab quản lý. Sử dụng tài sản điện toán GitLab để mua hoặc truyền tải tài liệu vi phạm chính sách quấy rối tình dục hoặc tạo ra môi trường làm việc thù địch. Đưa ra các đề nghị lừa đảo về sản phẩm, mặt hàng hoặc dịch vụ có nguồn gốc từ bất kỳ tài khoản GitLab nào.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 56.24890327453613
+  },
+  {
+    "index": 87,
+    "question": "Tôi muốn biết về các chính sách thời gian nghỉ phép chi tiết có ở đâu?",
+    "expected_answer": "Bạn có thể tìm thấy các chính sách chi tiết về tất cả Các loại nghỉ phép (Thời gian nghỉ có lương, Thời gian ốm, v.v.) và Các loại nghỉ phép (Nghỉ phép nuôi con, Nghỉ ốm, v.v.) trong sổ tay tương ứng của họ phần.",
+    "generated_answer": "Bạn có thể tìm thấy các chính sách chi tiết về tất cả Các loại nghỉ phép (Thời gian nghỉ có lương, Thời gian ốm, v.v.) và Các loại nghỉ phép (Nghỉ phép nuôi con, Nghỉ ốm, v.v.) trong sổ tay tương ứng của họ phần.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 56.981801986694336
+  },
+  {
+    "index": 88,
+    "question": "Các giải thưởngGitLab bao gồm những gì?",
+    "expected_answer": "Các giải thưởngGitLab bao gồm hai loại giải thưởng khác nhau: Giải thưởng DZ và Giải thưởng Giá trị.",
+    "generated_answer": "Các giải thưởngGitLab bao gồm hai loại giải thưởng khác nhau: Giải thưởng DZ và Giải thưởng Giá trị.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 61.27333641052246
+  },
+  {
+    "index": 89,
+    "question": "Tiếp theo là gì sau khi nộp đơn xin việc?",
+    "expected_answer": "Nếu kinh nghiệm của bạn phù hợp với vai trò này, nhóm của chúng tôi sẽ liên hệ sớm. Xin lưu ý rằng chúng tôi không thể trả lời mọi ứng viên nhưng chúng tôi mong muốn xem xét mọi đơn đăng ký.",
+    "generated_answer": "Nếu kinh nghiệm của bạn phù hợp với vai trò này, nhóm của chúng tôi sẽ liên hệ sớm. Xin lưu ý rằng chúng tôi không thể trả lời mọi ứng viên nhưng chúng tôi mong muốn xem xét mọi đơn đăng ký.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 75.11091232299805
+  },
+  {
+    "index": 90,
+    "question": "Làm thế nào để đề xuất khen thưởng cho nhóm làm việc?",
+    "expected_answer": "Bất kỳ thành viên nhóm GitLab nào cũng có thể viết mô tả về cách nhóm đã thể hiện giá trị GitLab trong công việc của họ. Sau đó, gửi câu đó qua email cho người quản lý cá nhân và đề xuất phần thưởng cho Nhóm làm việc. Cần sắp xếp một cuộc họp Zoom kéo dài 15 phút với tất cả những người quản lý để thảo luận về đề xuất này. Lưu ý rằng người quản lý có thể đồng ý hoặc không đồng ý, và họ có toàn quyền quyết định (với sự chấp thuận của người quản lý) về việc báo cáo của họ có nhận được tiền thưởng hay không.",
+    "generated_answer": "Bất kỳ thành viên nhóm GitLab nào cũng có thể viết mô tả về cách nhóm đã thể hiện giá trị GitLab trong công việc của họ. Sau đó, gửi câu đó qua email cho người quản lý cá nhân và đề xuất phần thưởng cho Nhóm làm việc. Cần sắp xếp một cuộc họp Zoom kéo dài 15 phút với tất cả những người quản lý để thảo luận về đề xuất này. Lưu ý rằng người quản lý có thể đồng ý hoặc không đồng ý, và họ có toàn quyền quyết định (với sự chấp thuận của người quản lý) về việc báo cáo của họ có nhận được tiền thưởng hay không.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 78.35984230041504
+  },
+  {
+    "index": 91,
+    "question": "Không có tiền thưởng trong những trường hợp nào theo tài liệu này?",
+    "expected_answer": "không có tiền thưởng khi thuê những người báo cáo trực tiếp cho bạn hoặc nằm trong chuỗi báo cáo trực tiếp của bạn, không có tiền thưởng nếu bạn giới thiệu các thành viên hiện tại trong nhóm, không có tiền thưởng khi giới thiệu Thành viên nhóm Boomerang (thành viên nhóm quay lại), không có tiền thưởng nếu Thành viên nhóm giới thiệu là thành viên của nhóm Thu hút nhân tài - họ không đủ điều kiện vì tính chất vị trí của họ là thu hút các ứng viên.  không có tiền thưởng nếu có xung đột lợi ích.  không có tiền thưởng cho cấp VP hoặc Nhóm điều hành.  không có thưởng nếu người giới thiệu là thực tập sinh. Bạn sẽ được trả tiền thưởng giới thiệu nếu người giới thiệu (thực tập sinh) được chuyển đổi thành thành viên nhóm cấp trung, toàn thời gian.",
+    "generated_answer": "không có tiền thưởng khi thuê những người báo cáo trực tiếp cho bạn hoặc nằm trong chuỗi báo cáo trực tiếp của bạn, không có tiền thưởng nếu bạn giới thiệu các thành viên hiện tại trong nhóm, không có tiền thưởng khi giới thiệu Thành viên nhóm Boomerang (thành viên nhóm quay lại), không có tiền thưởng nếu Thành viên nhóm giới thiệu là thành viên của nhóm Thu hút nhân tài - họ không đủ điều kiện vì tính chất vị trí của họ là thu hút các ứng viên.  không có tiền thưởng nếu có xung đột lợi ích.  không có tiền thưởng cho cấp VP hoặc Nhóm điều hành.  không có thưởng nếu người giới thiệu là thực tập sinh. Bạn sẽ được trả tiền thưởng giới thiệu nếu người giới thiệu (thực tập sinh) được chuyển đổi thành thành viên nhóm cấp trung, toàn thời gian.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 73.90689849853516
+  },
+  {
+    "index": 92,
+    "question": "Thành viên nhóm GitLab có thể xem được gì từ ngày 1 tháng 5 năm 2026?",
+    "expected_answer": "Tất cả thành viên nhóm tại GitLab, bất kể ở vị trí nào, đều có thể xem được phạm vi thù lao của họ trong Workday.",
+    "generated_answer": "Tất cả thành viên nhóm tại GitLab, bất kể ở vị trí nào, đều có thể xem được phạm vi thù lao của họ trong Workday.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 67.92378425598145
+  },
+  {
+    "index": 93,
+    "question": "Mức lương thay đổi có đảm bảo không?",
+    "expected_answer": "Không, mức lương thay đổi không được đảm bảo và số tiền thực tế thanh toán có thể cao hơn hoặc thấp hơn số tiền mục tiêu.",
+    "generated_answer": "Không, mức lương thay đổi không được đảm bảo và số tiền thực tế thanh toán có thể cao hơn hoặc thấp hơn số tiền mục tiêu.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 78.1548023223877
+  },
+  {
+    "index": 94,
+    "question": "Nếu người dùng có hồ sơLinkedIn không chính xác, ai sẽ liên hệ họ và yêu cầu thay đổi?",
+    "expected_answer": "Nếu họ là thành viên đã được xác nhận của cộng đồng rộng lớn hơn nhưng không phải là thành viên nhóm, nhóm Quan hệ nhà phát triển sẽ liên hệ với hồ sơ đó và yêu cầu họ thay đổi hồ sơ để phù hợp với sự tham gia của họ vào GitLab.",
+    "generated_answer": "Nếu họ là thành viên đã được xác nhận của cộng đồng rộng lớn hơn nhưng không phải là thành viên nhóm, nhóm Quan hệ nhà phát triển sẽ liên hệ với hồ sơ đó và yêu cầu họ thay đổi hồ sơ để phù hợp với sự tham gia của họ vào GitLab.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 58.05087089538574
+  },
+  {
+    "index": 95,
+    "question": "Tôi có thể hỏi những vấn đề liên quan đến lương và thưởng trong cuộc gọi sàng lọc này không?",
+    "expected_answer": "Có, sẽ có thời gian để bạn hỏi bất kỳ câu hỏi nào bạn có thể có.",
+    "generated_answer": "Có, sẽ có thời gian để bạn hỏi bất kỳ câu hỏi nào bạn có thể có.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 72.61133193969727
+  },
+  {
+    "index": 96,
+    "question": "Thành viên Nhóm Điều hành Nhân sự cần làm gì sau khi ký kết hợp đồng gia hạn?",
+    "expected_answer": "Thành viên Nhóm Điều hành Nhân sự tải hợp đồng đã gia hạn lên thư mục Hợp đồng & Thay đổi Ngày làm việc của thành viên nhóm và cập nhật Ngày làm việc để phản ánh hợp đồng mới.",
+    "generated_answer": "Thành viên Nhóm Điều hành Nhân sự tải hợp đồng đã gia hạn lên thư mục Hợp đồng & Thay đổi Ngày làm việc của thành viên nhóm và cập nhật Ngày làm việc để phản ánh hợp đồng mới.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 57.3878288269043
+  },
+  {
+    "index": 97,
+    "question": "Khung tiêu chuẩn hóa sử dụng dữ liệu thị trường lao động địa phương để làm gì?",
+    "expected_answer": "Đảm bảo lương thưởng công bằng và cạnh tranh.",
+    "generated_answer": "Đảm bảo lương thưởng công bằng và cạnh tranh.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 65.47164916992188
+  },
+  {
+    "index": 98,
+    "question": "Tôi cần báo trước bao nhiêu ngày nếu tôi muốn nghỉ phép 3 ngày?",
+    "expected_answer": "Bạn cần báo trước ít nhất 6 ngày làm việc.",
+    "generated_answer": "Bạn cần báo trước ít nhất 6 ngày làm việc.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 71.67243957519531
+  },
+  {
+    "index": 99,
+    "question": "Các thành viên trong nhóm có thể tham gia vào những gì khi không làm việc tại GitLab?",
+    "expected_answer": "Một số thành viên trong nhóm có thể muốn tham gia vào công việc bên ngoài (được trả lương hoặc không được trả lương), các dự án và/hoặc các hoạt động có khả năng xung đột trong thời gian không làm việc của họ.",
+    "generated_answer": "Một số thành viên trong nhóm có thể muốn tham gia vào công việc bên ngoài (được trả lương hoặc không được trả lương), các dự án và/hoặc các hoạt động có khả năng xung đột trong thời gian không làm việc của họ.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 68.28451156616211
+  },
+  {
+    "index": 100,
+    "question": "Thời gian nghỉ bao gồm những gì?",
+    "expected_answer": "Thời gian nghỉ đề cập đến những lần vắng mặt ngắn hơn như ngày nghỉ phép, ngày ốm và ngày nghỉ lễ—thời gian đi vắng hàng ngày mà bạn lên kế hoạch hoặc sử dụng khi cần thiết.",
+    "generated_answer": "Thời gian nghỉ đề cập đến những lần vắng mặt ngắn hơn như ngày nghỉ phép, ngày ốm và ngày nghỉ lễ—thời gian đi vắng hàng ngày mà bạn lên kế hoạch hoặc sử dụng khi cần thiết.",
+    "metrics": {
+      "exact_match": true,
+      "cosine_similarity": 1.0,
+      "rouge_f1": 1.0,
+      "is_correct": true
+    },
+    "runtime_ms": 60.72092056274414
+  }
+]
