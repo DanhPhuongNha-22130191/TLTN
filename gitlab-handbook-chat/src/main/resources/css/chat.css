@@ -758,17 +758,27 @@
     -fx-border-color: #4549cc;
     -fx-border-width: 1;
     -fx-border-radius: 4;
-    -fx-min-width: 42;
-    -fx-min-height: 42;
-    -fx-font-size: 20;
+    -fx-min-width: 40;
+    -fx-pref-width: 40;
+    -fx-max-width: 40;
+    -fx-min-height: 40;
+    -fx-pref-height: 40;
+    -fx-max-height: 40;
+    -fx-padding: 0;
+    -fx-font-size: 18;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.22), 10, 0.2, 0, 3);
 }
 
 .message-more-button {
     -fx-background-color: transparent;
     -fx-text-fill: #9ca3af;
-    -fx-padding: 0 5;
-    -fx-font-size: 17;
+    -fx-min-width: 30;
+    -fx-pref-width: 30;
+    -fx-min-height: 30;
+    -fx-pref-height: 30;
+    -fx-padding: 0;
+    -fx-background-radius: 12;
+    -fx-cursor: hand;
 }
 
 .message-more-button:hover {
@@ -783,6 +793,25 @@
     -fx-padding: 4 7;
     -fx-background-radius: 12;
     -fx-cursor: hand;
+}
+
+.message-reaction-button {
+    -fx-min-width: 30;
+    -fx-pref-width: 30;
+    -fx-min-height: 30;
+    -fx-pref-height: 30;
+    -fx-padding: 0;
+}
+
+.message-more-button .ikonli-font-icon,
+.message-reaction-button .ikonli-font-icon {
+    -fx-icon-size: 15;
+    -fx-icon-color: #73789a;
+}
+
+.message-more-button:hover .ikonli-font-icon,
+.message-reaction-button:hover .ikonli-font-icon {
+    -fx-icon-color: #4f52e8;
 }
 
 .message-reaction-button:hover,

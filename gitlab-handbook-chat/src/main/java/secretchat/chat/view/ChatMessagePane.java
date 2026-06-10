@@ -201,7 +201,7 @@ public final class ChatMessagePane {
                 menu.show(contentNode, event.getScreenX(), event.getScreenY());
             }
         });
-        Button button = new Button("⋮");
+        Button button = iconButton("fa-ellipsis-v", "Tùy chọn tin nhắn");
         button.getStyleClass().add("message-more-button");
         button.setOnAction(event -> {
             ContextMenu menu = menus.create(contentNode, item);
@@ -209,7 +209,7 @@ public final class ChatMessagePane {
                 menu.show(button, javafx.geometry.Side.BOTTOM, 0, 0);
             }
         });
-        Button react = new Button("☺");
+        Button react = iconButton("fa-smile-o", "Thả cảm xúc");
         react.getStyleClass().add("message-reaction-button");
         Runnable refreshReactButton = () -> {
             boolean visible = hasPersistedId(item);
@@ -225,6 +225,15 @@ public final class ChatMessagePane {
         more[0] = actions;
         if (item.isMe()) row.getChildren().addAll(actions, contentNode);
         else row.getChildren().addAll(contentNode, actions);
+    }
+
+    private Button iconButton(String iconLiteral, String tooltip) {
+        FontIcon icon = new FontIcon(iconLiteral);
+        Button button = new Button();
+        button.setGraphic(icon);
+        button.setTooltip(new Tooltip(tooltip));
+        button.setFocusTraversable(false);
+        return button;
     }
 
     private void replaceWithDeleted(
