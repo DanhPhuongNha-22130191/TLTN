@@ -37,3 +37,11 @@ keycloak:
     client-id: ${KEYCLOAK_ADMIN_CLIENT_ID}
     username: ${KEYCLOAK_ADMIN_USERNAME}
     password: ${KEYCLOAK_ADMIN_PASSWORD}
+
+mail:
+  internal:
+    domain: ${INTERNAL_MAIL_DOMAIN:gitlab.handbook.local}
+    api-url: ${MAILU_API_URL:http://mail-front/api/v1}
+    api-token: ${MAILU_API_TOKEN}
+    webmail-url: ${WEBMAIL_URL:http://localhost:8085/webmail}
+    quota-bytes: ${MAILBOX_QUOTA_BYTES:104857600}

@@ -1,6 +1,102 @@
 services:
 
   # =========================
+  # Mailu Internal Mail
+  # =========================
+  mail-redis:
+    image: redis:7-alpine
+    container_name: mail-redis
+    restart: always
+    volumes:
+      - mail_redis_data:/data
+    networks:
+      - mail-network
+
+  mail-front:
+    image: ghcr.io/mailu/nginx:2024.06
+    container_name: mail-front
+    env_file: mailu.env
+    ports:
+      - "8085:80"
+    volumes:
+      - mail_certs:/certs
+      - mail_overrides:/overrides:ro
+    networks:
+      mail-network:
+      mail-webmail:
+    restart: always
+
+  mail-admin:
+    build:
+      context: .
+      dockerfile: mailu-admin.Dockerfile
+    image: secretchat/mailu-admin:2024.06-lan
+    container_name: mail-admin
+    env_file: mailu.env
+    depends_on:
+      - mail-redis
+    volumes:
+      - mail_admin_data:/data
+      - mail_dkim:/dkim
+    networks:
+      - mail-network
+    restart: always
+
+  mail-imap:
+    image: ghcr.io/mailu/dovecot:2024.06
+    container_name: mail-imap
+    env_file: mailu.env
+    depends_on:
+      - mail-front
+    volumes:
+      - mail_mail_data:/mail
+      - mail_overrides:/overrides:ro
+    networks:
+      - mail-network
+    restart: always
+
+  mail-smtp:
+    image: ghcr.io/mailu/postfix:2024.06
+    container_name: mail-smtp
+    env_file: mailu.env
+    depends_on:
+      - mail-front
+    volumes:
+      - mail_queue:/queue
+      - mail_overrides:/overrides:ro
+    networks:
+      - mail-network
+    restart: always
+
+  mail-antispam:
+    image: ghcr.io/mailu/rspamd:2024.06
+    container_name: mail-antispam
+    env_file: mailu.env
+    depends_on:
+      - mail-front
+      - mail-redis
+    volumes:
+      - mail_filter:/var/lib/rspamd
+      - mail_overrides:/overrides:ro
+    networks:
+      - mail-network
+    restart: always
+
+  mail-webmail:
+    image: ghcr.io/mailu/webmail:2024.06
+    container_name: mail-webmail
+    env_file: mailu.env
+    depends_on:
+      - mail-front
+    volumes:
+      - mail_webmail_data:/data
+      - mail_webmail_overrides:/overrides:ro
+    networks:
+      - mail-network
+      - mail-webmail
+    restart: always
+
+  # =========================
   # PostgreSQL User Service
   # =========================
   postgres:
@@ -43,6 +139,11 @@ services:
 
     depends_on:
       - postgres
+      - mail-front
+
+    networks:
+      - default
+      - mail-network
 
     restart: always
 
@@ -50,8 +151,10 @@ services:
   # User Service
   # =========================
   user-service:
+    build:
+      context: ../user-service
     image: phuongnha/user-service:${USER_SERVICE_TAG:-latest}
-    pull_policy: always
+    pull_policy: build
     platform: linux/amd64
     container_name: user-service
 
@@ -79,9 +182,20 @@ services:
       SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://keycloak:8080/realms/master
       SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8080/realms/master/protocol/openid-connect/certs
 
+      INTERNAL_MAIL_DOMAIN: gitlab.handbook.local
+      MAILU_API_URL: http://mail-front/api/v1
+      MAILU_API_TOKEN: tltn-mailu-api-token-2026
+      WEBMAIL_URL: http://${MAIL_HOST:-localhost}:8085/webmail
+      MAILBOX_QUOTA_BYTES: 104857600
+
     depends_on:
       - postgres
       - keycloak
+      - mail-front
+
+    networks:
+      - default
+      - mail-network
 
     restart: always
 
@@ -246,3 +360,20 @@ volumes:
   postgres_data:
   chat_postgres_data:
   chat_uploads:
+  mail_redis_data:
+  mail_certs:
+  mail_overrides:
+  mail_admin_data:
+  mail_dkim:
+  mail_mail_data:
+  mail_queue:
+  mail_filter:
+  mail_webmail_data:
+  mail_webmail_overrides:
+
+networks:
+  mail-network:
+    ipam:
+      config:
+        - subnet: 172.31.0.0/16
+  mail-webmail:

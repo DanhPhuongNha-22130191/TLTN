@@ -42,17 +42,15 @@ public class RegisterViewModelTest {
     }
 
     @Test
-    public void testInvalidEmailAndPhone() {
+    public void testInvalidPhone() {
         viewModel.fullNameProperty().set("John Doe");
         viewModel.usernameProperty().set("johndoe");
-        viewModel.emailProperty().set("invalidemail");
         viewModel.phoneNumberProperty().set("123");
         viewModel.passwordProperty().set("password123");
         viewModel.confirmPasswordProperty().set("password123");
         viewModel.termsAcceptedProperty().set(true);
 
-        assertFalse(viewModel.validateInput(), "Validation should fail for invalid email/phone");
-        assertEquals("Email không đúng định dạng", viewModel.emailErrorProperty().get());
+        assertFalse(viewModel.validateInput(), "Validation should fail for invalid phone");
         assertEquals("Số điện thoại phải từ 9 đến 11 chữ số", viewModel.phoneErrorProperty().get());
     }
 
@@ -60,7 +58,6 @@ public class RegisterViewModelTest {
     public void testPasswordMismatch() {
         viewModel.fullNameProperty().set("John Doe");
         viewModel.usernameProperty().set("johndoe");
-        viewModel.emailProperty().set("johndoe@example.com");
         viewModel.phoneNumberProperty().set("0912345678");
         viewModel.passwordProperty().set("password123");
         viewModel.confirmPasswordProperty().set("differentpwd");
@@ -74,7 +71,6 @@ public class RegisterViewModelTest {
     public void testValidInput() {
         viewModel.fullNameProperty().set("John Doe");
         viewModel.usernameProperty().set("johndoe");
-        viewModel.emailProperty().set("johndoe@example.com");
         viewModel.phoneNumberProperty().set("0912345678");
         viewModel.passwordProperty().set("password123");
         viewModel.confirmPasswordProperty().set("password123");

@@ -133,3 +133,20 @@
     -fx-font-weight: 800;
     -fx-text-fill: #242957;
 }
+
+.credential-value {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #c5caff;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-padding: 9 11;
+    -fx-font-family: "Consolas";
+    -fx-font-size: 13px;
+    -fx-text-fill: #242957;
+}
+
+.credential-copied {
+    -fx-text-fill: #16815d;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+}

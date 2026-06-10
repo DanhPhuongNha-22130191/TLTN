@@ -1579,7 +1579,26 @@
     "contentSecurityPolicy": "frame-src 'self'; frame-ancestors 'self'; object-src 'none';",
     "strictTransportSecurity": "max-age=31536000; includeSubDomains"
   },
-  "smtpServer": {},
+  "smtpServer": {
+    "allowutf8": "true",
+    "debug": "false",
+    "replyToDisplayName": "GitLab Handbook Chat",
+    "starttls": "false",
+    "auth": "false",
+    "writeTimeout": "10000",
+    "envelopeFrom": "admin@gitlab.handbook.local",
+    "ssl": "false",
+    "timeout": "10000",
+    "password": "",
+    "port": "25",
+    "host": "mail-front",
+    "replyTo": "admin@gitlab.handbook.local",
+    "from": "admin@gitlab.handbook.local",
+    "fromDisplayName": "GitLab Handbook Chat",
+    "authType": "basic",
+    "connectionTimeout": "10000",
+    "user": ""
+  },
   "eventsEnabled": false,
   "eventsListeners": [
     "jboss-logging"

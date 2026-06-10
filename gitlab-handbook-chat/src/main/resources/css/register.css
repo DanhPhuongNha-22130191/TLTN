@@ -234,6 +234,17 @@
     -fx-text-fill: #4f52e8;
     -fx-underline: true;
 }
+
+.internal-email-preview {
+    -fx-background-color: #f0f2ff;
+    -fx-border-color: #c5caff;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 11 13;
+    -fx-font-family: "Consolas";
+    -fx-font-size: 13px;
+    -fx-text-fill: #4f52e8;
+}
 .status-label {
     -fx-text-fill: white;
 

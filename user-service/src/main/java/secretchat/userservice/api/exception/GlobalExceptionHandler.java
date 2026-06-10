@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import secretchat.userservice.domain.exception.InvalidCredentialsException;
 import secretchat.userservice.domain.exception.InvalidTokenException;
 import secretchat.userservice.domain.exception.KeycloakException;
+import secretchat.userservice.domain.exception.MailboxException;
 import secretchat.userservice.domain.exception.RoleNotFoundException;
 import secretchat.userservice.domain.exception.UserAlreadyExistsException;
 import secretchat.userservice.domain.exception.UserNotFoundException;
@@ -79,6 +80,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(KeycloakException.class)
     public ResponseEntity<ErrorResponse> handleKeycloak(
             KeycloakException ex, HttpServletRequest request) {
+        return build(HttpStatus.BAD_GATEWAY, ex.getMessage(), request.getRequestURI());
+    }
+
+    @ExceptionHandler(MailboxException.class)
+    public ResponseEntity<ErrorResponse> handleMailbox(
+            MailboxException ex, HttpServletRequest request) {
         return build(HttpStatus.BAD_GATEWAY, ex.getMessage(), request.getRequestURI());
     }
 

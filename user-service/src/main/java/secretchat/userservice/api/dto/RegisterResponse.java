@@ -1,6 +1,6 @@
 package secretchat.userservice.api.dto;
 
-import secretchat.userservice.application.dto.UserResult;
+import secretchat.userservice.application.dto.RegistrationResult;
 
 public record RegisterResponse(
         boolean success,
@@ -8,16 +8,21 @@ public record RegisterResponse(
         String userId,
         String username,
         String email,
-        String status
+        String status,
+        String mailboxPassword,
+        String webmailUrl
 ) {
-    public static RegisterResponse from(UserResult result) {
+    public static RegisterResponse from(RegistrationResult result) {
+        var user = result.user();
         return new RegisterResponse(
                 true,
                 "Registration successful",
-                result.keycloakUserId(),
-                result.username(),
-                result.email(),
-                result.status()
+                user.keycloakUserId(),
+                user.username(),
+                user.email(),
+                user.status(),
+                result.mailboxPassword(),
+                result.webmailUrl()
         );
     }
 }

@@ -86,19 +86,14 @@
                                managed="false"/>
                     </VBox>
 
-                    <!-- EMAIL -->
+                    <!-- INTERNAL EMAIL -->
                     <VBox spacing="5">
-                        <Label text="Email"
+                        <Label text="Email nội bộ"
                                styleClass="field-label"/>
 
-                        <TextField fx:id="emailField"
-                                   promptText="Nhập email"
-                                   styleClass="input-field"/>
-
-                        <Label fx:id="emailError"
-                               styleClass="error-label"
-                               visible="false"
-                               managed="false"/>
+                        <Label fx:id="internalEmailLabel"
+                               text="@gitlab.handbook.local"
+                               styleClass="internal-email-preview"/>
                     </VBox>
 
                     <!-- PHONE -->

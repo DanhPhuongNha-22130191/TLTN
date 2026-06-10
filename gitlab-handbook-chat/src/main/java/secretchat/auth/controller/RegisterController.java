@@ -2,10 +2,16 @@ package secretchat.auth.controller;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+import secretchat.auth.dto.response.RegisterResponse;
 import secretchat.auth.view.AuthFormBindings;
 import secretchat.auth.viewmodel.RegisterViewModel;
 
@@ -20,8 +26,7 @@ public class RegisterController extends BaseAuthController implements Initializa
     @FXML private TextField usernameField;
     @FXML private Label usernameError;
 
-    @FXML private TextField emailField;
-    @FXML private Label emailError;
+    @FXML private Label internalEmailLabel;
 
     @FXML private TextField phoneNumberField;
     @FXML private Label phoneError;
@@ -54,6 +59,7 @@ public class RegisterController extends BaseAuthController implements Initializa
             if (newValue) {
                 javafx.application.Platform.runLater(() -> {
                     Stage stage = (Stage) registerButton.getScene().getWindow();
+                    showMailboxCredentials(stage, viewModel.registrationResultProperty().get());
                     switchScene(stage, "/fxml/login-view.fxml");
                 });
             }
@@ -63,7 +69,8 @@ public class RegisterController extends BaseAuthController implements Initializa
     private void bindInputs() {
         fullNameField.textProperty().bindBidirectional(viewModel.fullNameProperty());
         usernameField.textProperty().bindBidirectional(viewModel.usernameProperty());
-        emailField.textProperty().bindBidirectional(viewModel.emailProperty());
+        internalEmailLabel.textProperty().bind(
+                viewModel.usernameProperty().concat("@gitlab.handbook.local"));
         phoneNumberField.textProperty().bindBidirectional(viewModel.phoneNumberProperty());
         termsCheckBox.selectedProperty().bindBidirectional(viewModel.termsAcceptedProperty());
     }
@@ -80,7 +87,6 @@ public class RegisterController extends BaseAuthController implements Initializa
     private void bindFeedback() {
         AuthFormBindings.bindError(fullNameError, viewModel.fullNameErrorProperty());
         AuthFormBindings.bindError(usernameError, viewModel.usernameErrorProperty());
-        AuthFormBindings.bindError(emailError, viewModel.emailErrorProperty());
         AuthFormBindings.bindError(phoneError, viewModel.phoneErrorProperty());
         AuthFormBindings.bindError(passwordError, viewModel.passwordErrorProperty());
         AuthFormBindings.bindError(confirmPasswordError, viewModel.confirmPasswordErrorProperty());
@@ -107,5 +113,38 @@ public class RegisterController extends BaseAuthController implements Initializa
     @FXML
     private void goToLogin(ActionEvent event) {
         switchScene(event, "/fxml/login-view.fxml");
+    }
+
+    private void showMailboxCredentials(Stage owner, RegisterResponse response) {
+        if (response == null) {
+            return;
+        }
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/fxml/mailbox-credentials-dialog.fxml"));
+            Parent root = loader.load();
+            MailboxCredentialsController controller = loader.getController();
+            controller.setup(
+                    response.getEmail(),
+                    response.getMailboxPassword(),
+                    response.getWebmailUrl());
+            Stage dialog = new Stage();
+            dialog.initOwner(owner);
+            dialog.initModality(Modality.APPLICATION_MODAL);
+            dialog.initStyle(StageStyle.UNDECORATED);
+            dialog.setScene(new Scene(root));
+            dialog.setResizable(false);
+            dialog.showAndWait();
+        } catch (Exception error) {
+            Alert fallback = new Alert(Alert.AlertType.INFORMATION);
+            fallback.initOwner(owner);
+            fallback.setTitle("Tài khoản mail nội bộ");
+            fallback.setHeaderText("Đăng ký thành công");
+            fallback.setContentText(
+                    "Email: " + response.getEmail()
+                            + "\nMật khẩu mail: " + response.getMailboxPassword()
+                            + "\nWebmail: " + response.getWebmailUrl());
+            fallback.showAndWait();
+        }
     }
 }

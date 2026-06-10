@@ -17,23 +17,22 @@ public class RegisterViewModel extends BaseAuthViewModel {
 
     // Inputs
     private final StringProperty fullName = new SimpleStringProperty("");
-    private final StringProperty email = new SimpleStringProperty("");
     private final StringProperty phoneNumber = new SimpleStringProperty("");
     private final StringProperty confirmPassword = new SimpleStringProperty("");
     private final BooleanProperty termsAccepted = new SimpleBooleanProperty(false);
 
     // Error messages
     private final StringProperty fullNameError = new SimpleStringProperty("");
-    private final StringProperty emailError = new SimpleStringProperty("");
     private final StringProperty phoneError = new SimpleStringProperty("");
     private final StringProperty confirmPasswordError = new SimpleStringProperty("");
 
     // UI States
     private final BooleanProperty registerSuccess = new SimpleBooleanProperty(false);
     private final BooleanProperty showConfirmPassword = new SimpleBooleanProperty(false);
+    private final ObjectProperty<RegisterResponse> registrationResult =
+            new SimpleObjectProperty<>();
 
     // Validation patterns
-    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@(.+)$");
     private static final Pattern USERNAME_PATTERN = Pattern.compile("^[a-zA-Z0-9_]+$");
     private static final Pattern PHONE_PATTERN = Pattern.compile("^\\d{9,11}$");
 
@@ -47,18 +46,19 @@ public class RegisterViewModel extends BaseAuthViewModel {
 
     // Properties getters
     public StringProperty fullNameProperty() { return fullName; }
-    public StringProperty emailProperty() { return email; }
     public StringProperty phoneNumberProperty() { return phoneNumber; }
     public StringProperty confirmPasswordProperty() { return confirmPassword; }
     public BooleanProperty termsAcceptedProperty() { return termsAccepted; }
 
     public StringProperty fullNameErrorProperty() { return fullNameError; }
-    public StringProperty emailErrorProperty() { return emailError; }
     public StringProperty phoneErrorProperty() { return phoneError; }
     public StringProperty confirmPasswordErrorProperty() { return confirmPasswordError; }
 
     public BooleanProperty registerSuccessProperty() { return registerSuccess; }
     public BooleanProperty showConfirmPasswordProperty() { return showConfirmPassword; }
+    public ObjectProperty<RegisterResponse> registrationResultProperty() {
+        return registrationResult;
+    }
 
     public void toggleConfirmPasswordVisibility() {
         showConfirmPassword.set(!showConfirmPassword.get());
@@ -70,7 +70,6 @@ public class RegisterViewModel extends BaseAuthViewModel {
 
         fullNameError.set("");
         usernameError.set("");
-        emailError.set("");
         phoneError.set("");
         passwordError.set("");
         confirmPasswordError.set("");
@@ -87,15 +86,6 @@ public class RegisterViewModel extends BaseAuthViewModel {
             isValid = false;
         } else if (!USERNAME_PATTERN.matcher(usernameVal).matches()) {
             usernameError.set("Username chỉ chứa chữ cái, chữ số và dấu gạch dưới");
-            isValid = false;
-        }
-
-        String emailVal = email.get().trim();
-        if (emailVal.isEmpty()) {
-            emailError.set("Email không được để trống");
-            isValid = false;
-        } else if (!EMAIL_PATTERN.matcher(emailVal).matches()) {
-            emailError.set("Email không đúng định dạng");
             isValid = false;
         }
 
@@ -142,13 +132,13 @@ public class RegisterViewModel extends BaseAuthViewModel {
 
         isLoading.set(true);
         registerSuccess.set(false);
+        registrationResult.set(null);
         globalMessage.set("Đang xử lý đăng ký...");
         globalMessageStyle.set("-fx-text-fill: #6a8dff;");
 
         RegisterRequest request = new RegisterRequest();
         request.setFullName(fullName.get().trim());
         request.setUsername(username.get().trim());
-        request.setEmail(email.get().trim());
         request.setPhoneNumber(phoneNumber.get().trim());
         request.setPassword(password.get());
         request.setConfirmPassword(confirmPassword.get());
@@ -159,6 +149,7 @@ public class RegisterViewModel extends BaseAuthViewModel {
                 Platform.runLater(() -> {
                     isLoading.set(false);
                     if (response.isSuccess()) {
+                        registrationResult.set(response);
                         registerSuccess.set(true);
                         globalMessage.set("Đăng ký thành công.");
                         globalMessageStyle.set("-fx-text-fill: #2e7d32;");
