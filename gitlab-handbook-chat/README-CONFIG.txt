@@ -26,6 +26,9 @@ CAU HINH EMAIL NOI BO VA QUEN MAT KHAU
    Mat khau mail duoc hien mot lan sau khi dang ky.
 5. Man hinh Quen mat khau nhap dia chi mail noi bo tren. Keycloak gui link
    dat lai mat khau vao chinh hop thu nay.
+   Neu user mo mail tu may khac trong LAN, cap nhat Frontend URL cua realm:
+   http://192.168.1.91:8081
+   Keycloak Admin Console > Realm settings > General > Frontend URL.
 6. Tai khoan mail quan tri ban dau:
    admin@gitlab.handbook.local
    ChangeMe-Mail-Admin-2026!

@@ -29,6 +29,9 @@
   "oauth2DevicePollingInterval": 5,
   "enabled": true,
   "sslRequired": "external",
+  "attributes": {
+    "frontendUrl": "http://localhost:8081"
+  },
   "registrationAllowed": false,
   "registrationEmailAsUsername": false,
   "rememberMe": false,
