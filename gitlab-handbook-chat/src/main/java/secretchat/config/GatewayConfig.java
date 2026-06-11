@@ -27,6 +27,10 @@ public class GatewayConfig {
         if (host == null)
             host = dotenv.get("GATEWAY_HOST");
 
+        String scheme = System.getenv("GATEWAY_SCHEME");
+        if (scheme == null)
+            scheme = dotenv.get("GATEWAY_SCHEME");
+
         // Priority 2: System properties (java -Dgateway.port=...).
         if (port == null) {
             port = System.getProperty("gateway.port");
@@ -34,19 +38,24 @@ public class GatewayConfig {
         if (host == null) {
             host = System.getProperty("gateway.host");
         }
+        if (scheme == null) {
+            scheme = System.getProperty("gateway.scheme");
+        }
 
         // Priority 3: Packaged defaults.
         if (port == null || host == null) {
             Properties props = loadProperties();
             port = port != null ? port : props.getProperty("gateway.port");
             host = host != null ? host : props.getProperty("gateway.host");
+            scheme = scheme != null ? scheme : props.getProperty("gateway.scheme");
         }
 
         // Final fallback.
         String finalHost = host != null ? host : "localhost";
         String finalPort = port != null ? port : "8088";
+        String finalScheme = scheme != null ? scheme : "https";
 
-        this.gatewayUrl = "http://" + finalHost + ":" + finalPort;
+        this.gatewayUrl = finalScheme + "://" + finalHost + ":" + finalPort;
     }
 
     private io.github.cdimascio.dotenv.Dotenv loadDotenv() {

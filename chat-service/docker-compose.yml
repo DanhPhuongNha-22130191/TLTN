@@ -1,15 +1,11 @@
-version: '3.8'
-
 services:
   postgres:
     image: postgres:15-alpine
     container_name: chat-service-db
-    ports:
-      - "5433:5432"
     environment:
       POSTGRES_DB: chat_db
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: always
@@ -27,7 +23,7 @@ services:
       - DB_PORT=5432
       - DB_NAME=chat_db
       - DB_USER=postgres
-      - DB_PASSWORD=postgres
+      - DB_PASSWORD=${DB_PASSWORD:?Set DB_PASSWORD in .env}
       - USER_SERVICE_URL=http://host.docker.internal:8082
     extra_hosts:
       - "host.docker.internal:host-gateway"

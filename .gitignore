@@ -1,0 +1,6 @@
+# Local credentials and deployment certificates
+**/.env
+!**/.env.example
+chat-system/secrets/*
+!chat-system/secrets/README.md
+

@@ -8,13 +8,13 @@ services:
     container_name: mailserver
     hostname: mail.gitlab.handbook.local
     ports:
-      - "25:25"
-      - "143:143"
       - "587:587"
       - "993:993"
     environment:
       ACCOUNT_PROVISIONER: FILE
-      SSL_TYPE: self-signed
+      SSL_TYPE: manual
+      SSL_CERT_PATH: /run/secrets/tls/fullchain.pem
+      SSL_KEY_PATH: /run/secrets/tls/privkey.pem
       ENABLE_IMAP: 1
       ENABLE_POP3: 0
       ENABLE_CLAMAV: 0
@@ -35,6 +35,8 @@ services:
       - mail_state:/var/mail-state
       - mail_logs:/var/log/mail
       - mail_config:/tmp/docker-mailserver
+      - ./secrets/tls/mail/fullchain.pem:/run/secrets/tls/fullchain.pem:ro
+      - ./secrets/tls/mail/privkey.pem:/run/secrets/tls/privkey.pem:ro
     networks:
       mail-network:
         aliases:
@@ -48,20 +50,21 @@ services:
     image: secretchat/mail-account-manager:latest
     container_name: mail-account-manager
     environment:
-      MAIL_ACCOUNT_API_TOKEN: ${MAIL_ACCOUNT_API_TOKEN:-tltn-mail-account-token-2026}
+      MAIL_ACCOUNT_API_TOKEN: ${MAIL_ACCOUNT_API_TOKEN:?Set MAIL_ACCOUNT_API_TOKEN in chat-system/.env}
       MAILSERVER_CONTAINER: mailserver
       MAIL_DOMAIN: gitlab.handbook.local
       IMAP_HOST: mail.gitlab.handbook.local
       IMAP_PORT: 993
       IMAP_USE_SSL: "true"
       TLS_HOSTNAME: mail.gitlab.handbook.local
-      TLS_CONFIG_DIR: /mail-config/ssl
+      TLS_CA_FILE: /run/secrets/tls/ca.pem
       INITIAL_ADMIN_EMAIL: admin@gitlab.handbook.local
-      INITIAL_ADMIN_PASSWORD: ${INITIAL_MAIL_ADMIN_PASSWORD:-ChangeMe-Mail-Admin-2026!}
+      INITIAL_ADMIN_PASSWORD: ${INITIAL_MAIL_ADMIN_PASSWORD:?Set INITIAL_MAIL_ADMIN_PASSWORD in chat-system/.env}
       TZ: Asia/Bangkok
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - mail_config:/mail-config
+      - ./secrets/tls/mail/ca.pem:/run/secrets/tls/ca.pem:ro
     depends_on:
       - mailserver
     healthcheck:
@@ -83,7 +86,7 @@ services:
     environment:
       POSTGRES_DB: roundcube
       POSTGRES_USER: roundcube
-      POSTGRES_PASSWORD: ${ROUNDCUBE_DB_PASSWORD:-roundcube-password-2026}
+      POSTGRES_PASSWORD: ${ROUNDCUBE_DB_PASSWORD:?Set ROUNDCUBE_DB_PASSWORD in chat-system/.env}
     volumes:
       - roundcube_db_data:/var/lib/postgresql/data
     networks:
@@ -91,17 +94,19 @@ services:
     restart: always
 
   roundcube:
-    image: roundcube/roundcubemail:1.7.1-apache
+    build:
+      context: ../mail-service/roundcube
+    image: secretchat/roundcube:1.7.1-apache
     container_name: roundcube
     ports:
-      - "8085:80"
+      - "8085:443"
     environment:
       ROUNDCUBEMAIL_DB_TYPE: pgsql
       ROUNDCUBEMAIL_DB_HOST: roundcube-db
       ROUNDCUBEMAIL_DB_PORT: 5432
       ROUNDCUBEMAIL_DB_NAME: roundcube
       ROUNDCUBEMAIL_DB_USER: roundcube
-      ROUNDCUBEMAIL_DB_PASSWORD: ${ROUNDCUBE_DB_PASSWORD:-roundcube-password-2026}
+      ROUNDCUBEMAIL_DB_PASSWORD: ${ROUNDCUBE_DB_PASSWORD:?Set ROUNDCUBE_DB_PASSWORD in chat-system/.env}
       ROUNDCUBEMAIL_DEFAULT_HOST: ssl://mail.gitlab.handbook.local
       ROUNDCUBEMAIL_DEFAULT_PORT: 993
       ROUNDCUBEMAIL_SMTP_SERVER: tls://mail.gitlab.handbook.local
@@ -117,6 +122,9 @@ services:
     volumes:
       - ../mail-service/roundcube-config:/var/roundcube/config:ro
       - ../mail-service/roundcube-config/webmail-redirect.conf:/etc/apache2/conf-enabled/webmail-redirect.conf:ro
+      - ./secrets/tls/mail/ca.pem:/run/secrets/tls/mail-ca.pem:ro
+      - ./secrets/tls/webmail/fullchain.pem:/run/secrets/tls/fullchain.pem:ro
+      - ./secrets/tls/webmail/privkey.pem:/run/secrets/tls/privkey.pem:ro
     networks:
       - mail-network
     restart: always
@@ -129,10 +137,8 @@ services:
     container_name: postgres-db
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password123
+      POSTGRES_PASSWORD: ${USER_DB_PASSWORD:?Set USER_DB_PASSWORD in chat-system/.env}
       POSTGRES_DB: user_db
-    ports:
-      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: always
@@ -147,20 +153,28 @@ services:
       KC_DB: postgres
       KC_DB_URL: jdbc:postgresql://postgres:5432/user_db
       KC_DB_USERNAME: postgres
-      KC_DB_PASSWORD: password123
+      KC_DB_PASSWORD: ${USER_DB_PASSWORD:?Set USER_DB_PASSWORD in chat-system/.env}
 
-      KEYCLOAK_ADMIN: admin
-      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:?Set KEYCLOAK_ADMIN_PASSWORD in chat-system/.env}
+      KC_HTTP_ENABLED: "true"
+      KC_HOSTNAME: https://${PUBLIC_HOSTNAME:?Set PUBLIC_HOSTNAME in chat-system/.env}:8081
+      KC_HTTPS_CERTIFICATE_FILE: /run/secrets/tls/fullchain.pem
+      KC_HTTPS_CERTIFICATE_KEY_FILE: /run/secrets/tls/privkey.pem
+      KC_TRUSTSTORE_PATHS: /run/secrets/tls/mail-ca.pem
 
     command:
-      - start-dev
+      - start
       - --import-realm
 
     ports:
-      - "8081:8080"
+      - "8081:8443"
 
     volumes:
       - ./realm-export.json:/opt/keycloak/data/import/realm-export.json:ro
+      - ./secrets/tls/keycloak/fullchain.pem:/run/secrets/tls/fullchain.pem:ro
+      - ./secrets/tls/keycloak/privkey.pem:/run/secrets/tls/privkey.pem:ro
+      - ./secrets/tls/mail/ca.pem:/run/secrets/tls/mail-ca.pem:ro
 
     depends_on:
       - postgres
@@ -183,9 +197,6 @@ services:
     platform: linux/amd64
     container_name: user-service
 
-    ports:
-      - "8082:8082"
-
     environment:
       SERVER_PORT: 8082
 
@@ -193,7 +204,7 @@ services:
       DB_PORT: 5432
       DB_NAME: user_db
       DB_USER: postgres
-      DB_PASSWORD: password123
+      DB_PASSWORD: ${USER_DB_PASSWORD:?Set USER_DB_PASSWORD in chat-system/.env}
 
       KEYCLOAK_SERVER_URL: http://keycloak:8080
       KEYCLOAK_REALM: master
@@ -202,15 +213,15 @@ services:
       KEYCLOAK_ADMIN_CLIENT_ID: javafx-client
 
       KEYCLOAK_ADMIN_USERNAME: admin
-      KEYCLOAK_ADMIN_PASSWORD: admin
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:?Set KEYCLOAK_ADMIN_PASSWORD in chat-system/.env}
 
-      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://keycloak:8080/realms/master
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: https://${PUBLIC_HOSTNAME:?Set PUBLIC_HOSTNAME in chat-system/.env}:8081/realms/master
       SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8080/realms/master/protocol/openid-connect/certs
 
       INTERNAL_MAIL_DOMAIN: gitlab.handbook.local
       MAIL_ACCOUNT_API_URL: http://mail-account-manager:8080
-      MAIL_ACCOUNT_API_TOKEN: ${MAIL_ACCOUNT_API_TOKEN:-tltn-mail-account-token-2026}
-      WEBMAIL_URL: http://${MAIL_HOST:-localhost}:8085/
+      MAIL_ACCOUNT_API_TOKEN: ${MAIL_ACCOUNT_API_TOKEN:?Set MAIL_ACCOUNT_API_TOKEN in chat-system/.env}
+      WEBMAIL_URL: https://${PUBLIC_HOSTNAME:?Set PUBLIC_HOSTNAME in chat-system/.env}:8085/
       MAILBOX_QUOTA_BYTES: 104857600
 
     depends_on:
@@ -234,14 +245,29 @@ services:
     environment:
       POSTGRES_DB: chat_db
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-
-    ports:
-      - "5433:5432"
+      POSTGRES_PASSWORD: ${CHAT_DB_PASSWORD:?Set CHAT_DB_PASSWORD in chat-system/.env}
 
     volumes:
       - chat_postgres_data:/var/lib/postgresql/data
 
+    restart: always
+
+  # =========================
+  # Redis Presence
+  # =========================
+  redis:
+    image: redis:7.4-alpine
+    container_name: redis
+    command: ["sh", "-c", "exec redis-server --appendonly yes --requirepass \"$$REDIS_PASSWORD\""]
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?Set REDIS_PASSWORD in chat-system/.env}
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a \"$$REDIS_PASSWORD\" ping | grep PONG"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
     restart: always
 
   # =========================
@@ -255,9 +281,6 @@ services:
     platform: linux/amd64
     container_name: chat-service
 
-    ports:
-      - "8083:8083"
-
     environment:
       SPRING_PROFILES_ACTIVE: dev
 
@@ -267,9 +290,17 @@ services:
       DB_PORT: 5432
       DB_NAME: chat_db
       DB_USER: postgres
-      DB_PASSWORD: postgres
+      DB_PASSWORD: ${CHAT_DB_PASSWORD:?Set CHAT_DB_PASSWORD in chat-system/.env}
 
       USER_SERVICE_URL: http://user-service:8082
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?Set REDIS_PASSWORD in chat-system/.env}
+      PRESENCE_TTL: 75s
+      KEYCLOAK_SERVER_URL: http://keycloak:8080
+      KEYCLOAK_REALM: master
+      JWT_ISSUER_URI: https://${PUBLIC_HOSTNAME:?Set PUBLIC_HOSTNAME in chat-system/.env}:8081/realms/master
+      JWT_JWK_SET_URI: http://keycloak:8080/realms/master/protocol/openid-connect/certs
 
       # =========================
       # Upload Config
@@ -280,6 +311,8 @@ services:
     depends_on:
       - chat-postgres
       - user-service
+      - keycloak
+      - redis
 
     volumes:
       - chat_uploads:/app/uploads
@@ -294,9 +327,6 @@ services:
     pull_policy: always
     platform: linux/amd64
     container_name: ai-rag-bot
-
-    ports:
-      - "3000:3000"
 
     environment:
       SERVER_PORT: 3000
@@ -322,18 +352,24 @@ services:
   # API Gateway
   # =========================
   api-gateway:
+    build:
+      context: ../api-gateway
     image: phuongnha/api-gateway:${API_GATEWAY_TAG:-latest}
-    pull_policy: always
+    pull_policy: build
     platform: linux/amd64
     container_name: api-gateway
 
     ports:
-      - "8088:8088"
+      - "8088:8443"
 
     environment:
-      SERVER_PORT: 8088
+      SERVER_PORT: 8443
+      SERVER_SSL_CERTIFICATE: file:/run/secrets/tls/fullchain.pem
+      SERVER_SSL_CERTIFICATE_PRIVATE_KEY: file:/run/secrets/tls/privkey.pem
 
       KEYCLOAK_SERVER_URL: http://keycloak:8080
+      KEYCLOAK_ISSUER_URI: https://${PUBLIC_HOSTNAME:?Set PUBLIC_HOSTNAME in chat-system/.env}:8081
+      KEYCLOAK_JWK_SET_URI: http://keycloak:8080/realms/master/protocol/openid-connect/certs
       KEYCLOAK_REALM: master
 
       USER_SERVICE_HOST: user-service
@@ -352,7 +388,7 @@ services:
 
       SPRING_CLOUD_GATEWAY_ROUTES_1_ID: chat-service-api
       SPRING_CLOUD_GATEWAY_ROUTES_1_URI: http://chat-service:8083
-      SPRING_CLOUD_GATEWAY_ROUTES_1_PREDICATES_0: Path=/api/user/**,/api/conversations/**,/api/groups/**,/api/messages/**,/api/friends/**
+      SPRING_CLOUD_GATEWAY_ROUTES_1_PREDICATES_0: Path=/api/user/**,/api/conversations/**,/api/groups/**,/api/messages/**,/api/friends/**,/api/presence/**
 
       SPRING_CLOUD_GATEWAY_ROUTES_2_ID: chat-service-websocket
       SPRING_CLOUD_GATEWAY_ROUTES_2_URI: ws://chat-service:8083
@@ -363,9 +399,9 @@ services:
       SPRING_CLOUD_GATEWAY_ROUTES_3_PREDICATES_0: Path=/api/ai/**
       SPRING_CLOUD_GATEWAY_ROUTES_3_FILTERS_0: StripPrefix=2
 
-      INTERNAL_SECRET_KEY: tltn-internal-secret-key-2026
+      INTERNAL_SECRET_KEY: ${INTERNAL_SECRET_KEY:?Set INTERNAL_SECRET_KEY in chat-system/.env}
 
-      FRONTEND_URL: http://localhost:3000
+      FRONTEND_URL: https://${PUBLIC_HOSTNAME:?Set PUBLIC_HOSTNAME in chat-system/.env}:3000
 
       # =========================
       # Upload Config
@@ -379,6 +415,10 @@ services:
       - ai-rag-bot
       - keycloak
 
+    volumes:
+      - ./secrets/tls/gateway/fullchain.pem:/run/secrets/tls/fullchain.pem:ro
+      - ./secrets/tls/gateway/privkey.pem:/run/secrets/tls/privkey.pem:ro
+
     restart: always
 
 volumes:
@@ -390,6 +430,7 @@ volumes:
   mail_logs:
   mail_config:
   roundcube_db_data:
+  redis_data:
 
 networks:
   mail-network:

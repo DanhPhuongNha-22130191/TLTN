@@ -17,6 +17,15 @@ public class ChatService {
         this.apiClient = apiClient;
     }
 
+    public PresenceResponse sendPresenceHeartbeat(String token) throws Exception {
+        try {
+            return apiClient.post(
+                    "/api/presence/heartbeat", null, token, PresenceResponse.class);
+        } catch (Exception e) {
+            throw GlobalExceptionHandler.handle(e);
+        }
+    }
+
     // --- User Service Calls ---
 
     public UserResponse[] getAllUsers(String token) throws Exception {

@@ -12,7 +12,7 @@ import reactor.core.publisher.Mono;
 @Component
 public class InternalApiFilter extends AbstractGatewayFilterFactory<InternalApiFilter.Config> {
 
-    @Value("${app.internal-secret:tltn-internal-secret-key-2026}")
+    @Value("${app.internal-secret}")
     private String internalSecret;
 
     public InternalApiFilter() {

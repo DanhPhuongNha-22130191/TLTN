@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chương 3. Giải pháp cho bài toán</title>
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.75; margin: 40px; color: #111; }
+    h1, h2, h3, h4 { color: #00264d; }
+    h1 { font-size: 32px; margin-top: 0; text-align: center; }
+    h2 { font-size: 24px; margin-top: 40px; }
+    h3 { font-size: 20px; margin-top: 30px; }
+    h4 { font-size: 17px; margin-top: 24px; }
+    p { margin: 14px 0; text-align: justify; }
+    ul, ol { margin: 10px 0 18px 30px; }
+    li { margin: 8px 0; text-align: justify; }
+    table { width: 100%; border-collapse: collapse; margin: 18px 0 26px; }
+    th, td { border: 1px solid #777; padding: 10px; vertical-align: top; text-align: left; }
+    th { background: #eaf2f8; color: #00264d; }
+    code { font-family: Consolas, monospace; background: #f3f3f3; padding: 1px 4px; }
+    .section-title { border-bottom: 2px solid #bbb; padding-bottom: 10px; margin-bottom: 18px; }
+    .figure { margin: 24px 0; text-align: center; page-break-inside: avoid; }
+    .figure svg { max-width: 100%; height: auto; border: 1px solid #bbb; background: #fff; }
+    .figcaption { margin-top: 8px; color: #333; font-style: italic; }
+    .note { background: #f7f9fb; border-left: 4px solid #2b6fdb; padding: 12px 16px; }
+    @media print {
+      body { margin: 20mm; }
+      h2, h3, h4 { page-break-after: avoid; }
+      table, ul, ol { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <h1>CHƯƠNG 3. GIẢI PHÁP CHO BÀI TOÁN</h1>
+
+  <h2 class="section-title">3.1. Phát biểu bài toán</h2>
+  <p>
+    Hoạt động trao đổi thông tin trong doanh nghiệp thường được thực hiện qua các nền tảng nhắn tin
+    thương mại hoặc dịch vụ đám mây của bên thứ ba. Các nền tảng này có ưu điểm về tính tiện dụng,
+    tuy nhiên làm phát sinh một số vấn đề đối với tổ chức có nhu cầu quản lý dữ liệu nội bộ, kiểm
+    soát tài khoản tập trung và tùy chỉnh hệ thống theo quy trình riêng. Dữ liệu hội thoại có thể
+    nằm ngoài hạ tầng của doanh nghiệp; khả năng tích hợp với kho tri thức nội bộ bị giới hạn; chi
+    phí sử dụng tăng theo số lượng tài khoản; và tổ chức phụ thuộc vào chính sách vận hành của nhà
+    cung cấp.
+  </p>
+  <p>
+    Bên cạnh nhu cầu nhắn tin, nhân viên còn phải tra cứu nhiều tài liệu như quy định, hướng dẫn,
+    chính sách nhân sự và cẩm nang nội bộ. Việc tìm kiếm thủ công mất thời gian, đặc biệt đối với
+    nhân viên mới hoặc người chưa nắm rõ cấu trúc tài liệu. Vì vậy, bài toán đặt ra là xây dựng một
+    hệ thống chat nội bộ có thể triển khai trên hạ tầng do tổ chức quản lý, đồng thời tích hợp trợ
+    lý AI để hỗ trợ truy xuất và giải đáp thông tin từ nguồn tri thức nội bộ.
+  </p>
+  <p>
+    Giải pháp được xây dựng là hệ thống chat client-server theo kiến trúc microservices. Hệ thống
+    cung cấp ứng dụng JavaFX cho người dùng, các dịch vụ backend độc lập, cơ chế xác thực tập trung
+    bằng Keycloak, nhắn tin thời gian thực bằng WebSocket/STOMP, hệ thống thư điện tử nội bộ và
+    dịch vụ AI sử dụng kỹ thuật Retrieval-Augmented Generation (RAG).
+  </p>
+
+  <h3>3.1.1. Đối tượng sử dụng</h3>
+  <ul>
+    <li><strong>Doanh nghiệp và tổ chức:</strong> triển khai hệ thống trên hạ tầng riêng, quản lý dữ liệu và tài khoản tập trung.</li>
+    <li><strong>Nhân viên:</strong> trao đổi thông tin qua hội thoại cá nhân, nhóm chat, tệp tin và hình ảnh.</li>
+    <li><strong>Nhân viên mới:</strong> sử dụng trợ lý AI để tiếp cận nhanh quy trình, chính sách và tài liệu nội bộ.</li>
+    <li><strong>Bộ phận nhân sự:</strong> cung cấp nguồn tri thức để AI hỗ trợ trả lời các câu hỏi thường gặp.</li>
+    <li><strong>Người vận hành hệ thống:</strong> cấu hình dịch vụ, theo dõi container, cơ sở dữ liệu, Keycloak và máy chủ thư.</li>
+  </ul>
+
+  <h3>3.1.2. Yêu cầu chức năng</h3>
+  <table>
+    <thead>
+      <tr><th>Nhóm chức năng</th><th>Yêu cầu</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Tài khoản</td>
+        <td>Đăng ký, đăng nhập, đăng xuất, làm mới phiên đăng nhập, cập nhật hồ sơ và đặt lại mật khẩu.</td>
+      </tr>
+      <tr>
+        <td>Thư điện tử nội bộ</td>
+        <td>Tạo mailbox khi đăng ký, cung cấp thông tin đăng nhập một lần, nhận thư đặt lại mật khẩu và truy cập webmail Roundcube.</td>
+      </tr>
+      <tr>
+        <td>Bạn bè</td>
+        <td>Thêm bạn, xóa bạn, tìm kiếm và hiển thị danh sách bạn bè.</td>
+      </tr>
+      <tr>
+        <td>Hội thoại</td>
+        <td>Tạo hội thoại cá nhân, tạo nhóm, thêm hoặc xóa thành viên, phân quyền thành viên, chuyển chủ nhóm và xóa nhóm.</td>
+      </tr>
+      <tr>
+        <td>Tin nhắn</td>
+        <td>Gửi và nhận tin nhắn thời gian thực, hiển thị trạng thái, thả cảm xúc, chỉnh sửa, thu hồi, xóa phía người dùng, đánh dấu sao và ghim.</td>
+      </tr>
+      <tr>
+        <td>Tệp đính kèm</td>
+        <td>Tải lên, gửi, nhận và tải xuống tệp hoặc hình ảnh trong hội thoại.</td>
+      </tr>
+      <tr>
+        <td>Trợ lý AI</td>
+        <td>Nhận câu hỏi, truy xuất tri thức nội bộ, xếp hạng tài liệu liên quan và sinh câu trả lời bằng mô hình ngôn ngữ chạy cục bộ.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>3.1.3. Yêu cầu phi chức năng</h3>
+  <ul>
+    <li><strong>Bảo mật:</strong> các API cần xác thực bằng JWT; mật khẩu người dùng do Keycloak quản lý; mật khẩu mailbox được lưu dưới dạng băm bởi hệ thống mail.</li>
+    <li><strong>Riêng tư dữ liệu:</strong> dữ liệu người dùng, hội thoại và tài liệu AI được lưu trên hạ tầng do tổ chức kiểm soát.</li>
+    <li><strong>Thời gian thực:</strong> tin nhắn và trạng thái nhập phải được đẩy đến client qua kết nối WebSocket thay vì polling liên tục.</li>
+    <li><strong>Khả năng bảo trì:</strong> các dịch vụ được phân tách theo miền nghiệp vụ; mã nguồn backend áp dụng phân lớp domain, application, infrastructure và API.</li>
+    <li><strong>Khả năng mở rộng:</strong> từng dịch vụ có thể được nâng cấp hoặc cấp thêm tài nguyên độc lập.</li>
+    <li><strong>Khả năng triển khai:</strong> các thành phần backend, cơ sở dữ liệu và mail được cấu hình thống nhất bằng Docker Compose.</li>
+    <li><strong>Tính nhất quán:</strong> việc đăng ký phải có cơ chế bù trừ khi tạo mailbox, tài khoản Keycloak hoặc bản ghi người dùng thất bại.</li>
+  </ul>
+
+  <h2 class="section-title">3.2. Thiết kế giải pháp</h2>
+
+  <h3>3.2.1. Kiến trúc tổng quan</h3>
+  <p>
+    Hệ thống sử dụng kiến trúc microservices, trong đó ứng dụng JavaFX giao tiếp với một điểm vào
+    tập trung là API Gateway. Gateway định tuyến yêu cầu đến dịch vụ người dùng, dịch vụ chat và
+    dịch vụ AI. Keycloak đảm nhiệm xác thực và phát hành JWT. Mỗi miền dữ liệu chính sử dụng cơ sở
+    dữ liệu PostgreSQL riêng. Hệ thống mail cung cấp SMTP/IMAP và giao diện webmail. Các thành phần
+    backend được triển khai bằng Docker Compose, trong khi Ollama hiện được chạy trên máy host và
+    được AI Service truy cập qua REST API nội bộ.
+  </p>
+
+  <div class="figure">
+    <svg viewBox="0 0 1100 680" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arrow3" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L9,3 z" fill="#385170"/>
+        </marker>
+        <style>
+          .box { stroke-width: 2; rx: 10; ry: 10; }
+          .label { font-family: Arial; font-size: 15px; fill: #102a43; text-anchor: middle; }
+          .small { font-family: Arial; font-size: 12px; fill: #334e68; text-anchor: middle; }
+          .line { stroke: #385170; stroke-width: 2; fill: none; marker-end: url(#arrow3); }
+        </style>
+      </defs>
+
+      <rect class="box" x="420" y="25" width="260" height="70" fill="#e8f1ff" stroke="#2b6fdb"/>
+      <text class="label" x="550" y="55">JavaFX Client</text>
+      <text class="small" x="550" y="78">REST API + STOMP WebSocket</text>
+
+      <rect class="box" x="420" y="145" width="260" height="75" fill="#eaf8f1" stroke="#248f5a"/>
+      <text class="label" x="550" y="177">API Gateway</text>
+      <text class="small" x="550" y="199">Spring Cloud Gateway</text>
+      <path class="line" d="M550 95 L550 145"/>
+
+      <rect class="box" x="55" y="285" width="250" height="85" fill="#fff4df" stroke="#d99100"/>
+      <text class="label" x="180" y="317">User Service</text>
+      <text class="small" x="180" y="340">Tài khoản, hồ sơ, mailbox</text>
+      <text class="small" x="180" y="358">Spring Boot</text>
+
+      <rect class="box" x="425" y="285" width="250" height="85" fill="#fff4df" stroke="#d99100"/>
+      <text class="label" x="550" y="317">Chat Service</text>
+      <text class="small" x="550" y="340">Hội thoại, nhóm, tin nhắn</text>
+      <text class="small" x="550" y="358">REST + WebSocket/STOMP</text>
+
+      <rect class="box" x="795" y="285" width="250" height="85" fill="#fff4df" stroke="#d99100"/>
+      <text class="label" x="920" y="317">AI RAG Service</text>
+      <text class="small" x="920" y="340">Retriever + Reranker</text>
+      <text class="small" x="920" y="358">Python API</text>
+
+      <path class="line" d="M495 220 L240 285"/>
+      <path class="line" d="M550 220 L550 285"/>
+      <path class="line" d="M605 220 L860 285"/>
+
+      <rect class="box" x="35" y="470" width="210" height="80" fill="#f1ebff" stroke="#7357b5"/>
+      <text class="label" x="140" y="503">PostgreSQL</text>
+      <text class="small" x="140" y="527">Dữ liệu người dùng</text>
+      <path class="line" d="M150 370 L140 470"/>
+
+      <rect class="box" x="275" y="470" width="210" height="80" fill="#f1ebff" stroke="#7357b5"/>
+      <text class="label" x="380" y="503">Keycloak</text>
+      <text class="small" x="380" y="527">Identity, JWT, RBAC</text>
+      <path class="line" d="M195 370 L340 470"/>
+
+      <rect class="box" x="515" y="470" width="210" height="80" fill="#f1ebff" stroke="#7357b5"/>
+      <text class="label" x="620" y="503">PostgreSQL</text>
+      <text class="small" x="620" y="527">Dữ liệu chat</text>
+      <path class="line" d="M570 370 L610 470"/>
+
+      <rect class="box" x="755" y="470" width="210" height="80" fill="#f1ebff" stroke="#7357b5"/>
+      <text class="label" x="860" y="503">Qdrant</text>
+      <text class="small" x="860" y="527">Vector store cục bộ</text>
+      <path class="line" d="M900 370 L870 470"/>
+
+      <rect class="box" x="780" y="595" width="210" height="70" fill="#e9f7ff" stroke="#1683a7"/>
+      <text class="label" x="885" y="625">Ollama trên host</text>
+      <text class="small" x="885" y="647">Qwen2:1.5B</text>
+      <path class="line" d="M920 370 L900 595"/>
+
+      <rect class="box" x="35" y="595" width="315" height="70" fill="#e9f7ff" stroke="#1683a7"/>
+      <text class="label" x="192" y="624">Mail Service</text>
+      <text class="small" x="192" y="646">docker-mailserver + Account Manager + Roundcube</text>
+      <path class="line" d="M160 370 L190 595"/>
+      <path class="line" d="M380 550 L310 595"/>
+
+      <rect class="box" x="430" y="595" width="210" height="70" fill="#e9f7ff" stroke="#1683a7"/>
+      <text class="label" x="535" y="625">Redis</text>
+      <text class="small" x="535" y="647">Presence + TTL heartbeat</text>
+      <path class="line" d="M550 370 L535 595"/>
+
+    </svg>
+    <div class="figcaption">Hình 3.1. Kiến trúc tổng quan của hệ thống chat nội bộ tích hợp trợ lý AI.</div>
+  </div>
+
+  <h3>3.2.2. Vai trò của các thành phần</h3>
+  <h4>a) JavaFX Client</h4>
+  <p>
+    JavaFX Client cung cấp giao diện đăng ký, đăng nhập, quên mật khẩu, quản lý hồ sơ, danh sách
+    bạn bè, hội thoại cá nhân, nhóm chat và trợ lý AI. Client sử dụng REST API cho các thao tác
+    truy vấn hoặc cập nhật dữ liệu và duy trì kết nối STOMP WebSocket để gửi, nhận tin nhắn, trạng
+    thái nhập và sự kiện thời gian thực. Phiên đăng nhập gồm access token và refresh token; client
+    thực hiện làm mới token khi cần thiết và đưa người dùng về màn hình đăng nhập nếu phiên không
+    còn hợp lệ.
+  </p>
+
+  <h4>b) API Gateway</h4>
+  <p>
+    API Gateway được xây dựng bằng Spring Cloud Gateway và cung cấp một địa chỉ truy cập thống
+    nhất cho client. Gateway định tuyến các đường dẫn người dùng đến <code>user-service</code>,
+    các đường dẫn hội thoại, nhóm, tin nhắn và bạn bè đến <code>chat-service</code>, đường dẫn AI
+    đến <code>ai-rag-bot</code>, đồng thời chuyển tiếp kết nối <code>/ws</code> đến Chat Service.
+    Gateway được cấu hình như một OAuth2 Resource Server để kiểm tra JWT theo realm của Keycloak.
+  </p>
+
+  <h4>c) User Service</h4>
+  <p>
+    User Service được xây dựng bằng Spring Boot theo định hướng Clean Architecture. Lớp domain
+    chứa mô hình người dùng và các value object; lớp application định nghĩa use case và port; lớp
+    infrastructure hiện thực kết nối PostgreSQL, Keycloak và Mail Account Manager; lớp API cung
+    cấp REST controller. Dịch vụ xử lý đăng ký, đăng nhập, làm mới token, đăng xuất, quên mật khẩu
+    và cập nhật hồ sơ.
+  </p>
+  <p>
+    Khi đăng ký, User Service sinh địa chỉ email theo mẫu
+    <code>username@gitlab.handbook.local</code> và mật khẩu mailbox ngẫu nhiên dài 16 ký tự. Dịch
+    vụ tạo mailbox trước, tạo người dùng trong Keycloak, sau đó lưu hồ sơ vào PostgreSQL. Nếu một
+    bước thất bại, các tài nguyên đã tạo trước đó được xóa để hạn chế dữ liệu không nhất quán.
+  </p>
+
+  <h4>d) Chat Service</h4>
+  <p>
+    Chat Service quản lý hồ sơ chat, quan hệ bạn bè, hội thoại, nhóm, thành viên nhóm, tin nhắn,
+    reaction và tệp đính kèm. Dịch vụ sử dụng PostgreSQL và được tổ chức thành các lớp API,
+    application, domain và infrastructure. REST API phục vụ các thao tác CRUD và tải lịch sử;
+    STOMP WebSocket phục vụ gửi tin nhắn và trạng thái nhập theo thời gian thực. Simple Broker
+    được cấu hình với các đích <code>/topic</code>, <code>/queue</code> và tiền tố người dùng
+    <code>/user</code>.
+  </p>
+
+  <h4>e) AI RAG Service</h4>
+  <p>
+    AI Service được phát triển bằng Python và triển khai trong container <code>ai-rag-bot</code>.
+    Dịch vụ nhận câu hỏi, truy xuất các đoạn tài liệu liên quan từ Qdrant, kiểm tra câu hỏi trùng
+    khớp với tập hỏi đáp chuẩn, xếp hạng lại kết quả bằng reranker và tạo prompt gồm ngữ cảnh cùng
+    câu hỏi. Prompt được gửi đến mô hình <code>Qwen2:1.5B</code> qua Ollama. Ollama hiện chạy trên
+    máy host và được container truy cập bằng địa chỉ <code>host.docker.internal:11434</code>.
+  </p>
+
+  <h4>f) Keycloak</h4>
+  <p>
+    Keycloak quản lý thông tin định danh, mật khẩu đăng nhập, vai trò và phiên xác thực. Sau khi
+    đăng nhập thành công, Keycloak phát hành access token và refresh token. Các dịch vụ xác minh
+    chữ ký và issuer của JWT trước khi cho phép truy cập tài nguyên. Khi người dùng yêu cầu quên
+    mật khẩu, User Service gọi Keycloak Admin API với action <code>UPDATE_PASSWORD</code>;
+    Keycloak tạo liên kết đặt lại mật khẩu và gửi qua SMTP nội bộ.
+  </p>
+
+  <h4>g) Mail Service</h4>
+  <p>
+    Mail Service gồm <code>docker-mailserver</code>, <code>mail-account-manager</code>,
+    Roundcube và cơ sở dữ liệu PostgreSQL của Roundcube. Docker-mailserver cung cấp SMTP, IMAP và
+    lưu mailbox cùng mật khẩu dạng băm. Mail Account Manager cung cấp API nội bộ để User Service
+    tạo hoặc xóa mailbox. Roundcube là giao diện webmail cho phép người dùng đăng nhập, đọc và gửi
+    thư. Trong môi trường hiện tại, SMTP sử dụng cổng 587 với TLS và IMAP sử dụng cổng 993 với SSL.
+  </p>
+
+  <h4>h) Redis Presence</h4>
+  <p>
+    Redis lưu trạng thái trực tuyến bằng key có thời gian sống 75 giây. JavaFX Client gửi heartbeat
+    đã xác thực bằng JWT mỗi 30 giây. Chat Service lấy định danh <code>sub</code> từ JWT, ánh xạ
+    sang mã hồ sơ chat và gia hạn TTL. Khi heartbeat dừng, key tự hết hạn và người dùng được xác
+    định là offline mà không cần tiến trình dọn dẹp riêng.
+  </p>
+
+  <h3>3.2.3. Kiến trúc nội bộ của các dịch vụ</h3>
+  <p>
+    User Service và Chat Service áp dụng nguyên tắc phân tách trách nhiệm theo Clean Architecture
+    và Hexagonal Architecture. Chi tiết tên package có khác nhau giữa hai dịch vụ nhưng đều tuân
+    theo hướng phụ thuộc từ ngoài vào trong.
+  </p>
+  <ul>
+    <li><strong>Domain:</strong> chứa entity, value object, enum, ngoại lệ nghiệp vụ và interface repository.</li>
+    <li><strong>Application:</strong> chứa use case, service điều phối nghiệp vụ, command, result và các port giao tiếp bên ngoài.</li>
+    <li><strong>Infrastructure:</strong> hiện thực repository, adapter Keycloak, adapter mail, HTTP client và cấu hình framework.</li>
+    <li><strong>API:</strong> tiếp nhận HTTP hoặc WebSocket request, kiểm tra dữ liệu đầu vào và chuyển kết quả sang DTO.</li>
+  </ul>
+  <p>
+    Cách tổ chức này giúp nghiệp vụ không phụ thuộc trực tiếp vào PostgreSQL, Keycloak hay
+    docker-mailserver. Các tích hợp bên ngoài có thể thay đổi thông qua adapter mà ít ảnh hưởng đến
+    use case cốt lõi.
+  </p>
+
+  <h3>3.2.4. Thiết kế giao tiếp</h3>
+  <table>
+    <thead>
+      <tr><th>Hình thức</th><th>Mục đích</th><th>Thành phần</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>REST/JSON</td>
+        <td>Đăng ký, đăng nhập, quản lý hồ sơ, bạn bè, nhóm, lịch sử tin nhắn, tải tệp và gọi AI.</td>
+        <td>JavaFX, API Gateway và các microservice.</td>
+      </tr>
+      <tr>
+        <td>STOMP WebSocket</td>
+        <td>Gửi/nhận tin nhắn, trạng thái nhập và sự kiện thời gian thực.</td>
+        <td>JavaFX, API Gateway và Chat Service.</td>
+      </tr>
+      <tr>
+        <td>OAuth2/OpenID Connect</td>
+        <td>Đăng nhập, cấp access token, refresh token và xác minh JWT.</td>
+        <td>JavaFX, User Service, API Gateway và Keycloak.</td>
+      </tr>
+      <tr>
+        <td>SMTP/IMAP</td>
+        <td>Gửi thư đặt lại mật khẩu, đọc và gửi thư nội bộ.</td>
+        <td>Keycloak, docker-mailserver và Roundcube.</td>
+      </tr>
+      <tr>
+        <td>REST nội bộ</td>
+        <td>Quản lý mailbox và gọi mô hình sinh văn bản.</td>
+        <td>User Service với Mail Account Manager; AI Service với Ollama.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>3.2.5. Luồng đăng ký tài khoản</h3>
+  <ol>
+    <li>Người dùng nhập tên đăng nhập, mật khẩu, họ tên và số điện thoại trên JavaFX Client.</li>
+    <li>Client gửi yêu cầu đăng ký qua API Gateway đến User Service.</li>
+    <li>User Service kiểm tra mật khẩu xác nhận, tên đăng nhập và email nội bộ đã tồn tại hay chưa.</li>
+    <li>Hệ thống tạo địa chỉ email nội bộ và sinh mật khẩu mailbox bằng bộ sinh số ngẫu nhiên an toàn.</li>
+    <li>User Service gọi Mail Account Manager để tạo mailbox trong docker-mailserver.</li>
+    <li>User Service gọi Keycloak Admin API để tạo tài khoản và thiết lập mật khẩu đăng nhập.</li>
+    <li>Hồ sơ người dùng được lưu vào PostgreSQL và liên kết với định danh Keycloak.</li>
+    <li>Client hiển thị một lần địa chỉ mailbox, mật khẩu mailbox và đường dẫn Roundcube để người dùng lưu lại.</li>
+    <li>Nếu bước tạo Keycloak hoặc lưu dữ liệu thất bại, hệ thống thực hiện bù trừ bằng cách xóa tài khoản hoặc mailbox đã tạo.</li>
+  </ol>
+
+  <h3>3.2.6. Luồng đăng nhập và làm mới phiên</h3>
+  <ol>
+    <li>Client gửi tên đăng nhập và mật khẩu đến User Service.</li>
+    <li>User Service sử dụng Keycloak Token API để xác thực.</li>
+    <li>Keycloak trả về access token, refresh token và thời gian hết hạn.</li>
+    <li>Client lưu thông tin phiên và gắn access token vào header <code>Authorization: Bearer</code>.</li>
+    <li>Khi access token hết hạn, client dùng refresh token để yêu cầu token mới.</li>
+    <li>Nếu refresh token không còn hợp lệ, client xóa phiên và yêu cầu người dùng đăng nhập lại.</li>
+  </ol>
+
+  <h3>3.2.7. Luồng quên mật khẩu</h3>
+  <ol>
+    <li>Người dùng nhập phần tên của địa chỉ email nội bộ; client ghép với miền <code>@gitlab.handbook.local</code>.</li>
+    <li>User Service tìm người dùng theo email nhưng phản hồi theo cách không tiết lộ email có tồn tại hay không.</li>
+    <li>Nếu tồn tại, User Service yêu cầu Keycloak gửi action email <code>UPDATE_PASSWORD</code>.</li>
+    <li>Keycloak tạo liên kết đặt lại mật khẩu với địa chỉ frontend có thể truy cập từ trình duyệt.</li>
+    <li>Keycloak gửi thư qua docker-mailserver; người dùng mở Roundcube để nhận liên kết.</li>
+    <li>Sau khi đổi mật khẩu, các phiên cũ có thể không còn hợp lệ; client thực hiện refresh hoặc yêu cầu đăng nhập lại.</li>
+  </ol>
+
+  <h3>3.2.8. Luồng gửi và nhận tin nhắn</h3>
+  <ol>
+    <li>Client mở hội thoại và tải lịch sử qua REST API.</li>
+    <li>Client duy trì kết nối STOMP WebSocket qua API Gateway.</li>
+    <li>Khi gửi tin nhắn, client tạo bản ghi tạm có trạng thái <code>SENDING</code> để phản hồi giao diện ngay lập tức.</li>
+    <li>Tin nhắn được gửi đến đích WebSocket của Chat Service.</li>
+    <li>Chat Service xử lý nghiệp vụ, lưu dữ liệu vào PostgreSQL và phát sự kiện đến người nhận.</li>
+    <li>Client đối chiếu tin nhắn phản hồi với bản ghi tạm, cập nhật mã tin nhắn và trạng thái.</li>
+    <li>Nếu hội thoại đang mở, tin nhắn được đánh dấu đã xem; nếu chưa mở, số lượng chưa đọc được tăng.</li>
+    <li>Các sự kiện chỉnh sửa, thu hồi, reaction hoặc ghim được đồng bộ vào danh sách đang hiển thị.</li>
+  </ol>
+
+  <h3>3.2.9. Luồng xử lý tệp đính kèm</h3>
+  <ol>
+    <li>Client kiểm tra tệp và giới hạn kích thước trước khi gửi.</li>
+    <li>Tệp được tải lên Chat Service bằng multipart request; giao diện hiển thị tiến trình tải.</li>
+    <li>Chat Service lưu tệp vào volume <code>chat_uploads</code> và trả về đường dẫn truy cập.</li>
+    <li>Client gửi metadata của tệp qua WebSocket như tên, kích thước, loại và URL.</li>
+    <li>Người nhận tải nội dung tệp thông qua endpoint của Chat Service.</li>
+  </ol>
+  <p class="note">
+    Cấu hình hiện tại của Chat Service và API Gateway giới hạn multipart ở 50 MB. Vì vậy, giới hạn
+    kiểm tra phía JavaFX cần được giữ bằng hoặc thấp hơn 50 MB để thống nhất toàn hệ thống.
+  </p>
+
+  <h3>3.2.10. Luồng cập nhật trạng thái trực tuyến</h3>
+  <ol>
+    <li>Sau khi đăng nhập, JavaFX khởi động bộ lập lịch heartbeat.</li>
+    <li>Mỗi 30 giây, client gửi yêu cầu đến <code>/api/presence/heartbeat</code> kèm access token.</li>
+    <li>API Gateway kiểm tra JWT và chuyển yêu cầu đến Chat Service.</li>
+    <li>Chat Service ánh xạ subject trong JWT sang mã người dùng nội bộ và ghi thời điểm hiện tại vào Redis.</li>
+    <li>Redis đặt TTL 75 giây; các heartbeat tiếp theo tiếp tục gia hạn TTL.</li>
+    <li>Khi không còn heartbeat, key hết hạn và trạng thái người dùng chuyển thành offline.</li>
+  </ol>
+
+  <h3>3.2.11. Luồng xử lý câu hỏi bằng RAG</h3>
+  <ol>
+    <li>Người dùng gửi câu hỏi đến hội thoại trợ lý AI.</li>
+    <li>AI Service chuẩn hóa câu hỏi và truy xuất các ứng viên liên quan từ Qdrant.</li>
+    <li>Hệ thống kiểm tra khả năng trùng khớp với tập câu hỏi - trả lời chuẩn.</li>
+    <li>Nếu không có kết quả trùng khớp đủ cao, reranker xếp hạng lại các đoạn tài liệu.</li>
+    <li>Các đoạn có độ liên quan cao nhất được ghép thành phần ngữ cảnh của prompt.</li>
+    <li>AI Service gửi prompt đến Qwen2:1.5B thông qua REST API của Ollama.</li>
+    <li>Câu trả lời và nguồn tham chiếu được ghi log và trả lại client.</li>
+    <li>Nếu không tìm thấy ngữ cảnh phù hợp, hệ thống trả lời rằng kho tri thức chưa có thông tin.</li>
+  </ol>
+
+  <h3>3.2.12. Thiết kế dữ liệu</h3>
+  <p>
+    Dữ liệu được phân chia theo miền nghiệp vụ để hạn chế phụ thuộc trực tiếp giữa các dịch vụ.
+    User Service quản lý dữ liệu tài khoản ứng dụng; Chat Service quản lý dữ liệu giao tiếp; Keycloak
+    quản lý định danh và thông tin xác thực; Roundcube sử dụng cơ sở dữ liệu riêng cho metadata
+    webmail.
+  </p>
+  <table>
+    <thead>
+      <tr><th>Kho dữ liệu</th><th>Dữ liệu chính</th><th>Thành phần sở hữu</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>User PostgreSQL</td><td>Hồ sơ người dùng, email nội bộ, trạng thái tài khoản và liên kết Keycloak.</td><td>User Service</td></tr>
+      <tr><td>Chat PostgreSQL</td><td>Hồ sơ chat, bạn bè, nhóm, thành viên, hội thoại, tin nhắn và reaction.</td><td>Chat Service</td></tr>
+      <tr><td>Keycloak database</td><td>Định danh, mật khẩu đăng nhập, role, phiên và token metadata.</td><td>Keycloak</td></tr>
+      <tr><td>Mail volumes</td><td>Mailbox, thư, trạng thái mail server và mật khẩu mailbox dạng băm.</td><td>docker-mailserver</td></tr>
+      <tr><td>Roundcube PostgreSQL</td><td>Thiết lập, metadata và dữ liệu phục vụ giao diện webmail.</td><td>Roundcube</td></tr>
+      <tr><td>Qdrant local store</td><td>Vector biểu diễn các đoạn tài liệu và tập hỏi đáp nội bộ.</td><td>AI Service</td></tr>
+      <tr><td>Redis</td><td>Trạng thái online và thời điểm heartbeat gần nhất với TTL.</td><td>Chat Service</td></tr>
+    </tbody>
+  </table>
+
+  <h3>3.2.13. Cơ chế bảo mật</h3>
+  <p>
+    Hệ thống sử dụng OAuth2/OpenID Connect và JWT làm nền tảng xác thực. JWT được ký bởi Keycloak;
+    API Gateway và các resource server kiểm tra issuer cùng khóa công khai trước khi xử lý yêu cầu.
+    Role trong token được sử dụng để hỗ trợ phân quyền. Mật khẩu đăng nhập không được lưu trong
+    User Service mà do Keycloak quản lý.
+  </p>
+  <ul>
+    <li><strong>Access token:</strong> có thời hạn ngắn và được gửi kèm mỗi yêu cầu được bảo vệ.</li>
+    <li><strong>Refresh token:</strong> dùng để nhận access token mới mà không yêu cầu nhập lại mật khẩu.</li>
+    <li><strong>WebSocket:</strong> client truyền access token khi thiết lập kết nối STOMP.</li>
+    <li><strong>Mail:</strong> SMTP sử dụng TLS; IMAP sử dụng SSL; mailbox được tách khỏi mật khẩu chat.</li>
+    <li><strong>Quên mật khẩu:</strong> API không công khai việc email có tồn tại, giảm nguy cơ dò tài khoản.</li>
+    <li><strong>Mạng Docker:</strong> các dịch vụ giao tiếp bằng hostname nội bộ; mail sử dụng mạng riêng <code>mail-network</code>.</li>
+    <li><strong>Dữ liệu nhạy cảm:</strong> token, mật khẩu database và khóa nội bộ phải được cấu hình qua biến môi trường khi triển khai thực tế.</li>
+  </ul>
+  <p class="note">
+    Các mật khẩu, token nội bộ và khóa bí mật được cung cấp qua tệp <code>.env</code> cục bộ đã
+    loại khỏi Git; Docker Compose từ chối khởi động nếu thiếu các biến bắt buộc. PostgreSQL và
+    Redis chỉ được truy cập trong mạng Docker, không công khai cổng ra host. API Gateway,
+    Keycloak, Roundcube, SMTP Submission và IMAPS sử dụng TLS với certificate được mount từ thư
+    mục <code>secrets</code>; private key và certificate không được lưu trong repository.
+  </p>
+
+  <h2 class="section-title">3.3. Hiện thực giải pháp</h2>
+
+  <h3>3.3.1. Hiện thực JavaFX Client</h3>
+  <p>
+    Client được phát triển bằng Java 21, JavaFX và FXML. Các màn hình chính gồm đăng nhập, đăng ký,
+    quên mật khẩu, thông tin mailbox, giao diện chat và hồ sơ người dùng. Mô hình MVVM được áp dụng
+    để tách giao diện khỏi nghiệp vụ phía client. <code>ApiClient</code> quản lý giao tiếp REST và
+    phiên đăng nhập; <code>RealtimeChatService</code> quản lý STOMP WebSocket.
+  </p>
+  <p>
+    Phần chat được chia thành các thành phần chuyên trách như quản lý danh bạ, hội thoại, gửi tin
+    nhắn, realtime, nhóm, hồ sơ và thao tác tin nhắn. Cách phân tách này giảm kích thước của
+    <code>ChatViewModel</code>, hạn chế phụ thuộc chéo và tạo điều kiện kiểm thử từng workflow.
+  </p>
+
+  <h3>3.3.2. Hiện thực User Service</h3>
+  <p>
+    User Service cung cấp các endpoint xác thực và quản lý người dùng. Các controller chỉ tiếp
+    nhận DTO và gọi use case. <code>AuthApplicationService</code> điều phối đăng ký, đăng nhập,
+    refresh token, đăng xuất và quên mật khẩu. <code>KeycloakUserAdapter</code> cùng
+    <code>KeycloakTokenAdapter</code> đóng gói Keycloak Admin API và Token API.
+    <code>DockerMailserverMailboxAdapter</code> hiện thực port quản lý mailbox.
+  </p>
+
+  <h3>3.3.3. Hiện thực Chat Service</h3>
+  <p>
+    Chat Service cung cấp controller cho hội thoại, nhóm, bạn bè, tin nhắn và hồ sơ chat. Mỗi miền
+    nghiệp vụ có use case và application service riêng. Các repository adapter sử dụng Spring Data
+    JPA để truy cập PostgreSQL. WebSocket được cấu hình bằng
+    <code>@EnableWebSocketMessageBroker</code>; controller WebSocket xử lý đích gửi tin nhắn và
+    trạng thái nhập.
+  </p>
+
+  <h3>3.3.4. Hiện thực AI Service</h3>
+  <p>
+    Pipeline RAG gồm bốn bước chính: truy xuất, kiểm tra QA trùng khớp, reranking và sinh câu trả
+    lời. Hệ thống sử dụng mô hình embedding <code>BAAI/bge-m3</code>, mô hình reranker
+    <code>BAAI/bge-reranker-base</code> và mô hình sinh <code>qwen2:1.5b</code>. Kết quả xử lý
+    được lưu vào log JSONL, bao gồm câu hỏi, câu trả lời, nguồn và điểm truy xuất để hỗ trợ đánh
+    giá hoặc truy vết.
+  </p>
+
+  <h3>3.3.5. Hiện thực Mail Service</h3>
+  <p>
+    Docker-mailserver được cấu hình theo cơ chế account provisioner dạng file và lưu dữ liệu qua
+    Docker volume. Mail Account Manager gọi lệnh quản trị của docker-mailserver thông qua Docker
+    socket và bảo vệ API bằng token nội bộ. Roundcube kết nối đến IMAP cổng 993 và SMTP cổng 587,
+    đồng thời sử dụng PostgreSQL để lưu metadata của webmail.
+  </p>
+
+  <h3>3.3.6. Triển khai bằng Docker Compose</h3>
+  <p>
+    Tệp <code>chat-system/docker-compose.yml</code> mô tả môi trường tích hợp của hệ thống. Các
+    container chính gồm:
+  </p>
+  <ul>
+    <li><code>postgres</code>, <code>keycloak</code> và <code>user-service</code> cho miền người dùng.</li>
+    <li><code>chat-postgres</code> và <code>chat-service</code> cho miền chat.</li>
+    <li><code>redis</code> lưu trạng thái online/offline theo TTL.</li>
+    <li><code>ai-rag-bot</code> cho dịch vụ AI; Ollama chạy trên host.</li>
+    <li><code>api-gateway</code> làm điểm vào HTTP và WebSocket.</li>
+    <li><code>mailserver</code>, <code>mail-account-manager</code>, <code>roundcube</code> và <code>roundcube-db</code> cho hệ thống thư.</li>
+  </ul>
+  <p>
+    Docker volume được sử dụng để duy trì dữ liệu PostgreSQL, tệp chat, mailbox, trạng thái mail
+    và dữ liệu Roundcube sau khi container được khởi động lại. Thứ tự phụ thuộc và healthcheck
+    giúp các dịch vụ chỉ khởi động khi thành phần cần thiết đã sẵn sàng.
+  </p>
+
+  <h3>3.3.7. Cấu hình cổng dịch vụ trong môi trường phát triển</h3>
+  <table>
+    <thead>
+      <tr><th>Thành phần</th><th>Cổng host</th><th>Mục đích</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Keycloak</td><td>8081</td><td>HTTPS đăng nhập, quản trị realm và xử lý action token.</td></tr>
+      <tr><td>User Service</td><td>Không công khai</td><td>API tài khoản và hồ sơ trong mạng Docker.</td></tr>
+      <tr><td>Chat Service</td><td>Không công khai</td><td>API chat và WebSocket trong mạng Docker.</td></tr>
+      <tr><td>Roundcube</td><td>8085</td><td>Giao diện webmail qua HTTPS.</td></tr>
+      <tr><td>API Gateway</td><td>8088</td><td>Điểm vào HTTPS/WSS chung cho client.</td></tr>
+      <tr><td>AI RAG Service</td><td>Không công khai</td><td>API trợ lý AI được truy cập qua Gateway.</td></tr>
+      <tr><td>Redis</td><td>Không công khai</td><td>Presence online/offline và TTL heartbeat trong mạng Docker.</td></tr>
+      <tr><td>Ollama</td><td>11434</td><td>REST API mô hình ngôn ngữ trên host.</td></tr>
+      <tr><td>SMTP Submission</td><td>587</td><td>Gửi thư qua STARTTLS.</td></tr>
+      <tr><td>IMAPS</td><td>993</td><td>Truy cập hộp thư qua TLS.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>3.3.8. Kiểm thử và xác minh</h3>
+  <p>
+    Hệ thống được kiểm tra ở mức unit test và kiểm tra tích hợp trong môi trường Docker. Phía
+    JavaFX có kiểm thử cho view model xác thực, parser emoji, tiện ích liên kết, dịch vụ realtime
+    và trạng thái hiển thị tin nhắn. Các kịch bản tích hợp cần xác minh gồm đăng ký đồng thời tạo
+    mailbox, đăng nhập và refresh token, gửi email đặt lại mật khẩu, gửi nhận tin nhắn WebSocket,
+    quản lý nhóm, tải tệp và gọi trợ lý AI.
+  </p>
+
+  <h2 class="section-title">3.4. Đánh giá giải pháp</h2>
+
+  <h3>3.4.1. Kết quả đạt được</h3>
+  <ul>
+    <li>Xây dựng được ứng dụng chat JavaFX kết nối với hệ thống backend nhiều dịch vụ.</li>
+    <li>Tách biệt miền người dùng, chat, AI và mail, giúp quản lý trách nhiệm rõ ràng.</li>
+    <li>Tích hợp Keycloak để quản lý danh tính, JWT, refresh token và đặt lại mật khẩu.</li>
+    <li>Hỗ trợ nhắn tin thời gian thực, quản lý nhóm, bạn bè, tệp, reaction, ghim và lịch sử.</li>
+    <li>Tạo tự động mailbox nội bộ và cung cấp giao diện Roundcube cho người dùng.</li>
+    <li>Tích hợp pipeline RAG và mô hình Qwen chạy cục bộ để hỗ trợ hỏi đáp nội bộ.</li>
+    <li>Sử dụng Redis heartbeat và TTL để quản lý trạng thái online/offline.</li>
+    <li>Đóng gói phần lớn thành phần bằng Docker Compose, thuận tiện dựng môi trường thử nghiệm.</li>
+  </ul>
+
+  <h3>3.4.2. Hạn chế</h3>
+  <ul>
+    <li>Môi trường hiện tại vẫn sử dụng một số mật khẩu và chứng chỉ tự ký dành cho phát triển.</li>
+    <li>Ollama chạy trên host nên toàn bộ hệ thống chưa được đóng gói hoàn toàn trong Docker Compose.</li>
+    <li>Simple Broker của Spring phù hợp quy mô thử nghiệm nhưng chưa tối ưu cho triển khai nhiều instance.</li>
+    <li>Hệ thống chưa có cơ chế giám sát tập trung, distributed tracing và tổng hợp log.</li>
+    <li>Admin Dashboard chưa có phần hiện thực đầy đủ trong mã nguồn hiện tại.</li>
+    <li>Giới hạn tệp giữa JavaFX và backend cần được cấu hình thống nhất.</li>
+  </ul>
+
+  <h3>3.4.3. Hướng cải tiến</h3>
+  <ul>
+    <li>Đưa secret vào Docker Secrets hoặc hệ thống quản lý bí mật chuyên dụng.</li>
+    <li>Sử dụng HTTPS/WSS với chứng chỉ hợp lệ cho toàn bộ luồng bên ngoài.</li>
+    <li>Đóng gói Ollama hoặc cấu hình GPU server riêng cho môi trường sản xuất.</li>
+    <li>Thay Simple Broker bằng RabbitMQ hoặc broker hỗ trợ STOMP khi mở rộng nhiều Chat Service.</li>
+    <li>Bổ sung OpenTelemetry, distributed tracing và hệ thống log tập trung.</li>
+    <li>Bổ sung rate limiting, antivirus cho tệp tải lên, sao lưu và chính sách lưu giữ dữ liệu.</li>
+    <li>Hoàn thiện Admin Dashboard để quản lý tài khoản, vai trò và trạng thái hệ thống.</li>
+    <li>Xây dựng bộ đánh giá chất lượng RAG dựa trên độ chính xác, độ liên quan và thời gian phản hồi.</li>
+  </ul>
+
+  <h2 class="section-title">3.5. Kết luận chương</h2>
+  <p>
+    Chương này đã trình bày giải pháp cho bài toán xây dựng hệ thống chat nội bộ tích hợp trợ lý AI,
+    từ yêu cầu chức năng, kiến trúc tổng quan, thiết kế giao tiếp, cơ chế bảo mật đến cách hiện thực
+    và triển khai. Giải pháp kết hợp JavaFX, Spring Boot, Spring Cloud Gateway, Keycloak,
+    PostgreSQL, WebSocket/STOMP, Docker, hệ thống mail nội bộ và pipeline RAG sử dụng Qwen qua
+    Ollama. Kiến trúc phân tách theo miền nghiệp vụ giúp hệ thống dễ bảo trì, có khả năng mở rộng và
+    phù hợp với mục tiêu kiểm soát dữ liệu trên hạ tầng riêng của tổ chức.
+  </p>
+</body>
+</html>
