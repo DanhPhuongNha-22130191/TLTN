@@ -124,6 +124,12 @@ public class GlobalExceptionHandler {
         if (lower.contains("email already") || lower.contains("email is already")) {
             return "Email đã được sử dụng.";
         }
+        if (lower.contains("already your friend")) {
+            return "Hai bạn đã là bạn bè.";
+        }
+        if (lower.contains("friend request") && lower.contains("already pending")) {
+            return "Lời mời kết bạn đang chờ phản hồi.";
+        }
 
         // ── Account state errors ─────────────────────────────────────────────
         if (lower.contains("account is disabled") || lower.contains("user is disabled")

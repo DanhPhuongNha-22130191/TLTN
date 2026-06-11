@@ -6,6 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import secretchat.chatservice.application.exception.ConflictException;
 import secretchat.chatservice.application.port.in.UserProfileUseCase;
 import secretchat.chatservice.application.port.out.FriendRepositoryPort;
 import secretchat.chatservice.domain.model.Friend;
@@ -16,6 +17,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -51,6 +53,48 @@ class FriendServiceTest {
     }
 
     @Test
+    void rejectsDuplicatePendingFriendRequest() {
+        UserProfile recipient = recipient();
+        when(profiles.getProfileByUsernameStrict("recipient-user"))
+                .thenReturn(Optional.of(recipient));
+        when(repository.findBetweenUsers("sender", "recipient"))
+                .thenReturn(Optional.of(Friend.builder()
+                        .userId("sender")
+                        .friendId("recipient")
+                        .status(FriendStatus.PENDING)
+                        .createdAt(LocalDateTime.now())
+                        .build()));
+
+        ConflictException error = assertThrows(
+                ConflictException.class,
+                () -> service.sendFriendRequest("sender", "recipient-user"));
+
+        assertEquals("A friend request is already pending", error.getMessage());
+        verify(repository, never()).save(any());
+    }
+
+    @Test
+    void rejectsUserWhoIsAlreadyAFriend() {
+        UserProfile recipient = recipient();
+        when(profiles.getProfileByUsernameStrict("recipient-user"))
+                .thenReturn(Optional.of(recipient));
+        when(repository.findBetweenUsers("sender", "recipient"))
+                .thenReturn(Optional.of(Friend.builder()
+                        .userId("sender")
+                        .friendId("recipient")
+                        .status(FriendStatus.ACCEPTED)
+                        .createdAt(LocalDateTime.now())
+                        .build()));
+
+        ConflictException error = assertThrows(
+                ConflictException.class,
+                () -> service.sendFriendRequest("sender", "recipient-user"));
+
+        assertEquals("This user is already your friend", error.getMessage());
+        verify(repository, never()).save(any());
+    }
+
+    @Test
     void recipientCanAcceptPendingRequest() {
         Friend pending = pendingRequest();
         when(repository.findById("request-1")).thenReturn(Optional.of(pending));
@@ -81,6 +125,13 @@ class FriendServiceTest {
                 .friendId("recipient")
                 .status(FriendStatus.PENDING)
                 .createdAt(LocalDateTime.now())
+                .build();
+    }
+
+    private UserProfile recipient() {
+        return UserProfile.builder()
+                .id("recipient")
+                .username("recipient-user")
                 .build();
     }
 }

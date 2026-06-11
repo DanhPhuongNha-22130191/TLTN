@@ -61,8 +61,7 @@ public class UserServiceClient {
             log.warn("User not found at url: {}", url);
             return Optional.empty();
         } catch (HttpClientErrorException.Unauthorized e) {
-            log.error("Unauthorized (401) calling user-service at url: {}. Token: {}. Headers: {}", 
-                    url, token, headers, e);
+            log.error("Unauthorized (401) calling user-service at url: {}", url, e);
             throw new RuntimeException("Unauthorized to access user-service: " + e.getMessage(), e);
         } catch (Exception e) {
             log.error("Error calling user-service at url: {}", url, e);
@@ -75,16 +74,12 @@ public class UserServiceClient {
             ServletRequestAttributes attributes =
                     (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
 
-            log.info("attributes = {}", attributes);
-
             if (attributes != null) {
                 HttpServletRequest request = attributes.getRequest();
-
-                log.info("Authorization header = {}", request.getHeader("Authorization"));
-
                 String authHeader = request.getHeader("Authorization");
 
                 if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                    log.debug("Bearer token found in request context");
                     return authHeader;
                 }
             }

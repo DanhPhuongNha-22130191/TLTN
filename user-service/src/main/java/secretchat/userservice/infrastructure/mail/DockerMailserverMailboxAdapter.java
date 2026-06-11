@@ -1,6 +1,8 @@
 package secretchat.userservice.infrastructure.mail;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import secretchat.userservice.application.port.MailboxPort;
@@ -18,6 +20,8 @@ import java.util.Map;
 
 @Component
 public class DockerMailserverMailboxAdapter implements MailboxPort {
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(DockerMailserverMailboxAdapter.class);
     private final HttpClient httpClient = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(10))
             .build();
@@ -71,10 +75,16 @@ public class DockerMailserverMailboxAdapter implements MailboxPort {
     }
 
     private void send(HttpRequest.Builder requestBuilder) {
+        HttpRequest request = requestBuilder.build();
         try {
             HttpResponse<String> response = httpClient.send(
-                    requestBuilder.build(), HttpResponse.BodyHandlers.ofString());
+                    request, HttpResponse.BodyHandlers.ofString());
+            LOGGER.info("Mail account manager response: method={}, uri={}, status={}",
+                    request.method(), request.uri(), response.statusCode());
             if (response.statusCode() < 200 || response.statusCode() >= 300) {
+                LOGGER.error(
+                        "Mail account manager request failed: method={}, uri={}, status={}, response={}",
+                        request.method(), request.uri(), response.statusCode(), response.body());
                 throw new MailboxException(
                         "Mail account manager trả về HTTP "
                                 + response.statusCode() + ": " + response.body());
@@ -82,6 +92,8 @@ public class DockerMailserverMailboxAdapter implements MailboxPort {
         } catch (MailboxException error) {
             throw error;
         } catch (Exception error) {
+            LOGGER.error("Mail account manager connection failed: method={}, uri={}",
+                    request.method(), request.uri(), error);
             throw new MailboxException("Không thể kết nối mail account manager", error);
         }
     }

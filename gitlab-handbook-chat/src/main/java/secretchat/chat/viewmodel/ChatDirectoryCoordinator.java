@@ -4,6 +4,7 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import secretchat.chat.service.ChatService;
+import secretchat.common.exception.ApiException;
 import secretchat.dto.request.AddFriendRequest;
 import secretchat.dto.response.ConversationResponse;
 import secretchat.dto.response.FriendResponse;
@@ -131,9 +132,20 @@ final class ChatDirectoryCoordinator {
                         "Đã gửi lời mời kết bạn đến " + username.trim() + "."));
             } catch (Exception error) {
                 Platform.runLater(() -> errorConsumer.accept(
-                        "Không thể thêm bạn: " + error.getMessage()));
+                        friendRequestErrorMessage(error)));
             }
         });
+    }
+
+    private String friendRequestErrorMessage(Exception error) {
+        Throwable current = error;
+        while (current != null) {
+            if (current instanceof ApiException apiError) {
+                return apiError.getUserMessage();
+            }
+            current = current.getCause();
+        }
+        return "Không thể gửi lời mời kết bạn. Vui lòng thử lại.";
     }
 
     CompletableFuture<java.util.List<FriendResponse>> loadIncomingFriendRequests() {

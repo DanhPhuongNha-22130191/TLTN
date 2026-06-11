@@ -3,6 +3,7 @@ package secretchat.chatservice.application.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import secretchat.chatservice.application.exception.ConflictException;
 import secretchat.chatservice.application.port.in.FriendUseCase;
 import secretchat.chatservice.application.port.in.UserProfileUseCase;
 import secretchat.chatservice.application.port.out.FriendRepositoryPort;
@@ -39,7 +40,7 @@ public class FriendService implements FriendUseCase {
         }
 
         friendRepositoryPort.findBetweenUsers(userId, recipient.getId()).ifPresent(existing -> {
-            throw new IllegalArgumentException(existing.getStatus() == FriendStatus.ACCEPTED
+            throw new ConflictException(existing.getStatus() == FriendStatus.ACCEPTED
                     ? "This user is already your friend"
                     : "A friend request is already pending");
         });

@@ -1,6 +1,8 @@
 package secretchat.userservice.api.exception;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -19,6 +21,7 @@ import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+    private static final Logger LOGGER = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     record ErrorResponse(int status, String error, String message, String path, LocalDateTime timestamp) {}
 
@@ -80,12 +83,16 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(KeycloakException.class)
     public ResponseEntity<ErrorResponse> handleKeycloak(
             KeycloakException ex, HttpServletRequest request) {
+        LOGGER.error("Keycloak request failed: method={}, path={}",
+                request.getMethod(), request.getRequestURI(), ex);
         return build(HttpStatus.BAD_GATEWAY, ex.getMessage(), request.getRequestURI());
     }
 
     @ExceptionHandler(MailboxException.class)
     public ResponseEntity<ErrorResponse> handleMailbox(
             MailboxException ex, HttpServletRequest request) {
+        LOGGER.error("Mailbox request failed: method={}, path={}",
+                request.getMethod(), request.getRequestURI(), ex);
         return build(HttpStatus.BAD_GATEWAY, ex.getMessage(), request.getRequestURI());
     }
 
@@ -94,7 +101,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneral(
             Exception ex, HttpServletRequest request) {
-        // Log for server-side debugging while returning the real cause to the client
+        LOGGER.error("Unhandled request error: method={}, path={}",
+                request.getMethod(), request.getRequestURI(), ex);
         String message = ex.getCause() != null
                 ? ex.getMessage() + " (caused by: " + ex.getCause().getMessage() + ")"
                 : ex.getMessage();

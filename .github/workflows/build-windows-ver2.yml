@@ -34,6 +34,7 @@ jobs:
           Copy-Item .env.example target/dist/SecretChat/.env.example
           Copy-Item .env.example target/dist/SecretChat/.env
           Copy-Item README-CONFIG.txt target/dist/SecretChat/README-CONFIG.txt
+          Copy-Item INSTALL-CLIENT-CA.ps1 target/dist/SecretChat/INSTALL-CLIENT-CA.ps1
 
       - name: Upload Windows Standalone App
         uses: actions/upload-artifact@v4

@@ -6,6 +6,8 @@ import javafx.collections.transformation.FilteredList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.*;
@@ -322,23 +324,35 @@ public final class ConversationDetailsDialog {
                 super.updateItem(item, empty);
                 if (empty || item == null) { setGraphic(null); return; }
                 ConversationDetailsService.SharedLink link = (ConversationDetailsService.SharedLink) item;
-                Label url = new Label(link.url());
+                TextField url = new TextField(link.url());
+                url.setEditable(false);
+                url.setFocusTraversable(true);
                 url.getStyleClass().add("details-link-label");
                 VBox info = new VBox(url, new Label(link.sender() + " • " + safe(link.time())));
+                HBox.setHgrow(info, Priority.ALWAYS);
                 Region spacer = new Region(); HBox.setHgrow(spacer, Priority.ALWAYS);
+                Button copy = actionButton("Sao chép");
+                copy.setOnAction(e -> copyLink(link.url(), copy));
                 Button open = actionButton("Mở link");
                 open.setOnAction(e -> openLink(link.url()));
-                HBox row = new HBox(10, info, spacer, open);
+                HBox row = new HBox(10, info, spacer, copy, open);
                 row.setAlignment(Pos.CENTER_LEFT);
                 row.getStyleClass().add("details-link-row");
-                row.setOnMouseClicked(event -> {
-                    if (event.getButton() == javafx.scene.input.MouseButton.PRIMARY) {
-                        openLink(link.url());
-                    }
-                });
                 setGraphic(row);
             }
         });
+    }
+
+    private void copyLink(String url, Button button) {
+        ClipboardContent content = new ClipboardContent();
+        content.putString(url);
+        Clipboard.getSystemClipboard().setContent(content);
+        String originalText = button.getText();
+        button.setText("Đã chép");
+        javafx.animation.PauseTransition reset = new javafx.animation.PauseTransition(
+                Duration.seconds(1.5));
+        reset.setOnFinished(event -> button.setText(originalText));
+        reset.play();
     }
 
     private void openLink(String url) {

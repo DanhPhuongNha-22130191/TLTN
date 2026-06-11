@@ -2,6 +2,8 @@ package secretchat.userservice.application.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Value;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import secretchat.userservice.application.dto.ForgotPasswordCommand;
 import secretchat.userservice.application.dto.LoginCommand;
 import secretchat.userservice.application.dto.LoginResult;
@@ -27,6 +29,7 @@ import java.security.SecureRandom;
 
 @Service
 public class AuthApplicationService implements AuthUseCase {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AuthApplicationService.class);
     private static final String PASSWORD_CHARACTERS =
             "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%";
     private static final int MAILBOX_PASSWORD_LENGTH = 16;
@@ -56,14 +59,20 @@ public class AuthApplicationService implements AuthUseCase {
 
     @Override
     public RegistrationResult register(RegisterCommand command) {
+        LOGGER.info("Registration started: username={}, internalEmail={}@{}",
+                command.username(), command.username(), mailDomain);
         if (!command.password().equals(command.confirmPassword())) {
+            LOGGER.warn("Registration rejected: passwords do not match for username={}",
+                    command.username());
             throw new IllegalArgumentException("Passwords do not match");
         }
         if (userRepository.existsByUsername(command.username())) {
+            LOGGER.warn("Registration rejected: username already exists: {}", command.username());
             throw new UserAlreadyExistsException("Username already exists: " + command.username());
         }
         Email internalEmail = new Email(command.username() + "@" + mailDomain);
         if (userRepository.existsByEmail(internalEmail)) {
+            LOGGER.warn("Registration rejected: email already exists: {}", internalEmail.getValue());
             throw new UserAlreadyExistsException("Email already exists: " + internalEmail.getValue());
         }
 
@@ -71,12 +80,19 @@ public class AuthApplicationService implements AuthUseCase {
         String keycloakId = null;
         boolean mailboxCreated = false;
         try {
+            LOGGER.info("Creating mailbox: email={}", internalEmail.getValue());
             mailboxPort.createMailbox(
                     internalEmail.getValue(), mailboxPassword, command.fullName());
             mailboxCreated = true;
+            LOGGER.info("Mailbox created: email={}", internalEmail.getValue());
+
+            LOGGER.info("Creating Keycloak user: username={}, email={}",
+                    command.username(), internalEmail.getValue());
             keycloakId = keycloakUserPort.createUser(
                     command.username(), internalEmail.getValue(),
                     command.password(), command.fullName());
+            LOGGER.info("Keycloak user created: username={}, keycloakId={}",
+                    command.username(), keycloakId);
 
             User user = User.builder()
                     .keycloakUserId(new KeycloakUserId(keycloakId))
@@ -88,23 +104,37 @@ public class AuthApplicationService implements AuthUseCase {
                     .createdAt(LocalDateTime.now())
                     .build();
 
+            User savedUser = userRepository.save(user);
+            LOGGER.info("Registration completed: username={}, keycloakId={}",
+                    command.username(), keycloakId);
             return new RegistrationResult(
-                    UserResult.from(userRepository.save(user)),
+                    UserResult.from(savedUser),
                     mailboxPassword,
                     webmailUrl);
         } catch (RuntimeException error) {
+            LOGGER.error(
+                    "Registration failed: username={}, email={}, mailboxCreated={}, keycloakCreated={}",
+                    command.username(), internalEmail.getValue(), mailboxCreated,
+                    keycloakId != null, error);
             if (keycloakId != null) {
                 try {
                     keycloakUserPort.deleteUser(keycloakId);
-                } catch (RuntimeException ignored) {
-                    error.addSuppressed(ignored);
+                    LOGGER.info("Registration rollback removed Keycloak user: keycloakId={}", keycloakId);
+                } catch (RuntimeException rollbackError) {
+                    LOGGER.error("Registration rollback failed to remove Keycloak user: keycloakId={}",
+                            keycloakId, rollbackError);
+                    error.addSuppressed(rollbackError);
                 }
             }
             if (mailboxCreated) {
                 try {
                     mailboxPort.deleteMailbox(internalEmail.getValue());
-                } catch (RuntimeException ignored) {
-                    error.addSuppressed(ignored);
+                    LOGGER.info("Registration rollback removed mailbox: email={}",
+                            internalEmail.getValue());
+                } catch (RuntimeException rollbackError) {
+                    LOGGER.error("Registration rollback failed to remove mailbox: email={}",
+                            internalEmail.getValue(), rollbackError);
+                    error.addSuppressed(rollbackError);
                 }
             }
             throw error;

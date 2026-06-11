@@ -190,10 +190,8 @@ services:
   # User Service
   # =========================
   user-service:
-    build:
-      context: ../user-service
     image: phuongnha/user-service:${USER_SERVICE_TAG:-latest}
-    pull_policy: build
+    pull_policy: always
     platform: linux/amd64
     container_name: user-service
 
@@ -215,7 +213,7 @@ services:
       KEYCLOAK_ADMIN_USERNAME: admin
       KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:?Set KEYCLOAK_ADMIN_PASSWORD in chat-system/.env}
 
-      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: https://${PUBLIC_HOSTNAME:?Set PUBLIC_HOSTNAME in chat-system/.env}:8081/realms/master
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://${PUBLIC_HOSTNAME:?Set PUBLIC_HOSTNAME in chat-system/.env}:8081/realms/master
       SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8080/realms/master/protocol/openid-connect/certs
 
       INTERNAL_MAIL_DOMAIN: gitlab.handbook.local
@@ -274,10 +272,8 @@ services:
   # Chat Service
   # =========================
   chat-service:
-    build:
-      context: ../chat-service
     image: phuongnha/chat-service:${CHAT_SERVICE_TAG:-latest}
-    pull_policy: build
+    pull_policy: always
     platform: linux/amd64
     container_name: chat-service
 
@@ -301,6 +297,8 @@ services:
       KEYCLOAK_REALM: master
       JWT_ISSUER_URI: https://${PUBLIC_HOSTNAME:?Set PUBLIC_HOSTNAME in chat-system/.env}:8081/realms/master
       JWT_JWK_SET_URI: http://keycloak:8080/realms/master/protocol/openid-connect/certs
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://${PUBLIC_HOSTNAME:?Set PUBLIC_HOSTNAME in chat-system/.env}:8081/realms/master
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8080/realms/master/protocol/openid-connect/certs
 
       # =========================
       # Upload Config
@@ -352,10 +350,8 @@ services:
   # API Gateway
   # =========================
   api-gateway:
-    build:
-      context: ../api-gateway
     image: phuongnha/api-gateway:${API_GATEWAY_TAG:-latest}
-    pull_policy: build
+    pull_policy: always
     platform: linux/amd64
     container_name: api-gateway
 
@@ -371,6 +367,8 @@ services:
       KEYCLOAK_ISSUER_URI: https://${PUBLIC_HOSTNAME:?Set PUBLIC_HOSTNAME in chat-system/.env}:8081
       KEYCLOAK_JWK_SET_URI: http://keycloak:8080/realms/master/protocol/openid-connect/certs
       KEYCLOAK_REALM: master
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://${PUBLIC_HOSTNAME:?Set PUBLIC_HOSTNAME in chat-system/.env}:8081/realms/master
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8080/realms/master/protocol/openid-connect/certs
 
       USER_SERVICE_HOST: user-service
       USER_SERVICE_PORT: 8082

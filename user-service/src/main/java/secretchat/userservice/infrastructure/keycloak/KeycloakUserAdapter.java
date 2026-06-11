@@ -2,6 +2,8 @@ package secretchat.userservice.infrastructure.keycloak;
 
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.core.Response;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.keycloak.admin.client.CreatedResponseUtil;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.RealmResource;
@@ -20,6 +22,7 @@ import java.util.stream.Collectors;
 
 @Component
 public class KeycloakUserAdapter implements KeycloakUserPort {
+    private static final Logger LOGGER = LoggerFactory.getLogger(KeycloakUserAdapter.class);
 
     private final Keycloak keycloak;
 
@@ -46,11 +49,17 @@ public class KeycloakUserAdapter implements KeycloakUserPort {
 
         try (Response response = realmResource.users().create(user)) {
             int status = response.getStatus();
+            LOGGER.info("Keycloak create-user response: username={}, email={}, status={}",
+                    username, email, status);
             if (status == 409) {
+                LOGGER.warn("Keycloak user conflict: username={}, email={}", username, email);
                 throw new KeycloakException("User with username '" + username + "' or email '" + email + "' already exists in Keycloak");
             }
             if (status < 200 || status >= 300) {
                 String body = response.readEntity(String.class);
+                LOGGER.error(
+                        "Keycloak create-user failed: username={}, email={}, status={}, response={}",
+                        username, email, status, body);
                 throw new KeycloakException("Failed to create user in Keycloak (HTTP " + status + "): " + body);
             }
 
@@ -64,6 +73,8 @@ public class KeycloakUserAdapter implements KeycloakUserPort {
             try {
                 realmResource.users().get(userId).resetPassword(credential);
             } catch (Exception e) {
+                LOGGER.error("Keycloak password setup failed: username={}, userId={}",
+                        username, userId, e);
                 throw new KeycloakException("User created but failed to set password: " + e.getMessage(), e);
             }
 
@@ -71,6 +82,8 @@ public class KeycloakUserAdapter implements KeycloakUserPort {
         } catch (KeycloakException e) {
             throw e;
         } catch (Exception e) {
+            LOGGER.error("Unexpected Keycloak create-user error: username={}, email={}",
+                    username, email, e);
             throw new KeycloakException("Unexpected error creating user in Keycloak: " + e.getMessage(), e);
         }
     }

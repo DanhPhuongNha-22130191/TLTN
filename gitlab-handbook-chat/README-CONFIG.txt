@@ -1,51 +1,69 @@
-CAU HINH KET NOI SECRET CHAT
+TRIEN KHAI SECRET CHAT
 
-1. Mo file .env bang Notepad.
-2. Dat GATEWAY_HOST thanh dia chi IPv4 cua laptop dang chay Docker Compose.
-3. Giu GATEWAY_PORT=8088.
-4. Luu file va mo lai SecretChat.exe.
+1. CHAY TAT CA TREN CUNG MOT MAY
 
-Vi du:
-GATEWAY_HOST=192.168.1.91
-GATEWAY_PORT=8088
+Tai thu muc chat-system:
 
-Tat ca laptop phai cung mang Wi-Fi. May chay Docker phai mo TCP port 8088
-trong Windows Firewall.
+  docker compose up -d
+  docker compose ps
 
-CAU HINH EMAIL NOI BO VA QUEN MAT KHAU
+File .env nam canh SecretChat.exe:
 
-1. Truoc khi chay Docker Compose, dat MAIL_HOST thanh dia chi IPv4 cua may chu.
-   Vi du PowerShell:
-   $env:MAIL_HOST="192.168.1.91"
-2. Chay tai thu muc chat-system:
-   docker compose up -d --build
-3. Webmail cua user:
-   http://192.168.1.91:8085/
-4. Khi dang ky, he thong tu tao:
-   username@gitlab.handbook.local
-   Mat khau mail duoc hien mot lan sau khi dang ky.
-5. Man hinh Quen mat khau nhap dia chi mail noi bo tren. Keycloak gui link
-   dat lai mat khau vao chinh hop thu nay.
-   Neu user mo mail tu may khac trong LAN, cap nhat Frontend URL cua realm:
-   http://192.168.1.91:8081
-   Keycloak Admin Console > Realm settings > General > Frontend URL.
-6. Tai khoan mail quan tri ban dau:
-   admin@gitlab.handbook.local
-   Use the value configured in the ignored chat-system/.env file.
-7. User co the doi mat khau mail tai Settings > Password trong Roundcube.
+  GATEWAY_HOST=localhost
+  GATEWAY_PORT=8088
+  GATEWAY_SCHEME=https
 
-Hay dat MAIL_ACCOUNT_API_TOKEN, INITIAL_MAIL_ADMIN_PASSWORD va
-ROUNDCUBE_DB_PASSWORD truoc khi trien khai that. Vi du PowerShell:
-$env:MAIL_ACCOUNT_API_TOKEN="replace-with-a-long-random-token"
-$env:INITIAL_MAIL_ADMIN_PASSWORD="replace-with-a-strong-password"
-$env:ROUNDCUBE_DB_PASSWORD="replace-with-a-strong-password"
+Chep CA cua server:
 
-Neu realm master da ton tai trong PostgreSQL, Keycloak se khong import de len.
-Can cap nhat SMTP trong Keycloak Admin Console hoac tao lai database dev de
-realm-export.json moi duoc import.
+  chat-system\secrets\tls\mail\ca.pem
 
-He thong khong can Internet khi su dung. Chi can Internet mot lan de Docker
-pull docker-mailserver, Roundcube va PostgreSQL; sau do mail gui va nhan hoan
-toan trong mang noi bo. DMS dung chung account password dang SHA512-CRYPT,
-Roundcube chi xac thuc qua IMAP va khong luu mat khau mail.
-Khong dung cau hinh nay de mo mail server ra Internet.
+thanh:
+
+  secretchat-ca.pem
+
+va dat canh SecretChat.exe. Mo PowerShell tai thu muc ung dung, chay:
+
+  powershell -ExecutionPolicy Bypass -File .\INSTALL-CLIENT-CA.ps1
+
+Sau do mo lai SecretChat.exe.
+
+
+2. CHAY CLIENT TREN MAY KHAC TRONG LAN
+
+- Tat ca may phai cung mang LAN/Wi-Fi.
+- May server phai mo TCP 8088, 8081 va 8085 trong Windows Firewall.
+- PUBLIC_HOSTNAME trong chat-system\.env phai la hostname/IP cua server.
+- Chung chi gateway, Keycloak va webmail phai chua hostname/IP nay trong
+  Subject Alternative Name (SAN). Chi sua GATEWAY_HOST la khong du.
+- Chep ca.pem cua server sang tung client, doi ten thanh secretchat-ca.pem,
+  dat canh SecretChat.exe va chay INSTALL-CLIENT-CA.ps1 mot lan.
+
+Vi du file .env cua client:
+
+  GATEWAY_HOST=192.168.1.91
+  GATEWAY_PORT=8088
+  GATEWAY_SCHEME=https
+
+Khong dung IP vi du neu chung chi TLS khong bao gom IP do.
+
+
+3. DIA CHI DICH VU
+
+- API Gateway: https://SERVER:8088
+- Keycloak: https://SERVER:8081
+- Webmail: https://SERVER:8085
+
+Kiem tra gateway:
+
+  Test-NetConnection SERVER -Port 8088
+
+HTTP 401 tai endpoint duoc bao ve van co nghia gateway dang hoat dong.
+
+
+4. LUU Y
+
+- Khong commit chat-system\.env, private key hoac CA noi bo.
+- Runtime Java cua SecretChat.exe co truststore rieng. Cai CA vao Windows
+  khong dam bao ung dung Java se tin CA; hay dung INSTALL-CLIENT-CA.ps1.
+- Neu thay "Ket noi server that bai", kiem tra lan luot: container, port,
+  GATEWAY_HOST, SAN cua certificate, sau do truststore cua runtime.

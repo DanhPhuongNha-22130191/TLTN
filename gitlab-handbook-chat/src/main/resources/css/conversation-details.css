@@ -29,6 +29,18 @@
 .details-danger-button { -fx-background-color: #fff0f2; -fx-text-fill: #c81e4d; -fx-border-color: #e7a3b4; }
 
 .details-member-row { -fx-cursor: hand; }
+.details-link-label {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+    -fx-text-fill: #17144c;
+}
+.details-link-label:focused {
+    -fx-background-color: white;
+    -fx-border-color: #6265f5;
+    -fx-border-radius: 3;
+    -fx-padding: 3 5;
+}
 
 .member-profile-dialog {
     -fx-background-color: #eef0ff;
