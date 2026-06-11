@@ -116,6 +116,7 @@ services:
         condition: service_started
     volumes:
       - ../mail-service/roundcube-config:/var/roundcube/config:ro
+      - ../mail-service/roundcube-config/webmail-redirect.conf:/etc/apache2/conf-enabled/webmail-redirect.conf:ro
     networks:
       - mail-network
     restart: always
