@@ -88,6 +88,8 @@ public class LoginController extends BaseAuthController implements Initializable
             dialog.initStyle(StageStyle.UNDECORATED);
             dialog.setScene(new Scene(root));
             dialog.setResizable(false);
+            dialog.setMinWidth(520);
+            dialog.setMinHeight(390);
             dialog.showAndWait();
         } catch (IOException error) {
             lblMessage.setText("Không thể mở chức năng quên mật khẩu.");

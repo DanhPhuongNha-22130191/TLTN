@@ -99,6 +99,7 @@ public class ForgotPasswordController {
         webmailLink.setVisible(hasWebmailUrl);
         webmailLink.setManaged(hasWebmailUrl);
         sendButton.setDisable(true);
+        resizeDialog();
     }
 
     private void showError(Throwable error) {
@@ -116,6 +117,7 @@ public class ForgotPasswordController {
         resultLabel.setManaged(true);
         webmailLink.setVisible(false);
         webmailLink.setManaged(false);
+        resizeDialog();
     }
 
     private void showEmailError(String message) {
@@ -156,9 +158,23 @@ public class ForgotPasswordController {
         try {
             LinkUtils.open(webmailUrl);
         } catch (Exception error) {
-            resultLabel.setText("Không thể mở Roundcube. Truy cập: " + webmailUrl);
+            webmailLink.setVisible(false);
+            webmailLink.setManaged(false);
+            resultLabel.setText("Không thể mở trình duyệt. Hãy sao chép: " + webmailUrl);
             resultLabel.setStyle("-fx-text-fill: #c81e4d;");
+            resizeDialog();
         }
+    }
+
+    private void resizeDialog() {
+        Platform.runLater(() -> {
+            if (emailField.getScene() != null
+                    && emailField.getScene().getWindow() instanceof Stage stage) {
+                stage.sizeToScene();
+                stage.setMinWidth(520);
+                stage.setMinHeight(390);
+            }
+        });
     }
 
     @FXML

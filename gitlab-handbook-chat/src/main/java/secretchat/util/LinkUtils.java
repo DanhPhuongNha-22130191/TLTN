@@ -42,17 +42,21 @@ public final class LinkUtils {
         String normalized = normalize(url);
         if (Desktop.isDesktopSupported()
                 && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
-            Desktop.getDesktop().browse(new URI(normalized));
-            return;
+            try {
+                Desktop.getDesktop().browse(new URI(normalized));
+                return;
+            } catch (Exception ignored) {
+                // Fall through to the OS-specific launcher.
+            }
         }
         String os = System.getProperty("os.name").toLowerCase();
         if (os.contains("win")) {
-            Runtime.getRuntime().exec(
-                    new String[]{"rundll32", "url.dll,FileProtocolHandler", normalized});
+            new ProcessBuilder(
+                    "rundll32", "url.dll,FileProtocolHandler", normalized).start();
         } else if (os.contains("mac")) {
-            Runtime.getRuntime().exec(new String[]{"open", normalized});
+            new ProcessBuilder("open", normalized).start();
         } else if (os.contains("nix") || os.contains("nux")) {
-            Runtime.getRuntime().exec(new String[]{"xdg-open", normalized});
+            new ProcessBuilder("xdg-open", normalized).start();
         } else {
             throw new IllegalStateException("Hệ điều hành không hỗ trợ mở liên kết.");
         }
