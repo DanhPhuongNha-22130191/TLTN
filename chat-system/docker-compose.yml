@@ -1,99 +1,123 @@
 services:
 
   # =========================
-  # Mailu Internal Mail
+  # Internal Mail
   # =========================
-  mail-redis:
-    image: redis:7-alpine
-    container_name: mail-redis
-    restart: always
-    volumes:
-      - mail_redis_data:/data
-    networks:
-      - mail-network
-
-  mail-front:
-    image: ghcr.io/mailu/nginx:2024.06
-    container_name: mail-front
-    env_file: mailu.env
+  mailserver:
+    image: ghcr.io/docker-mailserver/docker-mailserver:15.0.2
+    container_name: mailserver
+    hostname: mail.gitlab.handbook.local
     ports:
-      - "8085:80"
+      - "25:25"
+      - "143:143"
+      - "587:587"
+      - "993:993"
+    environment:
+      ACCOUNT_PROVISIONER: FILE
+      SSL_TYPE: self-signed
+      ENABLE_IMAP: 1
+      ENABLE_POP3: 0
+      ENABLE_CLAMAV: 0
+      ENABLE_RSPAMD: 0
+      ENABLE_FAIL2BAN: 0
+      ENABLE_AMAVIS: 0
+      ENABLE_POSTGREY: 0
+      ENABLE_OPENDKIM: 0
+      ENABLE_OPENDMARC: 0
+      PERMIT_DOCKER: connected-networks
+      POSTMASTER_ADDRESS: admin@gitlab.handbook.local
+      SPOOF_PROTECTION: 1
+      ONE_DIR: 1
+      LOG_LEVEL: info
+      TZ: Asia/Bangkok
     volumes:
-      - mail_certs:/certs
-      - mail_overrides:/overrides:ro
+      - mail_data:/var/mail
+      - mail_state:/var/mail-state
+      - mail_logs:/var/log/mail
+      - mail_config:/tmp/docker-mailserver
     networks:
       mail-network:
-      mail-webmail:
+        aliases:
+          - mail.gitlab.handbook.local
+    stop_grace_period: 1m
     restart: always
 
-  mail-admin:
+  mail-account-manager:
     build:
-      context: .
-      dockerfile: mailu-admin.Dockerfile
-    image: secretchat/mailu-admin:2024.06-lan
-    container_name: mail-admin
-    env_file: mailu.env
-    depends_on:
-      - mail-redis
+      context: ../mail-account-manager
+    image: secretchat/mail-account-manager:latest
+    container_name: mail-account-manager
+    environment:
+      MAIL_ACCOUNT_API_TOKEN: ${MAIL_ACCOUNT_API_TOKEN:-tltn-mail-account-token-2026}
+      MAILSERVER_CONTAINER: mailserver
+      MAIL_DOMAIN: gitlab.handbook.local
+      IMAP_HOST: mail.gitlab.handbook.local
+      IMAP_PORT: 993
+      IMAP_USE_SSL: "true"
+      TLS_HOSTNAME: mail.gitlab.handbook.local
+      TLS_CONFIG_DIR: /mail-config/ssl
+      INITIAL_ADMIN_EMAIL: admin@gitlab.handbook.local
+      INITIAL_ADMIN_PASSWORD: ${INITIAL_MAIL_ADMIN_PASSWORD:-ChangeMe-Mail-Admin-2026!}
+      TZ: Asia/Bangkok
     volumes:
-      - mail_admin_data:/data
-      - mail_dkim:/dkim
+      - /var/run/docker.sock:/var/run/docker.sock
+      - mail_config:/mail-config
+    depends_on:
+      - mailserver
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://localhost:8080/health', timeout=2)"
+      interval: 10s
+      timeout: 3s
+      retries: 12
+    networks:
+      - mail-network
+    restart: unless-stopped
+
+  roundcube-db:
+    image: postgres:16-alpine
+    container_name: roundcube-db
+    environment:
+      POSTGRES_DB: roundcube
+      POSTGRES_USER: roundcube
+      POSTGRES_PASSWORD: ${ROUNDCUBE_DB_PASSWORD:-roundcube-password-2026}
+    volumes:
+      - roundcube_db_data:/var/lib/postgresql/data
     networks:
       - mail-network
     restart: always
 
-  mail-imap:
-    image: ghcr.io/mailu/dovecot:2024.06
-    container_name: mail-imap
-    env_file: mailu.env
+  roundcube:
+    image: roundcube/roundcubemail:1.7.1-apache
+    container_name: roundcube
+    ports:
+      - "8085:80"
+    environment:
+      ROUNDCUBEMAIL_DB_TYPE: pgsql
+      ROUNDCUBEMAIL_DB_HOST: roundcube-db
+      ROUNDCUBEMAIL_DB_PORT: 5432
+      ROUNDCUBEMAIL_DB_NAME: roundcube
+      ROUNDCUBEMAIL_DB_USER: roundcube
+      ROUNDCUBEMAIL_DB_PASSWORD: ${ROUNDCUBE_DB_PASSWORD:-roundcube-password-2026}
+      ROUNDCUBEMAIL_DEFAULT_HOST: ssl://mail.gitlab.handbook.local
+      ROUNDCUBEMAIL_DEFAULT_PORT: 993
+      ROUNDCUBEMAIL_SMTP_SERVER: tls://mail.gitlab.handbook.local
+      ROUNDCUBEMAIL_SMTP_PORT: 587
+      ROUNDCUBEMAIL_USERNAME_DOMAIN: gitlab.handbook.local
+      ROUNDCUBEMAIL_PLUGINS: archive,zipdownload,password
+      ROUNDCUBEMAIL_UPLOAD_MAX_FILESIZE: 50M
     depends_on:
-      - mail-front
+      mail-account-manager:
+        condition: service_healthy
+      roundcube-db:
+        condition: service_started
     volumes:
-      - mail_mail_data:/mail
-      - mail_overrides:/overrides:ro
+      - ./roundcube-config:/var/roundcube/config:ro
     networks:
       - mail-network
-    restart: always
-
-  mail-smtp:
-    image: ghcr.io/mailu/postfix:2024.06
-    container_name: mail-smtp
-    env_file: mailu.env
-    depends_on:
-      - mail-front
-    volumes:
-      - mail_queue:/queue
-      - mail_overrides:/overrides:ro
-    networks:
-      - mail-network
-    restart: always
-
-  mail-antispam:
-    image: ghcr.io/mailu/rspamd:2024.06
-    container_name: mail-antispam
-    env_file: mailu.env
-    depends_on:
-      - mail-front
-      - mail-redis
-    volumes:
-      - mail_filter:/var/lib/rspamd
-      - mail_overrides:/overrides:ro
-    networks:
-      - mail-network
-    restart: always
-
-  mail-webmail:
-    image: ghcr.io/mailu/webmail:2024.06
-    container_name: mail-webmail
-    env_file: mailu.env
-    depends_on:
-      - mail-front
-    volumes:
-      - mail_webmail_data:/data
-      - mail_webmail_overrides:/overrides:ro
-    networks:
-      - mail-network
-      - mail-webmail
     restart: always
 
   # =========================
@@ -139,7 +163,7 @@ services:
 
     depends_on:
       - postgres
-      - mail-front
+      - mailserver
 
     networks:
       - default
@@ -183,15 +207,15 @@ services:
       SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8080/realms/master/protocol/openid-connect/certs
 
       INTERNAL_MAIL_DOMAIN: gitlab.handbook.local
-      MAILU_API_URL: http://mail-front/api/v1
-      MAILU_API_TOKEN: tltn-mailu-api-token-2026
-      WEBMAIL_URL: http://${MAIL_HOST:-localhost}:8085/webmail
+      MAIL_ACCOUNT_API_URL: http://mail-account-manager:8080
+      MAIL_ACCOUNT_API_TOKEN: ${MAIL_ACCOUNT_API_TOKEN:-tltn-mail-account-token-2026}
+      WEBMAIL_URL: http://${MAIL_HOST:-localhost}:8085/
       MAILBOX_QUOTA_BYTES: 104857600
 
     depends_on:
       - postgres
       - keycloak
-      - mail-front
+      - mail-account-manager
 
     networks:
       - default
@@ -360,20 +384,14 @@ volumes:
   postgres_data:
   chat_postgres_data:
   chat_uploads:
-  mail_redis_data:
-  mail_certs:
-  mail_overrides:
-  mail_admin_data:
-  mail_dkim:
-  mail_mail_data:
-  mail_queue:
-  mail_filter:
-  mail_webmail_data:
-  mail_webmail_overrides:
+  mail_data:
+  mail_state:
+  mail_logs:
+  mail_config:
+  roundcube_db_data:
 
 networks:
   mail-network:
     ipam:
       config:
         - subnet: 172.31.0.0/16
-  mail-webmail:

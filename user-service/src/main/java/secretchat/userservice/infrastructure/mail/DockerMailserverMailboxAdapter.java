@@ -17,7 +17,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Component
-public class MailuMailboxAdapter implements MailboxPort {
+public class DockerMailserverMailboxAdapter implements MailboxPort {
     private final HttpClient httpClient = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(10))
             .build();
@@ -36,20 +36,12 @@ public class MailuMailboxAdapter implements MailboxPort {
     public void createMailbox(String email, String password, String displayName) {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("email", email);
-        body.put("raw_password", password);
-        body.put("displayed_name", displayName == null ? email : displayName);
-        body.put("quota_bytes", quotaBytes);
-        body.put("enabled", true);
-        body.put("change_pw_next_login", false);
-        body.put("enable_imap", true);
-        body.put("enable_pop", false);
-        body.put("allow_spoofing", false);
-        body.put("forward_enabled", false);
-        body.put("reply_enabled", false);
-        body.put("spam_enabled", true);
+        body.put("password", password);
+        body.put("displayName", displayName == null ? email : displayName);
+        body.put("quotaBytes", quotaBytes);
 
         send(HttpRequest.newBuilder()
-                .uri(URI.create(normalizedApiUrl() + "/user"))
+                .uri(URI.create(normalizedApiUrl() + "/accounts"))
                 .header("Authorization", "Bearer " + apiToken)
                 .header("Content-Type", "application/json")
                 .timeout(Duration.ofSeconds(20))
@@ -60,7 +52,7 @@ public class MailuMailboxAdapter implements MailboxPort {
     public void deleteMailbox(String email) {
         String encodedEmail = URLEncoder.encode(email, StandardCharsets.UTF_8);
         send(HttpRequest.newBuilder()
-                .uri(URI.create(normalizedApiUrl() + "/user/" + encodedEmail))
+                .uri(URI.create(normalizedApiUrl() + "/accounts/" + encodedEmail))
                 .header("Authorization", "Bearer " + apiToken)
                 .timeout(Duration.ofSeconds(20))
                 .DELETE());
@@ -74,7 +66,7 @@ public class MailuMailboxAdapter implements MailboxPort {
         try {
             return objectMapper.writeValueAsString(value);
         } catch (Exception error) {
-            throw new MailboxException("Không thể tạo yêu cầu Mailu", error);
+            throw new MailboxException("Không thể tạo yêu cầu quản lý hộp thư", error);
         }
     }
 
@@ -84,12 +76,13 @@ public class MailuMailboxAdapter implements MailboxPort {
                     requestBuilder.build(), HttpResponse.BodyHandlers.ofString());
             if (response.statusCode() < 200 || response.statusCode() >= 300) {
                 throw new MailboxException(
-                        "Mailu trả về HTTP " + response.statusCode() + ": " + response.body());
+                        "Mail account manager trả về HTTP "
+                                + response.statusCode() + ": " + response.body());
             }
         } catch (MailboxException error) {
             throw error;
         } catch (Exception error) {
-            throw new MailboxException("Không thể kết nối Mailu", error);
+            throw new MailboxException("Không thể kết nối mail account manager", error);
         }
     }
 }

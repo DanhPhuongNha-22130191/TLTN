@@ -20,25 +20,29 @@ CAU HINH EMAIL NOI BO VA QUEN MAT KHAU
 2. Chay tai thu muc chat-system:
    docker compose up -d --build
 3. Webmail cua user:
-   http://192.168.1.91:8085/webmail
+   http://192.168.1.91:8085/
 4. Khi dang ky, he thong tu tao:
    username@gitlab.handbook.local
    Mat khau mail duoc hien mot lan sau khi dang ky.
 5. Man hinh Quen mat khau nhap dia chi mail noi bo tren. Keycloak gui link
-   dat lai mat khau vao chinh hop thu Mailu nay.
-6. Tai khoan quan tri Mailu ban dau:
+   dat lai mat khau vao chinh hop thu nay.
+6. Tai khoan mail quan tri ban dau:
    admin@gitlab.handbook.local
    ChangeMe-Mail-Admin-2026!
+7. User co the doi mat khau mail tai Settings > Password trong Roundcube.
 
-Hay doi INITIAL_ADMIN_PW, API_TOKEN trong chat-system/mailu.env va cac gia tri
-tuong ung trong Docker Compose/realm-export.json truoc khi trien khai that.
+Hay dat MAIL_ACCOUNT_API_TOKEN, INITIAL_MAIL_ADMIN_PASSWORD va
+ROUNDCUBE_DB_PASSWORD truoc khi trien khai that. Vi du PowerShell:
+$env:MAIL_ACCOUNT_API_TOKEN="replace-with-a-long-random-token"
+$env:INITIAL_MAIL_ADMIN_PASSWORD="replace-with-a-strong-password"
+$env:ROUNDCUBE_DB_PASSWORD="replace-with-a-strong-password"
 
 Neu realm master da ton tai trong PostgreSQL, Keycloak se khong import de len.
 Can cap nhat SMTP trong Keycloak Admin Console hoac tao lai database dev de
 realm-export.json moi duoc import.
 
 He thong khong can Internet khi su dung. Chi can Internet mot lan de Docker
-pull cac image Mailu; sau do mail gui va nhan hoan toan trong mang noi bo.
-Vi day la he thong LAN khong co DNSSEC cong cong, mailu.env da bat co ngoai le
-LAN-only va image mailu-admin da bo rieng buoc kiem tra DNSSEC khi khoi dong.
+pull docker-mailserver, Roundcube va PostgreSQL; sau do mail gui va nhan hoan
+toan trong mang noi bo. DMS dung chung account password dang SHA512-CRYPT,
+Roundcube chi xac thuc qua IMAP va khong luu mat khau mail.
 Khong dung cau hinh nay de mo mail server ra Internet.

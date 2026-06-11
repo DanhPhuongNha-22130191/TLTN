@@ -41,7 +41,7 @@ class AuthApplicationServiceTest {
                 mock(KeycloakTokenPort.class),
                 mailboxPort,
                 "gitlab.handbook.local",
-                "http://localhost:8085/webmail");
+                "http://localhost:8085/");
     }
 
     @Test
@@ -60,7 +60,7 @@ class AuthApplicationServiceTest {
                 org.mockito.ArgumentMatchers.anyString(),
                 org.mockito.ArgumentMatchers.eq("John Doe"));
         assertEquals("johndoe@gitlab.handbook.local", result.user().email());
-        assertEquals("http://localhost:8085/webmail", result.webmailUrl());
+        assertEquals("http://localhost:8085/", result.webmailUrl());
         assertNotNull(result.mailboxPassword());
     }
 

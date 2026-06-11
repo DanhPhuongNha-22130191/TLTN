@@ -1603,7 +1603,7 @@
     "timeout": "10000",
     "password": "",
     "port": "25",
-    "host": "mail-front",
+    "host": "mailserver",
     "replyTo": "admin@gitlab.handbook.local",
     "from": "admin@gitlab.handbook.local",
     "fromDisplayName": "GitLab Handbook Chat",

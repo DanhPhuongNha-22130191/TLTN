@@ -41,7 +41,7 @@ keycloak:
 mail:
   internal:
     domain: ${INTERNAL_MAIL_DOMAIN:gitlab.handbook.local}
-    api-url: ${MAILU_API_URL:http://mail-front/api/v1}
-    api-token: ${MAILU_API_TOKEN}
-    webmail-url: ${WEBMAIL_URL:http://localhost:8085/webmail}
+    api-url: ${MAIL_ACCOUNT_API_URL:http://mail-account-manager:8080}
+    api-token: ${MAIL_ACCOUNT_API_TOKEN:tltn-mail-account-token-2026}
+    webmail-url: ${WEBMAIL_URL:http://localhost:8085/}
     quota-bytes: ${MAILBOX_QUOTA_BYTES:104857600}
