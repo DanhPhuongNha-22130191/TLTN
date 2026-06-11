@@ -191,6 +191,44 @@
     -fx-font-family: "Consolas";
     -fx-font-size: 13px;
     -fx-text-fill: #242957;
+    -fx-highlight-fill: #575be8;
+    -fx-highlight-text-fill: white;
+    -fx-pref-height: 42;
+    -fx-max-width: infinity;
+}
+
+.credential-value:focused {
+    -fx-border-color: #575be8;
+    -fx-border-width: 2;
+}
+
+.webmail-value {
+    -fx-text-fill: #4549cc;
+    -fx-underline: true;
+    -fx-cursor: hand;
+}
+
+.webmail-value:hover {
+    -fx-background-color: #f5f6ff;
+    -fx-border-color: #575be8;
+}
+
+.open-webmail-btn {
+    -fx-min-height: 42;
+    -fx-padding: 8 14;
+    -fx-background-color: #ffffff;
+    -fx-text-fill: #4549cc;
+    -fx-border-color: #959dc8;
+    -fx-background-radius: 4;
+    -fx-border-radius: 4;
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+    -fx-cursor: hand;
+}
+
+.open-webmail-btn:hover {
+    -fx-background-color: #f0f2ff;
+    -fx-border-color: #575be8;
 }
 
 .credential-copied {
