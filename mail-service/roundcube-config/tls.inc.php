@@ -1,13 +1,14 @@
 <?php
 
-$insecure_tls = [
+$verified_tls = [
     'ssl' => [
-        'verify_peer' => false,
-        'verify_peer_name' => false,
-        'allow_self_signed' => true,
+        'verify_peer' => true,
+        'verify_peer_name' => true,
+        'allow_self_signed' => false,
+        'cafile' => '/run/secrets/tls/mail-ca.pem',
     ],
 ];
 
-$config['imap_conn_options'] = $insecure_tls;
-$config['smtp_conn_options'] = $insecure_tls;
+$config['imap_conn_options'] = $verified_tls;
+$config['smtp_conn_options'] = $verified_tls;
 $config['product_name'] = 'GitLab Handbook Mail';

@@ -17,8 +17,7 @@ MAIL_DOMAIN = os.getenv("MAIL_DOMAIN", "gitlab.handbook.local").lower()
 IMAP_HOST = os.getenv("IMAP_HOST", "mail.gitlab.handbook.local")
 IMAP_PORT = int(os.getenv("IMAP_PORT", "993"))
 IMAP_USE_SSL = os.getenv("IMAP_USE_SSL", "true").lower() == "true"
-TLS_HOSTNAME = os.getenv("TLS_HOSTNAME", "mail.gitlab.handbook.local")
-TLS_CONFIG_DIR = os.getenv("TLS_CONFIG_DIR", "/mail-config/ssl")
+TLS_CA_FILE = os.environ["TLS_CA_FILE"]
 INITIAL_ADMIN_EMAIL = os.getenv("INITIAL_ADMIN_EMAIL", "")
 INITIAL_ADMIN_PASSWORD = os.getenv("INITIAL_ADMIN_PASSWORD", "")
 PORT = int(os.getenv("PORT", "8080"))
@@ -67,45 +66,6 @@ def run_setup(*arguments, allow_exists=False, allow_missing=False):
     raise ApiError(502, output or "docker-mailserver setup command failed")
 
 
-def ensure_self_signed_certificate():
-    key_path = os.path.join(TLS_CONFIG_DIR, f"{TLS_HOSTNAME}-key.pem")
-    cert_path = os.path.join(TLS_CONFIG_DIR, f"{TLS_HOSTNAME}-cert.pem")
-    ca_path = os.path.join(TLS_CONFIG_DIR, "demoCA", "cacert.pem")
-    if all(os.path.isfile(path) for path in (key_path, cert_path, ca_path)):
-        return
-
-    os.makedirs(os.path.dirname(ca_path), exist_ok=True)
-    subprocess.run(
-        [
-            "openssl",
-            "req",
-            "-x509",
-            "-newkey",
-            "rsa:2048",
-            "-sha256",
-            "-nodes",
-            "-days",
-            "3650",
-            "-subj",
-            f"/CN={TLS_HOSTNAME}",
-            "-addext",
-            f"subjectAltName=DNS:{TLS_HOSTNAME}",
-            "-keyout",
-            key_path,
-            "-out",
-            cert_path,
-        ],
-        check=True,
-        capture_output=True,
-        text=True,
-        timeout=30,
-    )
-    with open(cert_path, "rb") as source, open(ca_path, "wb") as target:
-        target.write(source.read())
-    os.chmod(key_path, 0o600)
-    print(f"Created internal TLS certificate for {TLS_HOSTNAME}", flush=True)
-
-
 def create_account(email, password, quota_bytes=None, allow_exists=False):
     run_setup("email", "add", email, password, allow_exists=allow_exists)
     if quota_bytes:
@@ -130,9 +90,7 @@ def account_exists(email):
 
 def imap_login(email, password):
     if IMAP_USE_SSL:
-        context = ssl.create_default_context()
-        context.check_hostname = False
-        context.verify_mode = ssl.CERT_NONE
+        context = ssl.create_default_context(cafile=TLS_CA_FILE)
         client = imaplib.IMAP4_SSL(IMAP_HOST, IMAP_PORT, ssl_context=context, timeout=15)
     else:
         client = imaplib.IMAP4(IMAP_HOST, IMAP_PORT, timeout=15)
@@ -291,7 +249,6 @@ class Handler(BaseHTTPRequestHandler):
 
 
 if __name__ == "__main__":
-    ensure_self_signed_certificate()
     bootstrap_admin()
     server = ThreadingHTTPServer(("0.0.0.0", PORT), Handler)
     print(f"Mail account manager listening on port {PORT}", flush=True)

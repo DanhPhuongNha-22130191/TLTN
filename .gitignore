@@ -1,0 +1,9 @@
+# Local credentials and deployment certificates
+**/.env
+!**/.env.example
+chat-system/secrets/*
+!chat-system/secrets/README.md
+
+Chuong_2_Phuong_Phap_Va_Noi_Dung_Nghien_Cuu.html
+Chuong_3_Giai_Phap_Cho_Bai_Toan.html
+Chuong_3_Giai_Phap_Cho_Bai_Toan.pdf

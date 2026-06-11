@@ -17,6 +17,15 @@ public class ChatService {
         this.apiClient = apiClient;
     }
 
+    public PresenceResponse sendPresenceHeartbeat(String token) throws Exception {
+        try {
+            return apiClient.post(
+                    "/api/presence/heartbeat", null, token, PresenceResponse.class);
+        } catch (Exception e) {
+            throw GlobalExceptionHandler.handle(e);
+        }
+    }
+
     // --- User Service Calls ---
 
     public UserResponse[] getAllUsers(String token) throws Exception {
@@ -56,6 +65,41 @@ public class ChatService {
     public FriendResponse[] getFriends(String userId, String token) throws Exception {
         try {
             return apiClient.get("/api/friends/user/" + userId, token, FriendResponse[].class);
+        } catch (Exception e) {
+            throw GlobalExceptionHandler.handle(e);
+        }
+    }
+
+    public FriendResponse[] getIncomingFriendRequests(String userId, String token)
+            throws Exception {
+        try {
+            return apiClient.get(
+                    "/api/friends/requests/incoming/" + encode(userId),
+                    token, FriendResponse[].class);
+        } catch (Exception e) {
+            throw GlobalExceptionHandler.handle(e);
+        }
+    }
+
+    public FriendResponse acceptFriendRequest(
+            String requestId, String userId, String token) throws Exception {
+        try {
+            return apiClient.post(
+                    "/api/friends/requests/" + encode(requestId)
+                            + "/accept?userId=" + encode(userId),
+                    null, token, FriendResponse.class);
+        } catch (Exception e) {
+            throw GlobalExceptionHandler.handle(e);
+        }
+    }
+
+    public void rejectFriendRequest(
+            String requestId, String userId, String token) throws Exception {
+        try {
+            apiClient.delete(
+                    "/api/friends/requests/" + encode(requestId)
+                            + "?userId=" + encode(userId),
+                    token);
         } catch (Exception e) {
             throw GlobalExceptionHandler.handle(e);
         }
@@ -204,6 +248,10 @@ public class ChatService {
         } catch (Exception e) {
             throw GlobalExceptionHandler.handle(e);
         }
+    }
+
+    private String encode(String value) {
+        return java.net.URLEncoder.encode(value, java.nio.charset.StandardCharsets.UTF_8);
     }
 
     public MessageResponse editMessage(Long messageId, UpdateMessageRequest request, String token) throws Exception {

@@ -60,6 +60,17 @@
                     </graphic>
                 </Button>
 
+                <Button
+                        maxWidth="Infinity"
+                        HBox.hgrow="ALWAYS"
+                        onAction="#handleFriendRequests"
+                        styleClass="sidebar-action-button, secondary-button">
+                    <graphic>
+                        <FontIcon iconLiteral="fa-envelope"
+                                  styleClass="btn-icon"/>
+                    </graphic>
+                </Button>
+
                 <Button 
                         maxWidth="Infinity"
                         HBox.hgrow="ALWAYS"

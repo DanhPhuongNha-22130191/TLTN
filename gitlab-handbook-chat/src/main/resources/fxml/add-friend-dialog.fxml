@@ -21,8 +21,8 @@
         <Label text="🤝" style="-fx-font-size: 22px;"/>
 
         <VBox spacing="2">
-            <Label text="Thêm bạn" styleClass="dialog-title"/>
-            <Label text="Nhập username để thêm bạn mới" styleClass="dialog-caption"/>
+            <Label text="Gửi lời mời kết bạn" styleClass="dialog-title"/>
+            <Label text="Nhập username của người bạn muốn kết nối" styleClass="dialog-caption"/>
         </VBox>
     </HBox>
 
@@ -55,7 +55,7 @@
                 onAction="#handleCancel"
                 styleClass="cancel-btn"/>
 
-        <Button text="Thêm bạn"
+        <Button text="Gửi lời mời"
                 onAction="#handleAddFriend"
                 styleClass="primary-btn"
                 defaultButton="true"/>

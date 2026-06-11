@@ -15,5 +15,6 @@ public class FriendResponse {
     private String id;
     private String friendId;
     private String friendUsername;
+    private String status;
     private LocalDateTime createdAt;
 }

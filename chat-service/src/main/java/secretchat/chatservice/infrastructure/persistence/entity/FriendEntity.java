@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import secretchat.chatservice.domain.model.FriendStatus;
 
 @Entity
 @Table(name = "friends", uniqueConstraints = {@UniqueConstraint(columnNames = {"user_id", "friend_id"})})
@@ -25,6 +26,10 @@ public class FriendEntity {
 
     @Column(name = "friend_id", nullable = false)
     private String friendId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private FriendStatus status;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;

@@ -313,6 +313,12 @@ public class ChatController extends BaseChatController {
                 (AddFriendController controller) -> controller.setOnFriendAdded(viewModel::addFriend));
     }
 
+    @FXML
+    private void handleFriendRequests() {
+        dialogs.show("/fxml/friend-requests-dialog.fxml", messageInput.getScene().getWindow(),
+                (FriendRequestsController controller) -> controller.setViewModel(viewModel));
+    }
+
     private void openPrivateChatFromMemberProfile(secretchat.dto.response.UserResponse profile) {
         conversations.openProfile(profile);
     }

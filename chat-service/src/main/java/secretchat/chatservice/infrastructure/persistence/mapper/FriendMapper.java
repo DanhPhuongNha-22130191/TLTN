@@ -15,6 +15,7 @@ public class FriendMapper {
                 .id(domain.getId())
                 .userId(domain.getUserId())
                 .friendId(domain.getFriendId())
+                .status(domain.getStatus())
                 .createdAt(domain.getCreatedAt())
                 .build();
     }
@@ -27,6 +28,7 @@ public class FriendMapper {
                 .id(entity.getId())
                 .userId(entity.getUserId())
                 .friendId(entity.getFriendId())
+                .status(entity.getStatus())
                 .createdAt(entity.getCreatedAt())
                 .build();
     }

@@ -8,12 +8,14 @@ public class Friend {
     private final String id;
     private final String userId;
     private final String friendId;
+    private final FriendStatus status;
     private final LocalDateTime createdAt;
 
     private Friend(Builder builder) {
         this.id = builder.id;
         this.userId = builder.userId;
         this.friendId = builder.friendId;
+        this.status = builder.status;
         this.createdAt = builder.createdAt;
     }
 
@@ -27,6 +29,10 @@ public class Friend {
 
     public String getFriendId() {
         return friendId;
+    }
+
+    public FriendStatus getStatus() {
+        return status == null ? FriendStatus.ACCEPTED : status;
     }
 
     public LocalDateTime getCreatedAt() {
@@ -73,6 +79,7 @@ public class Friend {
         private String id;
         private String userId;
         private String friendId;
+        private FriendStatus status;
         private LocalDateTime createdAt;
 
         public Builder id(String id) {
@@ -87,6 +94,11 @@ public class Friend {
 
         public Builder friendId(String friendId) {
             this.friendId = friendId;
+            return this;
+        }
+
+        public Builder status(FriendStatus status) {
+            this.status = status;
             return this;
         }
 

@@ -31,7 +31,7 @@ CAU HINH EMAIL NOI BO VA QUEN MAT KHAU
    Keycloak Admin Console > Realm settings > General > Frontend URL.
 6. Tai khoan mail quan tri ban dau:
    admin@gitlab.handbook.local
-   ChangeMe-Mail-Admin-2026!
+   Use the value configured in the ignored chat-system/.env file.
 7. User co the doi mat khau mail tai Settings > Password trong Roundcube.
 
 Hay dat MAIL_ACCOUNT_API_TOKEN, INITIAL_MAIL_ADMIN_PASSWORD va

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="secretchat.chat.controller.FriendRequestsController"
+      stylesheets="@../css/dialog-common.css"
+      styleClass="dialog-root"
+      prefWidth="520"
+      prefHeight="430">
+
+    <HBox styleClass="dialog-header" alignment="CENTER_LEFT" spacing="12">
+        <padding><Insets top="22" right="24" bottom="22" left="24"/></padding>
+        <VBox spacing="2">
+            <Label text="Lời mời kết bạn" styleClass="dialog-title"/>
+            <Label text="Chấp nhận hoặc từ chối lời mời đang chờ"
+                   styleClass="dialog-caption"/>
+        </VBox>
+    </HBox>
+
+    <VBox spacing="12" styleClass="dialog-body" VBox.vgrow="ALWAYS">
+        <padding><Insets top="20" right="24" bottom="12" left="24"/></padding>
+        <ListView fx:id="requestList" VBox.vgrow="ALWAYS"/>
+        <Label fx:id="statusLabel" text="Đang tải lời mời kết bạn..."
+               wrapText="true"/>
+    </VBox>
+
+    <HBox spacing="12" alignment="CENTER_RIGHT" styleClass="dialog-footer">
+        <padding><Insets top="16" right="24" bottom="22" left="24"/></padding>
+        <Button text="Đóng" onAction="#handleClose" styleClass="cancel-btn"/>
+        <Button fx:id="rejectButton" text="Từ chối"
+                onAction="#handleReject" styleClass="cancel-btn"/>
+        <Button fx:id="acceptButton" text="Chấp nhận"
+                onAction="#handleAccept" styleClass="primary-btn"/>
+    </HBox>
+</VBox>
+

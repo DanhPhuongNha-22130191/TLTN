@@ -4,10 +4,8 @@ services:
     container_name: user-db
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password123
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
       POSTGRES_DB: user_db
-    ports:
-      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: always
@@ -19,9 +17,9 @@ services:
       KC_DB: postgres
       KC_DB_URL: jdbc:postgresql://postgres:5432/user_db
       KC_DB_USERNAME: postgres
-      KC_DB_PASSWORD: password123
+      KC_DB_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
       KEYCLOAK_ADMIN: admin
-      KEYCLOAK_ADMIN_PASSWORD: admin
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:?Set KEYCLOAK_ADMIN_PASSWORD in .env}
     ports:
       - "8081:8080"
     command: ["start-dev", "--import-realm"]
@@ -41,13 +39,13 @@ services:
       - DB_PORT=5432
       - DB_NAME=user_db
       - DB_USER=postgres
-      - DB_PASSWORD=password123
+      - DB_PASSWORD=${DB_PASSWORD:?Set DB_PASSWORD in .env}
       - KEYCLOAK_SERVER_URL=http://keycloak:8080
       - KEYCLOAK_REALM=master
       - KEYCLOAK_CLIENT_ID=javafx-client
       - KEYCLOAK_ADMIN_CLIENT_ID=javafx-client
       - KEYCLOAK_ADMIN_USERNAME=admin
-      - KEYCLOAK_ADMIN_PASSWORD=admin
+      - KEYCLOAK_ADMIN_PASSWORD=${KEYCLOAK_ADMIN_PASSWORD:?Set KEYCLOAK_ADMIN_PASSWORD in .env}
       - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=http://localhost:8081/realms/master
       - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI=http://keycloak:8080/realms/master/protocol/openid-connect/certs
     depends_on:

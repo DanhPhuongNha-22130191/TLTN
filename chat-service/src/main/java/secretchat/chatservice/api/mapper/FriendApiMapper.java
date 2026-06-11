@@ -15,6 +15,7 @@ public final class FriendApiMapper {
                 .id(friend.getId())
                 .friendId(friend.getFriendId())
                 .friendUsername(friendUsername)
+                .status(friend.getStatus().name())
                 .createdAt(friend.getCreatedAt())
                 .build();
     }

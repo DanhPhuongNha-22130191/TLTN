@@ -31,7 +31,6 @@ public class SecurityConfig {
                 .authorizeExchange(exchanges -> exchanges
 
                         .pathMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-
                         // auth
                         .pathMatchers("/api/users/auth/**").permitAll()
 

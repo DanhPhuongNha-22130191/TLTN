@@ -162,7 +162,8 @@ final class ChatRealtimeCoordinator {
     }
 
     private void handleFriend(FriendResponse friend) {
-        if (friend == null || friend.getFriendId() == null) return;
+        if (friend == null || friend.getFriendId() == null
+                || !"ACCEPTED".equalsIgnoreCase(friend.getStatus())) return;
         CompletableFuture.runAsync(() -> {
             String displayName = friend.getFriendUsername();
             try {

@@ -127,14 +127,53 @@ final class ChatDirectoryCoordinator {
                             "Không thể thêm bạn. Vui lòng thử lại."));
                     return;
                 }
-                String displayName = resolveFriendDisplayName(friend);
-                Platform.runLater(() -> {
-                    addFriendToList(friend, displayName);
-                    notificationConsumer.accept("Đã thêm bạn: " + displayName);
-                });
+                Platform.runLater(() -> notificationConsumer.accept(
+                        "Đã gửi lời mời kết bạn đến " + username.trim() + "."));
             } catch (Exception error) {
                 Platform.runLater(() -> errorConsumer.accept(
                         "Không thể thêm bạn: " + error.getMessage()));
+            }
+        });
+    }
+
+    CompletableFuture<java.util.List<FriendResponse>> loadIncomingFriendRequests() {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                FriendResponse[] requests = chatService.getIncomingFriendRequests(
+                        currentUserIdSupplier.get(), tokenSupplier.get());
+                return requests == null ? java.util.List.of() : java.util.List.of(requests);
+            } catch (Exception error) {
+                throw new java.util.concurrent.CompletionException(error);
+            }
+        });
+    }
+
+    CompletableFuture<Void> acceptFriendRequest(FriendResponse request) {
+        return CompletableFuture.runAsync(() -> {
+            try {
+                FriendResponse accepted = chatService.acceptFriendRequest(
+                        request.getId(), currentUserIdSupplier.get(), tokenSupplier.get());
+                String displayName = resolveFriendDisplayName(accepted);
+                Platform.runLater(() -> {
+                    addFriendToList(accepted, displayName);
+                    notificationConsumer.accept(
+                            "Đã chấp nhận lời mời của " + displayName + ".");
+                });
+            } catch (Exception error) {
+                throw new java.util.concurrent.CompletionException(error);
+            }
+        });
+    }
+
+    CompletableFuture<Void> rejectFriendRequest(FriendResponse request) {
+        return CompletableFuture.runAsync(() -> {
+            try {
+                chatService.rejectFriendRequest(
+                        request.getId(), currentUserIdSupplier.get(), tokenSupplier.get());
+                Platform.runLater(() -> notificationConsumer.accept(
+                        "Đã từ chối lời mời kết bạn."));
+            } catch (Exception error) {
+                throw new java.util.concurrent.CompletionException(error);
             }
         });
     }
@@ -165,6 +204,7 @@ final class ChatDirectoryCoordinator {
 
     void addFriendToList(FriendResponse friend, String displayName) {
         if (friend == null || friend.getFriendId() == null
+                || !"ACCEPTED".equalsIgnoreCase(friend.getStatus())
                 || userIdsByDisplayName.containsValue(friend.getFriendId())) {
             return;
         }

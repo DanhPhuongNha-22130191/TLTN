@@ -7,6 +7,7 @@ public class FriendResponse {
     private String id;
     private String friendId;
     private String friendUsername;
+    private String status;
     private String createdAt;
 
     public String getId() {
@@ -31,6 +32,14 @@ public class FriendResponse {
 
     public void setFriendUsername(String friendUsername) {
         this.friendUsername = friendUsername;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     public String getCreatedAt() {

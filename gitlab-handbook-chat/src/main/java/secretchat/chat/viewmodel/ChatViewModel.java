@@ -6,6 +6,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import secretchat.chat.service.AIService;
 import secretchat.chat.service.ChatService;
+import secretchat.chat.service.PresenceHeartbeatService;
 import secretchat.chat.service.RealtimeChatService;
 import secretchat.common.exception.ApiException;
 import secretchat.dto.request.*;
@@ -35,6 +36,7 @@ public class ChatViewModel {
     private final ChatMessageSender messageSender;
     private final ChatConversationCoordinator conversationCoordinator;
     private final ChatRealtimeCoordinator realtimeCoordinator;
+    private final PresenceHeartbeatService presenceHeartbeatService;
     
     private String token;
     private String currentUserId;
@@ -75,6 +77,7 @@ public class ChatViewModel {
         this.chatService = new ChatService(ApiClient.getInstance());
         this.aiService = new AIService();
         this.realtimeChatService = new RealtimeChatService();
+        this.presenceHeartbeatService = new PresenceHeartbeatService(chatService);
         this.directoryCoordinator = new ChatDirectoryCoordinator(
                 chatService,
                 () -> token,
@@ -226,6 +229,7 @@ public class ChatViewModel {
             }
 
             subscribeToRealtimeUpdates();
+            presenceHeartbeatService.start();
             loadData();
 
         } catch (Exception e) {
@@ -272,6 +276,7 @@ public class ChatViewModel {
     }
 
     public void close() {
+        presenceHeartbeatService.close();
         realtimeCoordinator.close();
     }
 
@@ -301,6 +306,18 @@ public class ChatViewModel {
 
     public void addFriend(String username) {
         directoryCoordinator.addFriend(username);
+    }
+
+    public CompletableFuture<java.util.List<FriendResponse>> loadIncomingFriendRequests() {
+        return directoryCoordinator.loadIncomingFriendRequests();
+    }
+
+    public CompletableFuture<Void> acceptFriendRequest(FriendResponse request) {
+        return directoryCoordinator.acceptFriendRequest(request);
+    }
+
+    public CompletableFuture<Void> rejectFriendRequest(FriendResponse request) {
+        return directoryCoordinator.rejectFriendRequest(request);
     }
 
     public void addGroupMember(String selectedUserStr) {
