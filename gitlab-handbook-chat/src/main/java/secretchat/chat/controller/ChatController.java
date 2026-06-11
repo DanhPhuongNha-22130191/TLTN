@@ -113,6 +113,11 @@ public class ChatController extends BaseChatController {
                 messagePane, pinnedPane, conversations, searchHandler, this::clearConversationUI);
         lifecycle = new ChatLifecycleHandler(
                 viewModel, messageInput, typingIndicator, notificationHandler, viewBindings);
+        viewModel.sessionExpiredProperty().addListener((observable, oldValue, expired) -> {
+            if (expired) {
+                javafx.application.Platform.runLater(this::handleSessionExpired);
+            }
+        });
 
         typingIndicator.initialize();
         viewBindings.initialize();
@@ -123,6 +128,15 @@ public class ChatController extends BaseChatController {
         viewModel.init();
         chatHeaderInfoContainer.setOnMouseClicked(event -> handleOpenActiveChatProfile());
         lifecycle.initialize();
+    }
+
+    private void handleSessionExpired() {
+        lifecycle.close();
+        new MainViewModel().logout();
+        Stage stage = ownerStage();
+        if (stage != null) {
+            switchScene(stage, "/fxml/login-view.fxml");
+        }
     }
 
     private void setupFileDrop() {

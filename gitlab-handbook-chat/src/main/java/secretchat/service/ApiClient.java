@@ -34,6 +34,10 @@ public class ApiClient {
         return INSTANCE;
     }
 
+    public String refreshSession() throws Exception {
+        return refreshAccessToken();
+    }
+
     private synchronized String refreshAccessToken() throws Exception {
         String refreshToken = SessionManager.getInstance().getRefreshToken();
         if (refreshToken == null || refreshToken.isBlank()) {
