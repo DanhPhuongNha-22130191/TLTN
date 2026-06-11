@@ -1,6 +1,7 @@
 package secretchat.userservice.api.controller;
 
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,9 +19,13 @@ public class AuthController {
             "Nếu email tồn tại, hướng dẫn đặt lại mật khẩu đã được gửi.";
 
     private final AuthUseCase authUseCase;
+    private final String webmailUrl;
 
-    public AuthController(AuthUseCase authUseCase) {
+    public AuthController(
+            AuthUseCase authUseCase,
+            @Value("${mail.internal.webmail-url}") String webmailUrl) {
         this.authUseCase = authUseCase;
+        this.webmailUrl = webmailUrl;
     }
 
     @PostMapping("/register")
@@ -45,7 +50,8 @@ public class AuthController {
     public ResponseEntity<ForgotPasswordResponse> forgotPassword(
             @Valid @RequestBody ForgotPasswordRequest request) {
         authUseCase.forgotPassword(new ForgotPasswordCommand(request.email()));
-        return ResponseEntity.ok(new ForgotPasswordResponse(PASSWORD_RESET_MESSAGE));
+        return ResponseEntity.ok(new ForgotPasswordResponse(
+                PASSWORD_RESET_MESSAGE, webmailUrl));
     }
 
     @PostMapping("/refresh")

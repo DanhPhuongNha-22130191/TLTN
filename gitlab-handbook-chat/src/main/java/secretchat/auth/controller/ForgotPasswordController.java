@@ -4,28 +4,34 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.Hyperlink;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
+import javafx.css.PseudoClass;
 import javafx.stage.Stage;
 import org.kordamp.ikonli.javafx.FontIcon;
 import secretchat.auth.dto.response.ForgotPasswordResponse;
 import secretchat.auth.service.ForgotPasswordService;
 import secretchat.common.exception.ApiException;
 import secretchat.service.ApiClient;
+import secretchat.util.LinkUtils;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Pattern;
 
 public class ForgotPasswordController {
-    private static final Pattern EMAIL_PATTERN = Pattern.compile(
-            "^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}$",
-            Pattern.CASE_INSENSITIVE);
+    private static final String MAIL_DOMAIN = "gitlab.handbook.local";
+    private static final Pattern USERNAME_PATTERN = Pattern.compile("^[a-zA-Z0-9_]+$");
     private static final String DEFAULT_SUCCESS_MESSAGE =
             "Nếu email tồn tại, hướng dẫn đặt lại mật khẩu đã được gửi.";
+    private static final PseudoClass FOCUSED = PseudoClass.getPseudoClass("focused");
 
     @FXML private TextField emailField;
+    @FXML private HBox emailInputGroup;
     @FXML private Label emailError;
     @FXML private Label resultLabel;
+    @FXML private Hyperlink webmailLink;
     @FXML private Button sendButton;
     @FXML private Button cancelButton;
     @FXML private ProgressIndicator loadingIndicator;
@@ -34,6 +40,7 @@ public class ForgotPasswordController {
 
     private final ForgotPasswordService service =
             new ForgotPasswordService(ApiClient.getInstance());
+    private String webmailUrl;
 
     @FXML
     private void initialize() {
@@ -42,17 +49,22 @@ public class ForgotPasswordController {
             emailError.setVisible(false);
             emailError.setManaged(false);
         });
+        emailField.focusedProperty().addListener((observable, oldValue, focused) ->
+                emailInputGroup.pseudoClassStateChanged(FOCUSED, focused));
     }
 
     @FXML
     private void handleSend() {
-        String email = emailField.getText() == null ? "" : emailField.getText().trim();
-        if (!EMAIL_PATTERN.matcher(email).matches()) {
-            showEmailError(email.isEmpty()
-                    ? "Vui lòng nhập email."
-                    : "Email không đúng định dạng.");
+        String username = emailField.getText() == null ? "" : emailField.getText().trim();
+        if (username.isEmpty()) {
+            showEmailError("Vui lòng nhập tên đăng nhập.");
             return;
         }
+        if (!USERNAME_PATTERN.matcher(username).matches()) {
+            showEmailError("Tên đăng nhập chỉ chứa chữ cái, chữ số và dấu gạch dưới.");
+            return;
+        }
+        String email = username + "@" + MAIL_DOMAIN;
 
         setLoading(true);
         resultLabel.setVisible(false);
@@ -82,6 +94,10 @@ public class ForgotPasswordController {
         resultLabel.setStyle("-fx-text-fill: #16815d;");
         resultLabel.setVisible(true);
         resultLabel.setManaged(true);
+        webmailUrl = response == null ? null : response.getWebmailUrl();
+        boolean hasWebmailUrl = webmailUrl != null && !webmailUrl.isBlank();
+        webmailLink.setVisible(hasWebmailUrl);
+        webmailLink.setManaged(hasWebmailUrl);
         sendButton.setDisable(true);
     }
 
@@ -98,6 +114,8 @@ public class ForgotPasswordController {
         resultLabel.setStyle("-fx-text-fill: #c81e4d;");
         resultLabel.setVisible(true);
         resultLabel.setManaged(true);
+        webmailLink.setVisible(false);
+        webmailLink.setManaged(false);
     }
 
     private void showEmailError(String message) {
@@ -127,6 +145,19 @@ public class ForgotPasswordController {
             resetIcon.setManaged(false);
             fallbackIconLabel.setVisible(true);
             fallbackIconLabel.setManaged(true);
+        }
+    }
+
+    @FXML
+    private void handleOpenWebmail() {
+        if (webmailUrl == null || webmailUrl.isBlank()) {
+            return;
+        }
+        try {
+            LinkUtils.open(webmailUrl);
+        } catch (Exception error) {
+            resultLabel.setText("Không thể mở Roundcube. Truy cập: " + webmailUrl);
+            resultLabel.setStyle("-fx-text-fill: #c81e4d;");
         }
     }
 
