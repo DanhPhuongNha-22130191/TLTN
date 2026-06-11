@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chương 2. Phương pháp và nội dung nghiên cứu</title>
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.75; margin: 40px; color: #111; }
+    h1, h2, h3 { color: #00264d; }
+    h1 { font-size: 32px; margin-top: 0; }
+    h2 { font-size: 24px; margin-top: 40px; }
+    h3 { font-size: 20px; margin-top: 30px; }
+    p { margin: 14px 0; text-align: justify; }
+    ul { margin: 10px 0 18px 28px; }
+    li { margin: 8px 0; }
+    .section-title { border-bottom: 2px solid #bbb; padding-bottom: 10px; margin-bottom: 18px; }
+    .figure { margin: 20px 0; text-align: center; }
+    .figure svg { max-width: 100%; height: auto; border: 1px solid #ccc; background: #fafafa; }
+    .figcaption { margin-top: 8px; font-size: 0.95rem; color: #333; }
+    .citation { color: #555; }
+    .references { margin-top: 36px; }
+    .references li { margin: 6px 0; }
+  </style>
+</head>
+<body>
+  <h1>CHƯƠNG 2. PHƯƠNG PHÁP VÀ NỘI DUNG NGHIÊN CỨU</h1>
+
+  <h2 class="section-title">2.1. Cơ sở lý thuyết</h2>
+  <p>Chương này trình bày cơ sở lý thuyết, giải thích khái niệm và kiến trúc nền tảng mà luận văn dựa trên. Các nội dung lý thuyết được lựa chọn nhằm hỗ trợ việc thiết kế hệ thống chat SMS với trợ lý AI, đảm bảo tính logic, tính mở rộng và khả năng thực nghiệm.</p>
+
+  <h3>2.1.1. Kiến trúc Client – Server</h3>
+  <p><strong>Khái niệm:</strong> Kiến trúc Client – Server là mô hình phân tách hệ thống thành hai thành phần cơ bản, trong đó client chịu trách nhiệm tương tác với người dùng và server chịu trách nhiệm xử lý nghiệp vụ, lưu trữ dữ liệu và cung cấp dịch vụ. Mô hình này là nền tảng cho các hệ thống phân tán hiện đại vì nó cho phép tách bạch trách nhiệm và quản lý tập trung.</p>
+  <p><strong>Mô hình hoạt động:</strong> Hoạt động của kiến trúc Client – Server tuân theo quy trình: client gửi yêu cầu, server nhận và xử lý yêu cầu, truy vấn cơ sở dữ liệu khi cần thiết, rồi gửi lại kết quả cho client.</p>
+  <ul>
+    <li>Client gửi yêu cầu đến server qua giao thức mạng.</li>
+    <li>Server nhận và thực hiện logic nghiệp vụ.</li>
+    <li>Server truy vấn cơ sở dữ liệu hoặc sử dụng dịch vụ nội bộ.</li>
+    <li>Server trả về phản hồi cho client.</li>
+    <li>Client hiển thị kết quả cho người dùng.</li>
+  </ul>
+  <p><strong>Ưu điểm:</strong> Kiến trúc Client – Server giúp quản lý tập trung dữ liệu, dễ bảo mật và sao lưu. Nó cho phép mở rộng quy mô bằng cách tăng cường tài nguyên cho server hoặc triển khai thêm nhiều client.</p>
+  <p><strong>Nhược điểm:</strong> Server có thể trở thành điểm nghẽn khi tải cao, đồng thời hệ thống phụ thuộc vào kết nối mạng và đòi hỏi quản trị, bảo trì server tốt.</p>
+  <p><strong>Ứng dụng trong hệ thống:</strong> Trong luận văn này, kiến trúc Client – Server được sử dụng để kết nối ứng dụng JavaFX với backend Spring Boot. Client gửi yêu cầu đăng nhập, gửi tin nhắn và lấy dữ liệu, trong khi server đảm nhận xác thực, quản lý luồng chat, lưu trữ hội thoại và điều phối trợ lý AI.</p>
+
+  <div class="figure">
+    <svg viewBox="0 0 700 220" xmlns="http://www.w3.org/2000/svg">
+      <rect x="50" y="60" width="220" height="100" rx="12" ry="12" fill="#eef5ff" stroke="#4d7cff" stroke-width="2" />
+      <text x="160" y="100" fill="#00264d" font-size="16" text-anchor="middle">Client</text>
+      <rect x="430" y="60" width="220" height="100" rx="12" ry="12" fill="#f5f5f5" stroke="#5c5c5c" stroke-width="2" />
+      <text x="540" y="100" fill="#00264d" font-size="16" text-anchor="middle">Server</text>
+      <path d="M270 110 L430 110" fill="none" stroke="#00264d" stroke-width="3" marker-end="url(#arrow)" marker-start="url(#arrow)" />
+      <text x="350" y="86" fill="#00264d" font-size="14" text-anchor="middle">Yêu cầu / Phản hồi</text>
+      <defs>
+        <marker id="arrow" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto">
+          <path d="M0,0 L10,5 L0,10 z" fill="#00264d" />
+        </marker>
+      </defs>
+    </svg>
+    <div class="figcaption">Hình 2.1. Sơ đồ kiến trúc Client – Server trong hệ thống chat.</div>
+  </div>
+
+  <h3>2.1.2. Kiến trúc Microservices</h3>
+  <p><strong>Khái niệm:</strong> Kiến trúc Microservices chia ứng dụng thành các dịch vụ nhỏ, độc lập, mỗi dịch vụ thực hiện một chức năng cụ thể. Mỗi dịch vụ có thể được phát triển, triển khai và mở rộng riêng rẽ, giúp gia tăng tính linh hoạt và khả năng bảo trì.</p>
+  <p><strong>Đặc điểm:</strong> Microservices đặc trưng bởi sự tự trị của từng dịch vụ, giao tiếp qua API nhẹ, và khả năng dùng nhiều công nghệ khác nhau trong cùng một hệ thống.</p>
+  <ul>
+    <li>Dịch vụ nhỏ, tập trung vào một nhiệm vụ cụ thể.</li>
+    <li>Triển khai độc lập và mở rộng riêng lẻ.</li>
+    <li>Giao tiếp qua HTTP/REST, gRPC hoặc message broker.</li>
+    <li>Cơ sở dữ liệu có thể phân tách hoặc dùng chung tùy thiết kế.</li>
+  </ul>
+  <p><strong>So sánh với Monolithic:</strong> Trong khi kiến trúc Monolithic gom toàn bộ chức năng vào một ứng dụng lớn, Microservices phân tách thành nhiều ứng dụng nhỏ hơn. Điều này giúp giảm tác động khi bảo trì và cập nhật, nhưng đồng thời tăng độ phức tạp trong quản lý phân tán.</p>
+  <p><strong>Ưu điểm:</strong> Microservices giúp mở rộng theo nhu cầu, cập nhật độc lập và giảm thiểu rủi ro do lỗi chỉ ảnh hưởng một phần của hệ thống.</p>
+  <p><strong>Nhược điểm:</strong> Việc triển khai và giám sát nhiều dịch vụ đòi hỏi công cụ quản lý, logging và bảo mật phức tạp hơn.</p>
+  <p><strong>Ứng dụng trong đề tài:</strong> Hệ thống chat được thiết kế dưới dạng microservices, phân tách các chức năng như xác thực, quản lý người dùng, dịch vụ chat, API Gateway và dịch vụ trợ lý AI. Kiến trúc này giúp hệ thống có thể mở rộng linh hoạt và hỗ trợ triển khai trong môi trường Docker Compose.</p>
+
+  <div class="figure">
+    <svg viewBox="0 0 820 300" xmlns="http://www.w3.org/2000/svg">
+      <rect x="40" y="30" width="220" height="68" rx="10" fill="#eaf4ff" stroke="#2b6fdb" stroke-width="2"/>
+      <text x="150" y="70" fill="#06315a" font-size="16" text-anchor="middle">API Gateway</text>
+
+      <rect x="300" y="20" width="220" height="68" rx="10" fill="#f7f7f9" stroke="#5a5a5a" stroke-width="1.6"/>
+      <text x="410" y="60" fill="#06315a" font-size="15" text-anchor="middle">User-Service</text>
+      <text x="410" y="78" fill="#06315a" font-size="12" text-anchor="middle">(tích hợp Keycloak để xác thực)</text>
+
+      <rect x="300" y="110" width="220" height="68" rx="10" fill="#f7f7f9" stroke="#5a5a5a" stroke-width="1.6"/>
+      <text x="410" y="150" fill="#06315a" font-size="15" text-anchor="middle">Chat-Service</text>
+
+      <rect x="300" y="200" width="220" height="68" rx="10" fill="#fff8ec" stroke="#c57b1a" stroke-width="1.6"/>
+      <text x="410" y="240" fill="#4a3300" font-size="15" text-anchor="middle">AI Service (LLM)</text>
+
+      <rect x="560" y="110" width="180" height="68" rx="8" fill="#fff4e6" stroke="#d0872a" stroke-width="1.6"/>
+      <text x="650" y="150" fill="#503600" font-size="14" text-anchor="middle">PostgreSQL</text>
+
+      <rect x="60" y="200" width="160" height="68" rx="8" fill="#eef7f0" stroke="#2f8f48" stroke-width="1.6"/>
+      <text x="140" y="235" fill="#114b2f" font-size="14" text-anchor="middle">Keycloak</text>
+
+      <!-- Arrows -->
+      <defs>
+        <marker id="mar" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto">
+          <path d="M0,0 L10,5 L0,10 z" fill="#00264d" />
+        </marker>
+      </defs>
+      <path d="M260 64 L300 64" stroke="#00264d" stroke-width="2" marker-end="url(#mar)"/>
+      <path d="M520 64 L560 64" stroke="#00264d" stroke-width="2" marker-start="url(#mar)" marker-end="url(#mar)"/>
+
+      <path d="M410 88 L410 110" stroke="#00264d" stroke-width="2" marker-end="url(#mar)"/>
+      <path d="M410 178 L410 200" stroke="#00264d" stroke-width="2" marker-end="url(#mar)"/>
+      <path d="M520 144 L560 144" stroke="#00264d" stroke-width="2" marker-end="url(#mar)"/>
+
+      <!-- User-Service -> Keycloak -->
+      <path d="M300 54 L220 54 L220 234 L220 234" fill="none" stroke="#2b6fdb" stroke-dasharray="6 4" stroke-width="2" marker-end="url(#mar)"/>
+      <path d="M220 234 L220 200" fill="none" stroke="#2b6fdb" stroke-width="2" marker-end="url(#mar)"/>
+
+      <!-- Chat-Service -> PostgreSQL -->
+      <path d="M520 144 L560 144" stroke="#00264d" stroke-width="2" marker-end="url(#mar)"/>
+    </svg>
+    <div class="figcaption">Hình 2.2. Sơ đồ microservices: API Gateway, User-Service (tích hợp Keycloak), Chat-Service, AI Service và PostgreSQL.</div>
+  </div>
+
+  <h3>2.1.3. Clean Architecture</h3>
+  <p><strong>Khái niệm:</strong> Clean Architecture là phương pháp tổ chức hệ thống bằng cách xếp các lớp thành các vòng tròn đồng tâm, với mục tiêu là giảm phụ thuộc vào công nghệ và tăng tính kiểm thử. Luận văn chọn Clean Architecture để đảm bảo lớp nghiệp vụ không bị ảnh hưởng bởi các chi tiết kỹ thuật.</p>
+  <p><strong>Nguyên tắc Dependency Rule:</strong> Quy tắc phụ thuộc (Dependency Rule) yêu cầu các thành phần ở cấp trong không được phụ thuộc vào các thành phần ở cấp ngoài. Luồng phụ thuộc chỉ đi từ ngoài vào trong, bảo vệ lõi nghiệp vụ khỏi sự biến đổi của giao diện và cơ sở dữ liệu.</p>
+  <p><strong>Các tầng:</strong></p>
+  <ul>
+    <li><strong>Presentation:</strong> quản lý giao diện người dùng, luồng dữ liệu và tương tác với client.</li>
+    <li><strong>Application:</strong> điều phối các use-case, xử lý yêu cầu nghiệp vụ và kết nối domain với các dịch vụ hỗ trợ.</li>
+    <li><strong>Domain:</strong> chứa các mô hình nghiệp vụ, quy tắc và logic cốt lõi.</li>
+    <li><strong>Infrastructure:</strong> triển khai chi tiết kỹ thuật như truy cập cơ sở dữ liệu, gọi dịch vụ ngoài và kết nối hệ thống.</li>
+  </ul>
+  <p><strong>Ưu điểm:</strong> Clean Architecture giúp tăng tính modular, kiểm thử độc lập và giảm thiểu rủi ro khi thay đổi công nghệ. Mỗi thành phần có thể được phát triển và kiểm thử riêng biệt.</p>
+  <p><strong>Ứng dụng trong đề tài:</strong> Clean Architecture được áp dụng trong thiết kế backend để tách biệt module xử lý tin nhắn, xác thực, lưu trữ và trợ lý AI. Điều này giúp cho hệ thống dễ dàng mở rộng, bảo trì và tích hợp với công nghệ mới trong tương lai.</p>
+
+  <div class="figure">
+    <svg viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg">
+      <rect x="260" y="20" width="180" height="70" rx="12" fill="#e8f3ff" stroke="#2451a1" stroke-width="2"/>
+      <text x="350" y="55" fill="#102b5e" font-size="15" text-anchor="middle">Presentation</text>
+      <rect x="220" y="110" width="260" height="70" rx="12" fill="#f0f7ff" stroke="#3b65c7" stroke-width="2"/>
+      <text x="350" y="145" fill="#102b5e" font-size="15" text-anchor="middle">Application</text>
+      <rect x="180" y="200" width="340" height="70" rx="12" fill="#f7fafc" stroke="#455b8c" stroke-width="2"/>
+      <text x="350" y="235" fill="#102b5e" font-size="15" text-anchor="middle">Domain</text>
+      <rect x="140" y="290" width="420" height="70" rx="12" fill="#fff8e1" stroke="#b58b35" stroke-width="2"/>
+      <text x="350" y="325" fill="#4f3d13" font-size="15" text-anchor="middle">Infrastructure</text>
+      <path d="M350 90 L350 110" stroke="#00264d" stroke-width="2" marker-end="url(#arrow3)"/>
+      <path d="M350 180 L350 200" stroke="#00264d" stroke-width="2" marker-end="url(#arrow3)"/>
+      <path d="M350 270 L350 290" stroke="#00264d" stroke-width="2" marker-end="url(#arrow3)"/>
+      <defs>
+        <marker id="arrow3" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto">
+          <path d="M0,0 L10,5 L0,10 z" fill="#00264d" />
+        </marker>
+      </defs>
+    </svg>
+    <div class="figcaption">Hình 2.3. Mô hình lớp theo Clean Architecture.</div>
+  </div>
+
+  <h3>2.1.4. WebSocket</h3>
+  <p><strong>Khái niệm:</strong> WebSocket là giao thức truyền thông hai chiều cho phép tạo kết nối liên tục giữa client và server, hỗ trợ trao đổi dữ liệu theo chế độ full duplex. Giao thức này phù hợp với các ứng dụng thời gian thực như chat và thông báo.</p>
+  <p><strong>Cơ chế Full Duplex:</strong> WebSocket duy trì một kết nối TCP mở, cho phép client và server gửi dữ liệu độc lập song song. Điều này khác biệt với HTTP truyền thống, nơi chỉ client khởi xướng yêu cầu.</p>
+  <p><strong>Quy trình hoạt động:</strong></p>
+  <ul>
+    <li>Client gửi yêu cầu nâng cấp giao thức (HTTP Upgrade).</li>
+    <li>Server chấp nhận và chuyển sang giao thức WebSocket.</li>
+    <li>Kết nối WebSocket được thiết lập.</li>
+    <li>Client và server trao đổi dữ liệu theo dạng frame.</li>
+    <li>Kết nối kết thúc khi một bên đóng phiên.</li>
+  </ul>
+  <p><strong>So sánh với HTTP Polling:</strong> HTTP Polling yêu cầu client gửi các yêu cầu định kỳ để kiểm tra dữ liệu mới, dẫn đến tăng tải và độ trễ. Trong khi đó, WebSocket có khả năng đẩy dữ liệu tự động từ server, đáp ứng yêu cầu của hệ thống chat thời gian thực.</p>
+  <p><strong>Ứng dụng trong hệ thống chat:</strong> WebSocket được sử dụng để duy trì kết nối giữa người dùng và server, hỗ trợ nhận tin nhắn đến tức thời và gửi tin nhắn đồng thời. Cơ chế này đảm bảo phản hồi nhanh và tiết kiệm băng thông so với các giải pháp polling.</p>
+
+  <h3>2.1.5. JWT (JSON Web Token)</h3>
+  <p><strong>Khái niệm:</strong> JSON Web Token (JWT) là định dạng mã hóa chứa thông tin xác thực được truyền giữa client và server. JWT cho phép xác thực không trạng thái, do đó server không cần lưu trữ phiên làm việc.</p>
+  <p><strong>Cấu trúc JWT:</strong> JWT gồm ba phần: Header, Payload và Signature. Header mô tả thuật toán ký, Payload chứa claims và Signature đảm bảo tính toàn vẹn của token.</p>
+  <ul>
+    <li><strong>Header:</strong> chứa thông tin về loại token và thuật toán ký.</li>
+    <li><strong>Payload:</strong> chứa claims như thông tin người dùng, thời hạn và quyền truy cập.</li>
+    <li><strong>Signature:</strong> là chữ ký tạo từ header, payload và khóa bí mật.</li>
+  </ul>
+  <p><strong>Quy trình xác thực:</strong> Sau khi đăng nhập thành công, server cấp JWT cho client. Client gửi token trong mỗi yêu cầu, và server xác minh chữ ký, thời hạn và claims để chấp nhận hoặc từ chối yêu cầu.</p>
+  <p><strong>Ưu điểm:</strong> JWT giúp xác thực không trạng thái, giảm chi phí quản lý phiên và tăng hiệu năng xử lý. Token có thể dùng cho nhiều client khác nhau như web, mobile hoặc dịch vụ microservices.</p>
+  <p><strong>Ứng dụng trong đề tài:</strong> Hệ thống sử dụng JWT do Keycloak cấp để xác thực và ủy quyền truy cập. JWT được gửi kèm trong các yêu cầu tới API Gateway và các dịch vụ backend, đảm bảo bảo mật và phân quyền chặt chẽ.</p>
+
+  <h3>2.1.6. Trợ lý AI và mô hình hỏi đáp</h3>
+  <p><strong>Khái niệm Chatbot AI:</strong> Trợ lý AI là hệ thống phần mềm sử dụng trí tuệ nhân tạo để tương tác với người dùng qua ngôn ngữ tự nhiên, trả lời câu hỏi và hỗ trợ các nhiệm vụ cụ thể.</p>
+  <p><strong>NLP (Natural Language Processing):</strong> NLP là lĩnh vực xử lý ngôn ngữ tự nhiên, cho phép máy tính hiểu, phân tích và tạo ra ngôn ngữ giống con người. Trong hệ thống này, NLP thực hiện phân tích câu hỏi, trích xuất ngữ cảnh và chuẩn hóa truy vấn.</p>
+  <p><strong>Large Language Model (LLM):</strong> LLM là mô hình ngôn ngữ lớn được huấn luyện trên dữ liệu khổng lồ. Các mô hình này có khả năng dự đoán từ ngữ tiếp theo và tạo ra văn bản có ngữ nghĩa, do đó phù hợp cho nhiệm vụ chatbot và trả lời tự động.</p>
+  <p><strong>Cơ chế Retrieval-Augmented Generation (RAG):</strong> RAG kết hợp truy xuất thông tin và sinh ngôn ngữ tự nhiên. Khi nhận truy vấn, hệ thống tìm kiếm tài liệu liên quan và sau đó sử dụng LLM để tạo ra phản hồi dựa trên ngữ cảnh truy xuất.</p>
+  <p><strong>Quy trình truy xuất tri thức và sinh phản hồi:</strong></p>
+  <ul>
+    <li>Nhận truy vấn từ người dùng.</li>
+    <li>Tiền xử lý và phân tích truy vấn bằng NLP.</li>
+    <li>Tìm kiếm và truy xuất tri thức liên quan.</li>
+    <li>Truyền ngữ cảnh và dữ liệu truy xuất vào LLM.</li>
+    <li>LLM sinh phản hồi và trả kết quả lại cho người dùng.</li>
+  </ul>
+  <p><strong>Ứng dụng trong đề tài:</strong> Trợ lý AI cung cấp khả năng trả lời tự động và hỗ trợ người dùng chat. Mô hình RAG giúp phản hồi vừa đủ ngữ cảnh, nâng cao độ chính xác và giảm thiểu thông tin sai lệch so với việc chỉ dùng LLM thuần túy.</p>
+
+  <h2 class="section-title">2.2. Các công nghệ hỗ trợ</h2>
+  <p>Mục này giới thiệu các framework, công cụ và nền tảng được sử dụng trong hệ thống. Các công nghệ được lựa chọn dựa trên tính ổn định, khả năng mở rộng và phù hợp với kiến trúc microservices.</p>
+
+  <h3>2.2.1. JavaFX</h3>
+  <p><strong>Giới thiệu JavaFX:</strong> JavaFX là framework giao diện đồ họa của Java, cho phép xây dựng ứng dụng desktop với các thành phần đồ họa, hiệu ứng và binding dữ liệu.</p>
+  <p><strong>Thành phần chính:</strong></p>
+  <ul>
+    <li>Stage và Scene: quản lý cửa sổ và cảnh.</li>
+    <li>Control: các điều khiển giao diện như Button, TextField, ListView.</li>
+    <li>Layout: bố cục giao diện như VBox, HBox, GridPane.</li>
+    <li>CSS: tùy biến giao diện và kiểu dáng.</li>
+  </ul>
+  <p><strong>Ưu điểm:</strong> JavaFX hỗ trợ giao diện trực quan, dễ phát triển và tích hợp tốt với Java. Nó phù hợp để xây dựng ứng dụng client chat, đảm bảo tính tương tác và trải nghiệm người dùng cao.</p>
+  <p><strong>Vai trò trong đề tài:</strong> JavaFX được sử dụng làm client của hệ thống, hiển thị giao diện chat, danh sách người dùng và kết nối WebSocket để nhận dữ liệu thời gian thực.</p>
+
+  <h3>2.2.2. Spring Boot</h3>
+  <p><strong>Giới thiệu Spring Boot:</strong> Spring Boot là framework Java giúp xây dựng ứng dụng backend nhanh chóng bằng cách tự động cấu hình và cung cấp nhiều thành phần sẵn có.</p>
+  <p><strong>Đặc điểm nổi bật:</strong></p>
+  <ul>
+    <li>Tự động cấu hình dựa trên dependencies.</li>
+    <li>Cấu trúc dự án rõ ràng và dễ mở rộng.</li>
+    <li>Hỗ trợ nhúng server như Tomcat và Jetty.</li>
+  </ul>
+  <p><strong>REST API:</strong> Spring Boot hỗ trợ xây dựng REST API dành cho giao tiếp giữa client và dịch vụ backend, sử dụng JSON làm định dạng dữ liệu chính.</p>
+  <p><strong>Dependency Injection:</strong> Spring Boot sử dụng DI để quản lý bean và giảm phụ thuộc cứng giữa các thành phần, giúp mã dễ kiểm thử và bảo trì.</p>
+  <p><strong>Vai trò trong đề tài:</strong> Spring Boot được dùng để phát triển các dịch vụ backend như chat-service và user-service, cung cấp API quản lý người dùng, nhắn tin, xác thực và truy vấn dữ liệu.</p>
+
+  <h3>2.2.3. PostgreSQL</h3>
+  <p><strong>Giới thiệu PostgreSQL:</strong> PostgreSQL là hệ quản trị cơ sở dữ liệu quan hệ mã nguồn mở, nổi bật với khả năng tuân thủ chuẩn SQL, mở rộng cao và hỗ trợ dữ liệu phức tạp.</p>
+  <p><strong>Đặc điểm:</strong></p>
+  <ul>
+    <li>Hỗ trợ giao dịch ACID.</li>
+    <li>Khả năng tối ưu truy vấn và mở rộng.</li>
+    <li>Hỗ trợ JSON và các hàm mở rộng.</li>
+  </ul>
+  <p><strong>ACID:</strong> PostgreSQL đảm bảo tính toàn vẹn và nhất quán dữ liệu thông qua các tính chất Atomicity, Consistency, Isolation và Durability.</p>
+  <p><strong>Vai trò trong đề tài:</strong> PostgreSQL được sử dụng làm kho dữ liệu chính cho người dùng, hội thoại và cấu hình hệ thống, đảm bảo độ tin cậy và hiệu năng truy vấn trong môi trường microservices.</p>
+
+  <h3>2.2.4. Keycloak</h3>
+  <p><strong>Giới thiệu Keycloak:</strong> Keycloak là nền tảng quản lý xác thực và ủy quyền mã nguồn mở. Nó cung cấp cơ chế đăng nhập một lần, quản lý người dùng, vai trò và chính sách truy cập.</p>
+  <p><strong>Authentication:</strong> Keycloak hỗ trợ xác thực người dùng qua tài khoản, mật khẩu và các trình xác thực bổ sung.</p>
+  <p><strong>Authorization:</strong> Keycloak cung cấp quản lý vai trò và quyền truy cập theo nhóm, giúp kiểm soát truy cập tài nguyên chính xác.</p>
+  <p><strong>OAuth2:</strong> Keycloak hỗ trợ chuẩn OAuth2 để cấp quyền truy cập an toàn cho ứng dụng và dịch vụ.</p>
+  <p><strong>OpenID Connect:</strong> Keycloak sử dụng OpenID Connect để xác thực người dùng và cấp ID token cùng access token.</p>
+  <p><strong>Vai trò trong đề tài:</strong> Keycloak được dùng để quản lý xác thực, phân quyền và cấp JWT cho các dịch vụ, giúp tách biệt an ninh khỏi logic ứng dụng.</p>
+
+  <h3>2.2.5. Spring Cloud Gateway</h3>
+  <p><strong>Giới thiệu API Gateway:</strong> API Gateway là thành phần tiếp nhận tất cả yêu cầu từ client và định tuyến chúng đến các dịch vụ backend phù hợp.</p>
+  <p><strong>Chức năng Routing:</strong> Spring Cloud Gateway định tuyến yêu cầu dựa trên URL, header và các quy tắc tùy chỉnh.</p>
+  <p><strong>Filter:</strong> Gateway cung cấp bộ lọc xử lý yêu cầu trước và sau khi định tuyến, như xác thực, ghi log và biến đổi header.</p>
+  <p><strong>Vai trò trong đề tài:</strong> Spring Cloud Gateway giúp quản lý một điểm vào duy nhất, xử lý xác thực JWT và điều phối lưu lượng đến các dịch vụ chat, người dùng và AI.</p>
+
+  <h3>2.2.6. Ollama</h3>
+  <p><strong>Giới thiệu Ollama:</strong> Ollama là nền tảng chạy mô hình ngôn ngữ lớn cục bộ, giúp triển khai LLM trên máy chủ nội bộ mà không cần phụ thuộc dịch vụ đám mây.</p>
+  <p><strong>Các mô hình hỗ trợ:</strong> Ollama hỗ trợ nhiều mô hình LLM khác nhau, bao gồm các phiên bản phù hợp cho ứng dụng hỏi đáp và trợ lý AI.</p>
+  <p><strong>Ưu điểm chạy cục bộ:</strong> Chạy mô hình cục bộ giúp bảo mật dữ liệu tốt hơn, không phụ thuộc mạng Internet và giảm chi phí dịch vụ bên ngoài.</p>
+  <p><strong>Vai trò trong đề tài:</strong> Ollama được dùng để triển khai trợ lý AI tại chỗ, xử lý truy vấn người dùng và sinh phản hồi dựa trên tri thức nội bộ.</p>
+
+  <h3>2.2.7. Docker</h3>
+  <p><strong>Khái niệm Container:</strong> Docker là nền tảng container hóa, cho phép đóng gói ứng dụng và phụ thuộc vào một đơn vị độc lập, dễ triển khai.</p>
+  <p><strong>Docker Image:</strong> Image chứa toàn bộ môi trường ứng dụng và dữ liệu cần thiết để tạo container.</p>
+  <p><strong>Docker Container:</strong> Container là bộ cài đặt chạy từ image, cô lập ứng dụng và tài nguyên hệ thống.</p>
+  <p><strong>Vai trò trong đề tài:</strong> Docker giúp triển khai các microservice, cơ sở dữ liệu và dịch vụ hỗ trợ như Keycloak trong môi trường nhất quán và dễ quản lý.</p>
+
+  <h3>2.2.8. Docker Compose</h3>
+  <p><strong>Giới thiệu:</strong> Docker Compose là công cụ quản lý nhiều container bằng cách khai báo các dịch vụ trong file YAML. Nó cho phép khởi động, dừng và đồng bộ cấu hình hệ thống một cách nhanh chóng.</p>
+  <p><strong>Quản lý nhiều container:</strong> Docker Compose định nghĩa dịch vụ, mạng và volumes, giúp triển khai toàn bộ hệ thống multi-container chỉ với vài lệnh.</p>
+  <p><strong>Vai trò trong đề tài:</strong> Docker Compose được sử dụng để cấu hình các dịch vụ backend, cơ sở dữ liệu và trợ lý AI, giúp dựng môi trường thử nghiệm và phát triển nhanh chóng.</p>
+
+  <h3>2.2.9. RESTful API</h3>
+  <p><strong>Khái niệm:</strong> RESTful API là phương pháp thiết kế giao diện lập trình dựa trên các nguyên tắc REST. Nó sử dụng giao thức HTTP và dữ liệu JSON để trao đổi giữa client và server.</p>
+  <p><strong>HTTP Method:</strong> RESTful API sử dụng các phương thức HTTP như GET, POST, PUT và DELETE để thực hiện các thao tác truy vấn, tạo, cập nhật và xóa tài nguyên.</p>
+  <p><strong>Status Code:</strong> Trạng thái HTTP biểu thị kết quả xử lý, ví dụ 200 OK, 201 Created, 400 Bad Request, 401 Unauthorized, 404 Not Found và 500 Internal Server Error.</p>
+  <p><strong>Vai trò trong đề tài:</strong> RESTful API là cơ chế chính để client và các microservice giao tiếp, hỗ trợ chức năng đăng nhập, quản lý người dùng, gửi nhận tin nhắn và gọi trợ lý AI một cách rõ ràng và có cấu trúc.</p>
+
+  <div class="references">
+    <h2 class="section-title">2.3. Tài liệu tham khảo</h2>
+    <ol>
+      <li>[1] E. Gamma, R. Helm, R. Johnson và J. Vlissides, <em>Design Patterns: Elements of Reusable Object-Oriented Software</em>, Addison-Wesley, 1994.</li>
+      <li>[2] R. N. Taylor, N. Medvidovic và E. M. Dashofy, <em>Software Architecture: Foundations, Theory, and Practice</em>, Wiley, 2010.</li>
+      <li>[3] M. Fowler, <em>Patterns of Enterprise Application Architecture</em>, Addison-Wesley, 2003.</li>
+      <li>[4] I. Sommerville, <em>Software Engineering</em>, 10th Edition, Pearson, 2015.</li>
+      <li>[5] T. Berners-Lee, R. Fielding và L. Masinter, "Uniform Resource Identifier (URI): Generic Syntax," IETF RFC 3986, 2005.</li>
+      <li>[6] Keycloak Documentation, https://www.keycloak.org/documentation, truy cập 2026.</li>
+      <li>[7] Docker Documentation, https://docs.docker.com, truy cập 2026.</li>
+      <li>[8] PostgreSQL Documentation, https://www.postgresql.org/docs, truy cập 2026.</li>
+    </ol>
+  </div>
+</body>
+</html>
