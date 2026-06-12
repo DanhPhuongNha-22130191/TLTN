@@ -50,7 +50,7 @@ def validate_password(value):
     return password
 
 
-def run_setup(*arguments, allow_exists=False, allow_missing=False):
+def run_setup(*arguments, allow_exists=False, allow_missing=False, allow_empty=False):
     command = ["docker", "exec", MAILSERVER_CONTAINER, "setup", *arguments]
     with COMMAND_LOCK:
         result = subprocess.run(command, capture_output=True, text=True, timeout=45)
@@ -62,6 +62,8 @@ def run_setup(*arguments, allow_exists=False, allow_missing=False):
     if allow_exists and ("already exists" in normalized or "is already configured" in normalized):
         return output
     if allow_missing and ("does not exist" in normalized or "could not find" in normalized):
+        return output
+    if allow_empty and "is empty, nothing to list" in normalized:
         return output
     raise ApiError(502, output or "docker-mailserver setup command failed")
 
@@ -80,7 +82,7 @@ def create_account(email, password, quota_bytes=None, allow_exists=False):
 
 
 def account_exists(email):
-    output = run_setup("email", "list")
+    output = run_setup("email", "list", allow_empty=True)
     return any(
         line.strip().split(" ", 1)[-1].split(" ", 1)[0] == email
         for line in output.splitlines()
