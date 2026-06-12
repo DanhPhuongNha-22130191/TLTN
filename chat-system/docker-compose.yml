@@ -351,6 +351,7 @@ services:
     volumes:
       - ../ai-rag-bot/ai/src/pipeline/rag_pipeline.py:/app/ai/src/pipeline/rag_pipeline.py:ro
       - ../AI Module/ai/src/api.py:/app/ai/src/api.py:ro
+      - ../AI Module/ai/src/processors:/app/ai/src/processors:ro
       - ../AI Module/ai/data:/app/ai/data
       - ../AI Module/ai/scripts/01_prepare_data.py:/app/ai/scripts/01_prepare_data.py:ro
       - ../AI Module/ai/scripts/02_index_data.py:/app/ai/scripts/02_index_data.py:ro

@@ -137,6 +137,7 @@ def run_script(script_path):
         print(result.stderr)
 
 def run_indexing_scripts(job_id: str):
+    global pipeline
     print("\n[Background] Bắt đầu quá trình cắt chunk và lưu DB...")
     update_job(
         job_id,
@@ -163,6 +164,18 @@ def run_indexing_scripts(job_id: str):
             message=f"Đã tạo {chunk_total} chunks. Đang lưu vào vector DB.",
         )
         
+        # Đóng Qdrant client của pipeline hiện tại để giải phóng file lock cho script indexer
+        if pipeline and hasattr(pipeline, "retriever") and pipeline.retriever and hasattr(pipeline.retriever, "client") and pipeline.retriever.client:
+            print("[Background] Đóng Qdrant client của pipeline để giải phóng lock...")
+            try:
+                import asyncio
+                loop = asyncio.new_event_loop()
+                loop.run_until_complete(pipeline.retriever.client.close())
+                loop.close()
+                print("[Background] Đã đóng Qdrant client thành công.")
+            except Exception as e:
+                print(f"[Background] Lỗi khi đóng Qdrant client: {e}")
+
         print("[Background] Chạy 02_index_data.py...")
         run_script(script_02)
         update_job(
@@ -175,7 +188,6 @@ def run_indexing_scripts(job_id: str):
         print("[Background] Hoàn thành cắt chunk và lưu DB thành công!")
         
         # Reset pipeline để cập nhật dữ liệu mới từ Qdrant
-        global pipeline
         pipeline = AsyncQueryPipeline()
         update_job(
             job_id,

@@ -26,11 +26,12 @@ function getExtension(fileName: string): string {
   return dotIndex >= 0 ? fileName.slice(dotIndex).toLowerCase() : '';
 }
 
-function isRunning(item: AiDocumentImport): boolean {
+function isRunning(item?: AiDocumentImport | null): boolean {
+  if (!item) return false;
   return item.status === 'queued' || item.status === 'processing';
 }
 
-function statusLabel(status: AiDocumentImport['status']): string {
+function statusLabel(status?: AiDocumentImport['status'] | null): string {
   if (status === 'completed') return 'Hoàn tất';
   if (status === 'failed') return 'Lỗi';
   if (status === 'queued') return 'Đang chờ';
@@ -38,7 +39,7 @@ function statusLabel(status: AiDocumentImport['status']): string {
   return 'Đã nhận';
 }
 
-function statusClass(status: AiDocumentImport['status']): string {
+function statusClass(status?: AiDocumentImport['status'] | null): string {
   if (status === 'completed') return 'bg-emerald-50 text-emerald-700';
   if (status === 'failed') return 'bg-red-50 text-red-700';
   if (status === 'queued') return 'bg-slate-100 text-slate-600';
@@ -123,7 +124,12 @@ export default function AiDocumentsSection({ showToast }: AiDocumentsSectionProp
       setLastMessage(message);
       showToast(message);
       setSelectedFile(null);
-      setImports((current) => [result.job, ...current.filter((item) => item.id !== result.job.id)]);
+      setImports((current) => {
+        const nextJob = result?.job;
+        if (!nextJob) return current;
+        const list = Array.isArray(current) ? current.filter((item) => item && item.id !== nextJob.id) : [];
+        return [nextJob, ...list];
+      });
       void refreshImports();
     } catch (error) {
       showToast(error instanceof Error ? error.message : 'Không thể upload tài liệu AI.', 'error');
@@ -216,8 +222,10 @@ export default function AiDocumentsSection({ showToast }: AiDocumentsSectionProp
         <div className="divide-y divide-slate-100">
           {imports.length === 0 ? (
             <div className="px-5 py-10 text-center text-sm text-slate-500">Chưa có tài liệu nào được import vào AI.</div>
-          ) : imports.map((item) => (
-            <div key={item.id} className="px-5 py-4">
+          ) : imports.map((item) => {
+            if (!item) return null;
+            return (
+              <div key={item.id} className="px-5 py-4">
               <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
@@ -244,7 +252,7 @@ export default function AiDocumentsSection({ showToast }: AiDocumentsSectionProp
               </div>
               <p className={`mt-3 text-sm ${item.status === 'failed' ? 'font-semibold text-red-700' : 'text-slate-600'}`}>{item.error || item.message}</p>
             </div>
-          ))}
+          ); })}
         </div>
       </section>
     </div>
