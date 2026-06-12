@@ -1,0 +1,47 @@
+[
+  {
+    "id": "d67220c1-75b9-4ce5-a6de-e604b79cf029",
+    "fileName": "22130191_DanhPhuongNha.docx",
+    "fileSize": 10424189,
+    "savedPath": "ai/data/handbook/uploads/22130191_DanhPhuongNha.docx",
+    "status": "failed",
+    "progress": 100,
+    "step": "failed",
+    "message": "Import thất bại khi chạy indexing.",
+    "importedAt": "2026-06-12T06:36:44.556489+00:00",
+    "startedAt": "2026-06-12T06:36:44.561690+00:00",
+    "completedAt": "2026-06-12T06:36:52.062096+00:00",
+    "chunks": null,
+    "error": "Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.\nTraceback (most recent call last):\n  File \"/app/ai/scripts/01_prepare_data.py\", line 56, in <module>\n    chunks = processor.process_document(doc)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/app/ai/src/processors/document.py\", line 162, in process_document\n    chunks = self.chunk_section(header, content)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/app/ai/src/processors/document.py\", line 75, in chunk_section\n    sentences = self.segmenter.split(content)\n                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/app/ai/src/processors/parser.py\", line 17, in split\n    parts = re.split(r'(?<=[\\.\\!\\?]|[\\.\\!\\?]\"|[\\.\\!\\?]”|[\\.\\!\\?]’)', text)\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/re/__init__.py\", line 206, in split\n    return _compile(pattern, flags).split(string, maxsplit)\n           ^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/re/__init__.py\", line 294, in _compile\n    p = _compiler.compile(pattern, flags)\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/re/_compiler.py\", line 749, in compile\n    code = _code(p, flags)\n           ^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/re/_compiler.py\", line 582, in _code\n    _compile(code, p.data, flags)\n  File \"/usr/local/lib/python3.11/re/_compiler.py\", line 155, in _compile\n    raise error(\"look-behind requires fixed-width pattern\")\nre.error: look-behind requires fixed-width pattern\n"
+  },
+  {
+    "id": "8ab2be1c-ccf4-4612-92a5-32ca4982a9e5",
+    "fileName": "22130191_DanhPhuongNha.docx",
+    "fileSize": 10424189,
+    "savedPath": "ai/data/handbook/uploads/22130191_DanhPhuongNha.docx",
+    "status": "failed",
+    "progress": 100,
+    "step": "failed",
+    "message": "Import thất bại khi chạy indexing.",
+    "importedAt": "2026-06-12T06:31:07.494695+00:00",
+    "startedAt": "2026-06-12T06:31:07.501590+00:00",
+    "completedAt": "2026-06-12T06:31:14.853972+00:00",
+    "chunks": null,
+    "error": "Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.\nTraceback (most recent call last):\n  File \"/app/ai/scripts/01_prepare_data.py\", line 56, in <module>\n    chunks = processor.process_document(doc)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/app/ai/src/processors/document.py\", line 162, in process_document\n    chunks = self.chunk_section(header, content)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/app/ai/src/processors/document.py\", line 75, in chunk_section\n    sentences = self.segmenter.split(content)\n                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/app/ai/src/processors/parser.py\", line 17, in split\n    parts = re.split(r'(?<=[\\.\\!\\?]|[\\.\\!\\?]\"|[\\.\\!\\?]”|[\\.\\!\\?]’)', text)\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/re/__init__.py\", line 206, in split\n    return _compile(pattern, flags).split(string, maxsplit)\n           ^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/re/__init__.py\", line 294, in _compile\n    p = _compiler.compile(pattern, flags)\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/re/_compiler.py\", line 749, in compile\n    code = _code(p, flags)\n           ^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/re/_compiler.py\", line 582, in _code\n    _compile(code, p.data, flags)\n  File \"/usr/local/lib/python3.11/re/_compiler.py\", line 155, in _compile\n    raise error(\"look-behind requires fixed-width pattern\")\nre.error: look-behind requires fixed-width pattern\n"
+  },
+  {
+    "id": "14c6de9d-4e96-4144-8771-b325b2b2caee",
+    "fileName": "22130191_DanhPhuongNha.docx",
+    "fileSize": 10424189,
+    "savedPath": "ai/data/handbook/uploads/22130191_DanhPhuongNha.docx",
+    "status": "failed",
+    "progress": 100,
+    "step": "failed",
+    "message": "Import thất bại khi chạy indexing.",
+    "importedAt": "2026-06-12T06:27:15.916557+00:00",
+    "startedAt": "2026-06-12T06:27:15.925463+00:00",
+    "completedAt": "2026-06-12T06:27:24.262534+00:00",
+    "chunks": null,
+    "error": "Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.\nTraceback (most recent call last):\n  File \"/app/ai/scripts/01_prepare_data.py\", line 56, in <module>\n    chunks = processor.process_document(doc)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/app/ai/src/processors/document.py\", line 162, in process_document\n    chunks = self.chunk_section(header, content)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/app/ai/src/processors/document.py\", line 75, in chunk_section\n    sentences = self.segmenter.split(content)\n                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/app/ai/src/processors/parser.py\", line 17, in split\n    parts = re.split(r'(?<=[\\.\\!\\?]|[\\.\\!\\?]\"|[\\.\\!\\?]”|[\\.\\!\\?]’)', text)\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/re/__init__.py\", line 206, in split\n    return _compile(pattern, flags).split(string, maxsplit)\n           ^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/re/__init__.py\", line 294, in _compile\n    p = _compiler.compile(pattern, flags)\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/re/_compiler.py\", line 749, in compile\n    code = _code(p, flags)\n           ^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.11/re/_compiler.py\", line 582, in _code\n    _compile(code, p.data, flags)\n  File \"/usr/local/lib/python3.11/re/_compiler.py\", line 155, in _compile\n    raise error(\"look-behind requires fixed-width pattern\")\nre.error: look-behind requires fixed-width pattern\n"
+  }
+]

@@ -16,8 +16,13 @@ if __name__ == "__main__":
     
     processor = RAGDocumentProcessor()
     
-    # Find all markdown files in the handbook directory
-    handbook_files = list(Path(HANDBOOK_DIR).rglob("*.md"))
+    # Find all supported documents in the handbook directory, including admin uploads.
+    supported_extensions = {".md", ".txt", ".pdf", ".docx"}
+    handbook_files = [
+        path
+        for path in Path(HANDBOOK_DIR).rglob("*")
+        if path.is_file() and path.suffix.lower() in supported_extensions
+    ]
     
     # Include the QA dataset
     input_files = handbook_files + [Path(QA_DIR) / "qa_dataset.md"]

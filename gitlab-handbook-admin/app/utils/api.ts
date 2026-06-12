@@ -64,9 +64,31 @@ export interface LoginResponse {
   expiresIn?: number;
 }
 
+export interface AiDocumentUploadResponse {
+  message: string;
+  job: AiDocumentImport;
+}
+
+export interface AiDocumentImport {
+  id: string;
+  fileName: string;
+  fileSize: number;
+  savedPath?: string;
+  importedAt: string;
+  startedAt?: string | null;
+  completedAt?: string | null;
+  status: 'queued' | 'processing' | 'completed' | 'failed' | 'accepted';
+  progress: number;
+  step: string;
+  message: string;
+  chunks?: number | null;
+  error?: string | null;
+}
+
 const DEFAULT_API_URL = 'https://localhost:8088';
 const MOCK_USERS_KEY = 'admin_mock_users';
 const MOCK_GROUPS_KEY = 'admin_mock_groups';
+const MOCK_AI_IMPORTS_KEY = 'admin_mock_ai_imports';
 
 const defaultUsers: User[] = [
   {
@@ -143,17 +165,13 @@ function mockGroups(): Group[] {
   return readMock(MOCK_GROUPS_KEY, defaultGroups);
 }
 
-async function request<T = void>(path: string, init: RequestInit = {}): Promise<T> {
-  const headers = new Headers(init.headers);
-  const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
-  headers.set('Content-Type', 'application/json');
-  if (token) headers.set('Authorization', `Bearer ${token}`);
+function mockAiImports(): AiDocumentImport[] {
+  return readMock(MOCK_AI_IMPORTS_KEY, []);
+}
 
-  const response = await fetch(`${getApiBaseUrl()}${path}`, { ...init, headers });
+async function parseResponse<T = void>(response: Response): Promise<T> {
   if (response.status === 401) {
-    throw new Error(path.endsWith('/auth/login')
-      ? 'Username hoặc mật khẩu không chính xác.'
-      : 'Phiên đăng nhập đã hết hạn hoặc không hợp lệ.');
+    throw new Error('Phiên đăng nhập đã hết hạn hoặc không hợp lệ.');
   }
   if (response.status === 403) {
     throw new Error('Tài khoản không có quyền quản trị.');
@@ -161,8 +179,8 @@ async function request<T = void>(path: string, init: RequestInit = {}): Promise<
   if (!response.ok) {
     const body = await response.text().catch(() => '');
     try {
-      const parsed = JSON.parse(body) as { message?: string; error?: string };
-      throw new Error(parsed.message || parsed.error || `Yêu cầu thất bại (HTTP ${response.status}).`);
+      const parsed = JSON.parse(body) as { message?: string; error?: string; detail?: string };
+      throw new Error(parsed.message || parsed.error || parsed.detail || `Yêu cầu thất bại (HTTP ${response.status}).`);
     } catch (error) {
       if (error instanceof SyntaxError) {
         throw new Error(body || `Yêu cầu thất bại (HTTP ${response.status}).`);
@@ -175,6 +193,33 @@ async function request<T = void>(path: string, init: RequestInit = {}): Promise<
   return contentType.includes('application/json')
     ? await response.json() as T
     : await response.text() as unknown as T;
+}
+
+async function request<T = void>(path: string, init: RequestInit = {}): Promise<T> {
+  const headers = new Headers(init.headers);
+  const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+  headers.set('Content-Type', 'application/json');
+  if (token) headers.set('Authorization', `Bearer ${token}`);
+
+  const response = await fetch(`${getApiBaseUrl()}${path}`, { ...init, headers });
+  if (response.status === 401) {
+    throw new Error(path.endsWith('/auth/login')
+      ? 'Username hoặc mật khẩu không chính xác.'
+      : 'Phiên đăng nhập đã hết hạn hoặc không hợp lệ.');
+  }
+  return parseResponse<T>(response);
+}
+
+async function uploadRequest<T = void>(path: string, formData: FormData): Promise<T> {
+  const headers = new Headers();
+  const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+  if (token) headers.set('Authorization', `Bearer ${token}`);
+  const response = await fetch(`${getApiBaseUrl()}${path}`, {
+    method: 'POST',
+    headers,
+    body: formData,
+  });
+  return parseResponse<T>(response);
 }
 
 export const api = {
@@ -405,5 +450,31 @@ export const api = {
     group.creatorId = newOwnerId;
     writeMock(MOCK_GROUPS_KEY, groups);
     return group;
+  },
+
+  async getAiDocumentImports(): Promise<AiDocumentImport[]> {
+    return getUseMockData() ? mockAiImports() : request<AiDocumentImport[]>('/api/ai/uploads');
+  },
+
+  async uploadAiDocument(file: File): Promise<AiDocumentUploadResponse> {
+    if (!getUseMockData()) {
+      const formData = new FormData();
+      formData.append('file', file);
+      return uploadRequest<AiDocumentUploadResponse>('/api/ai/upload', formData);
+    }
+    const imported: AiDocumentImport = {
+      id: `ai-import-${Date.now()}`,
+      fileName: file.name,
+      fileSize: file.size,
+      importedAt: new Date().toISOString(),
+      completedAt: new Date().toISOString(),
+      status: 'completed',
+      progress: 100,
+      step: 'completed',
+      chunks: 42,
+      message: `Mock: import '${file.name}' hoàn tất, đã cập nhật RAG DB.`,
+    };
+    writeMock(MOCK_AI_IMPORTS_KEY, [imported, ...mockAiImports()]);
+    return { message: imported.message, job: imported };
   },
 };

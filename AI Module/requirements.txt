@@ -7,3 +7,5 @@ numpy
 rouge-score
 FlagEmbedding
 python-multipart
+pypdf
+python-docx

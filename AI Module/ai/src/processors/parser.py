@@ -13,8 +13,9 @@ class SentenceSegmenter:
         if sent_tokenize is not None:
             return [s.strip() for s in sent_tokenize(text) if s.strip()]
 
-        # Fallback: split on punctuation marks, keep Vietnamese sentence endings.
-        parts = re.split(r'(?<=[\.\!\?]|[\.\!\?]"|[\.\!\?]”|[\.\!\?]’)', text)
+        # Fallback: split on punctuation marks using a fixed-width lookbehind
+        # Split after . ? ! and allow an optional closing quote before whitespace or end
+        parts = re.split(r'(?<=[\.\!\?])(?=(?:["”’])?\s|$)', text)
         return [p.strip() for p in parts if p.strip()]
 
 
