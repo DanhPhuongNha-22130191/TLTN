@@ -11,7 +11,6 @@ import {
   User,
   UserRole,
 } from '../utils/api';
-import AiDocumentsSection from './AiDocumentsSection';
 import GroupsSection from './GroupsSection';
 import UserModal from './UserModal';
 
@@ -19,7 +18,7 @@ interface DashboardProps {
   onLogout: () => void;
 }
 
-type Tab = 'overview' | 'users' | 'groups' | 'ai-documents';
+type Tab = 'overview' | 'users' | 'groups';
 type SearchMode = 'all' | 'username' | 'email' | 'id';
 type Toast = { message: string; type: 'success' | 'error' };
 
@@ -165,7 +164,6 @@ export default function Dashboard({ onLogout }: DashboardProps) {
     { id: 'overview', label: 'Tổng quan', note: 'Trạng thái hệ thống' },
     { id: 'users', label: 'Người dùng', note: 'Tài khoản và phân quyền' },
     { id: 'groups', label: 'Nhóm chat', note: 'Tra cứu và quản trị nhóm' },
-    { id: 'ai-documents', label: 'Tài liệu AI', note: 'Import vào RAG database' },
   ];
 
   return (
@@ -247,9 +245,6 @@ export default function Dashboard({ onLogout }: DashboardProps) {
                     </button>
                     <button onClick={() => setActiveTab('groups')} className="rounded-2xl bg-slate-100 p-4 text-left text-slate-800 hover:bg-slate-200">
                       <span className="block font-bold">Tra cứu nhóm</span><span className="mt-1 block text-xs text-slate-500">Tải nhóm bằng ID</span>
-                    </button>
-                    <button onClick={() => setActiveTab('ai-documents')} className="rounded-2xl bg-cyan-700 p-4 text-left text-white hover:bg-cyan-800 sm:col-span-2">
-                      <span className="block font-bold">Import tài liệu AI</span><span className="mt-1 block text-xs text-cyan-50/80">Upload vào POST /api/ai/upload để cập nhật RAG database</span>
                     </button>
                   </div>
                 </div>
@@ -336,8 +331,6 @@ export default function Dashboard({ onLogout }: DashboardProps) {
           )}
 
           {activeTab === 'groups' && <GroupsSection users={users} showToast={notify} />}
-
-          {activeTab === 'ai-documents' && <AiDocumentsSection showToast={notify} />}
         </div>
       </main>
 

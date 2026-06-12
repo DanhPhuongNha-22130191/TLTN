@@ -1,7 +1,7 @@
 import os
 import sys
 import uvicorn
-from fastapi import FastAPI, BackgroundTasks, UploadFile, File
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
@@ -50,47 +50,6 @@ async def serve_ui():
     if os.path.exists(html_path):
         return FileResponse(html_path)
     return {"message": "Không tìm thấy file templates/chat_ui.html. Hãy đảm bảo nó nằm đúng thư mục."}
-
-def run_indexing_scripts():
-    import subprocess
-    print("\n[Background] Bắt đầu quá trình cắt chunk và lưu DB...")
-    try:
-        script_01 = os.path.join(ai_dir, "scripts", "01_prepare_data.py")
-        script_02 = os.path.join(ai_dir, "scripts", "02_index_data.py")
-        
-        print("[Background] Chạy 01_prepare_data.py...")
-        subprocess.run([sys.executable, script_01], check=True)
-        
-        print("[Background] Chạy 02_index_data.py...")
-        subprocess.run([sys.executable, script_02], check=True)
-        
-        print("[Background] Hoàn thành cắt chunk và lưu DB thành công!")
-        
-        # Reset pipeline để cập nhật dữ liệu mới từ Qdrant
-        global pipeline
-        pipeline = None
-        init_pipeline()
-    except subprocess.CalledProcessError as e:
-        print(f"[Background] Lỗi khi chạy quá trình Indexing: {e}")
-
-@app.post("/upload")
-async def upload_document(background_tasks: BackgroundTasks, file: UploadFile = File(...)):
-    # Lưu file vào thư mục upload bên trong handbook
-    uploads_dir = os.path.join(ai_dir, "data", "handbook", "uploads")
-    os.makedirs(uploads_dir, exist_ok=True)
-    
-    file_path = os.path.join(uploads_dir, file.filename)
-    
-    with open(file_path, "wb") as buffer:
-        content = await file.read()
-        buffer.write(content)
-        
-    print(f"\n[API] Đã lưu file mới: {file_path}")
-    
-    # Kích hoạt quá trình cắt chunk và lưu DB chạy ngầm
-    background_tasks.add_task(run_indexing_scripts)
-    
-    return {"message": f"Đã nhận file '{file.filename}'. Hệ thống đang tự động cắt chunk và lưu vào cơ sở dữ liệu."}
 
 def is_greeting_query(query: str) -> bool:
     query_clean = query.strip().lower().rstrip("?.! ")

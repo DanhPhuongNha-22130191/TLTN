@@ -64,31 +64,12 @@ export interface LoginResponse {
   expiresIn?: number;
 }
 
-export interface AiDocumentUploadResponse {
-  message: string;
-  job: AiDocumentImport;
-}
 
-export interface AiDocumentImport {
-  id: string;
-  fileName: string;
-  fileSize: number;
-  savedPath?: string;
-  importedAt: string;
-  startedAt?: string | null;
-  completedAt?: string | null;
-  status: 'queued' | 'processing' | 'completed' | 'failed' | 'accepted';
-  progress: number;
-  step: string;
-  message: string;
-  chunks?: number | null;
-  error?: string | null;
-}
 
 const DEFAULT_API_URL = 'https://localhost:8088';
 const MOCK_USERS_KEY = 'admin_mock_users';
 const MOCK_GROUPS_KEY = 'admin_mock_groups';
-const MOCK_AI_IMPORTS_KEY = 'admin_mock_ai_imports';
+
 
 const defaultUsers: User[] = [
   {
@@ -165,9 +146,7 @@ function mockGroups(): Group[] {
   return readMock(MOCK_GROUPS_KEY, defaultGroups);
 }
 
-function mockAiImports(): AiDocumentImport[] {
-  return readMock(MOCK_AI_IMPORTS_KEY, []);
-}
+
 
 async function parseResponse<T = void>(response: Response): Promise<T> {
   if (response.status === 401) {
@@ -450,31 +429,5 @@ export const api = {
     group.creatorId = newOwnerId;
     writeMock(MOCK_GROUPS_KEY, groups);
     return group;
-  },
-
-  async getAiDocumentImports(): Promise<AiDocumentImport[]> {
-    return getUseMockData() ? mockAiImports() : request<AiDocumentImport[]>('/api/ai/uploads');
-  },
-
-  async uploadAiDocument(file: File): Promise<AiDocumentUploadResponse> {
-    if (!getUseMockData()) {
-      const formData = new FormData();
-      formData.append('file', file);
-      return uploadRequest<AiDocumentUploadResponse>('/api/ai/upload', formData);
-    }
-    const imported: AiDocumentImport = {
-      id: `ai-import-${Date.now()}`,
-      fileName: file.name,
-      fileSize: file.size,
-      importedAt: new Date().toISOString(),
-      completedAt: new Date().toISOString(),
-      status: 'completed',
-      progress: 100,
-      step: 'completed',
-      chunks: 42,
-      message: `Mock: import '${file.name}' hoàn tất, đã cập nhật RAG DB.`,
-    };
-    writeMock(MOCK_AI_IMPORTS_KEY, [imported, ...mockAiImports()]);
-    return { message: imported.message, job: imported };
   },
 };
