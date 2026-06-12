@@ -119,18 +119,24 @@ final class ChatDirectoryCoordinator {
     void addFriend(String username) {
         CompletableFuture.runAsync(() -> {
             try {
+                LOGGER.log(System.Logger.Level.INFO, () -> "Gửi lời mời kết bạn tới: " + username);
                 AddFriendRequest request = new AddFriendRequest();
                 request.setUserId(currentUserIdSupplier.get());
                 request.setUsername(username.trim());
                 FriendResponse friend = chatService.addFriend(request, tokenSupplier.get());
                 if (friend == null || friend.getFriendId() == null) {
+                    LOGGER.log(System.Logger.Level.WARNING, () -> "Không nhận được phản hồi hợp lệ khi gửi lời mời tới: " + username);
                     Platform.runLater(() -> errorConsumer.accept(
                             "Không thể thêm bạn. Vui lòng thử lại."));
                     return;
                 }
+                LOGGER.log(System.Logger.Level.INFO, () -> "Lời mời kết bạn gửi thành công tới: " + username + ", friendId=" + friend.getFriendId());
                 Platform.runLater(() -> notificationConsumer.accept(
                         "Đã gửi lời mời kết bạn đến " + username.trim() + "."));
             } catch (Exception error) {
+                LOGGER.log(System.Logger.Level.ERROR, "Lỗi khi gửi lời mời kết bạn tới: " + username, error);
+                // Also print stacktrace to standard error so it appears in console output
+                try { error.printStackTrace(); } catch (Throwable t) { /* ignore */ }
                 Platform.runLater(() -> errorConsumer.accept(
                         friendRequestErrorMessage(error)));
             }

@@ -158,9 +158,7 @@ services:
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
       KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:?Set KEYCLOAK_ADMIN_PASSWORD in chat-system/.env}
       KC_HTTP_ENABLED: "true"
-      KC_HOSTNAME: https://${PUBLIC_HOSTNAME:?Set PUBLIC_HOSTNAME in chat-system/.env}:8081
-      KC_HTTPS_CERTIFICATE_FILE: /run/secrets/tls/fullchain.pem
-      KC_HTTPS_CERTIFICATE_KEY_FILE: /run/secrets/tls/privkey.pem
+      KC_HOSTNAME: http://${PUBLIC_HOSTNAME:?Set PUBLIC_HOSTNAME in chat-system/.env}:8081
       KC_TRUSTSTORE_PATHS: /run/secrets/tls/mail-ca.pem
 
     command:
@@ -168,17 +166,22 @@ services:
       - --import-realm
 
     ports:
-      - "8081:8443"
+      - "8081:8080"
 
     volumes:
       - ./realm-export.json:/opt/keycloak/data/import/realm-export.json:ro
-      - ./secrets/tls/keycloak/fullchain.pem:/run/secrets/tls/fullchain.pem:ro
-      - ./secrets/tls/keycloak/privkey.pem:/run/secrets/tls/privkey.pem:ro
       - ./secrets/tls/mail/ca.pem:/run/secrets/tls/mail-ca.pem:ro
 
     depends_on:
       - postgres
       - mailserver
+
+    healthcheck:
+      test: ["CMD-SHELL", "timeout 2 bash -c '</dev/tcp/localhost/8080'"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+      start_period: 20s
 
     networks:
       - default
@@ -223,9 +226,12 @@ services:
       MAILBOX_QUOTA_BYTES: 104857600
 
     depends_on:
-      - postgres
-      - keycloak
-      - mail-account-manager
+      postgres:
+        condition: service_started
+      keycloak:
+        condition: service_healthy
+      mail-account-manager:
+        condition: service_healthy
 
     networks:
       - default
@@ -295,7 +301,7 @@ services:
       PRESENCE_TTL: 75s
       KEYCLOAK_SERVER_URL: http://keycloak:8080
       KEYCLOAK_REALM: master
-      JWT_ISSUER_URI: https://${PUBLIC_HOSTNAME:?Set PUBLIC_HOSTNAME in chat-system/.env}:8081/realms/master
+      JWT_ISSUER_URI: http://${PUBLIC_HOSTNAME:?Set PUBLIC_HOSTNAME in chat-system/.env}:8081/realms/master
       JWT_JWK_SET_URI: http://keycloak:8080/realms/master/protocol/openid-connect/certs
       SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://${PUBLIC_HOSTNAME:?Set PUBLIC_HOSTNAME in chat-system/.env}:8081/realms/master
       SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8080/realms/master/protocol/openid-connect/certs
@@ -307,10 +313,14 @@ services:
       SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE: 50MB
 
     depends_on:
-      - chat-postgres
-      - user-service
-      - keycloak
-      - redis
+      chat-postgres:
+        condition: service_started
+      user-service:
+        condition: service_started
+      keycloak:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
     volumes:
       - chat_uploads:/app/uploads
@@ -366,7 +376,7 @@ services:
       SERVER_SSL_CERTIFICATE_PRIVATE_KEY: file:/run/secrets/tls/privkey.pem
 
       KEYCLOAK_SERVER_URL: http://keycloak:8080
-      KEYCLOAK_ISSUER_URI: https://${PUBLIC_HOSTNAME:?Set PUBLIC_HOSTNAME in chat-system/.env}:8081
+      KEYCLOAK_ISSUER_URI: http://${PUBLIC_HOSTNAME:?Set PUBLIC_HOSTNAME in chat-system/.env}:8081
       KEYCLOAK_JWK_SET_URI: http://keycloak:8080/realms/master/protocol/openid-connect/certs
       KEYCLOAK_REALM: master
       SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://${PUBLIC_HOSTNAME:?Set PUBLIC_HOSTNAME in chat-system/.env}:8081/realms/master
@@ -410,10 +420,14 @@ services:
       SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE: 50MB
 
     depends_on:
-      - user-service
-      - chat-service
-      - ai-rag-bot
-      - keycloak
+      user-service:
+        condition: service_started
+      chat-service:
+        condition: service_started
+      ai-rag-bot:
+        condition: service_started
+      keycloak:
+        condition: service_healthy
 
     volumes:
       - ./secrets/tls/gateway/fullchain.pem:/run/secrets/tls/fullchain.pem:ro
