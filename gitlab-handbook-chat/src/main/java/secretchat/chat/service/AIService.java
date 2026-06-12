@@ -23,6 +23,7 @@ public class AIService {
     private static final System.Logger LOGGER = System.getLogger(AIService.class.getName());
 
     public String callAIAssistant(String query) {
+        // BƯỚC 3: GỌI HÀM callAIAssistant ĐỂ BẮT ĐẦU XỬ LÝ YÊU CẦU TRA CỨU AI
         try {
             String accessToken = SessionManager.getInstance().getAccessToken();
             JsonNode response = apiClient.postAbsolute(

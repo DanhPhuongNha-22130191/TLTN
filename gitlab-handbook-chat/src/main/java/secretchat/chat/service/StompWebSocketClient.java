@@ -20,6 +20,7 @@ final class StompWebSocketClient implements RealtimeTransport, WebSocket.Listene
 
     private final HttpClient httpClient = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(10))
+            .sslContext(secretchat.util.SslUtils.getSslContext())
             .build();
     private final Map<String, Consumer<String>> subscriptions = new ConcurrentHashMap<>();
     private final StringBuilder incoming = new StringBuilder();

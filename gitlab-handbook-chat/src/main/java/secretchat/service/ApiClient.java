@@ -17,6 +17,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.Flow;
 import java.util.function.DoubleConsumer;
 
+
 public class ApiClient {
     private static final ApiClient INSTANCE = new ApiClient();
 
@@ -26,6 +27,7 @@ public class ApiClient {
     private ApiClient() {
         this.client = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(10))
+                .sslContext(secretchat.util.SslUtils.getSslContext())
                 .build();
         this.mapper = new ObjectMapper();
     }
@@ -121,6 +123,7 @@ public class ApiClient {
             String accessToken,
             Class<R> responseClass,
             Duration timeout) throws Exception {
+        // BƯỚC 4: THỰC HIỆN GỬI HTTP POST REQUEST QUA API GATEWAY
         String jsonBody = mapper.writeValueAsString(requestBody);
         HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .uri(URI.create(url))

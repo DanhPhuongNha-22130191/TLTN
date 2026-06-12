@@ -61,7 +61,7 @@ public class SecurityConfig {
             ServerHttpSecurity http,
             UrlBasedCorsConfigurationSource corsConfigurationSource
     ) {
-
+        // BƯỚC 5: API GATEWAY THỰC HIỆN XÁC THỰC CORS VÀ JWT TOKEN
         http
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource))

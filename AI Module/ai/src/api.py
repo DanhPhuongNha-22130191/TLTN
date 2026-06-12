@@ -53,9 +53,11 @@ def is_greeting_query(query: str) -> bool:
 
 @app.post("/chat", response_model=ChatResponse)
 async def chat_endpoint(request: ChatRequest):
+    # BƯỚC 7: FASTAPI NHẬN YÊU CẦU POST /chat VÀ BẮT ĐẦU ĐO RUNTIME
     try:
         start_time = time.time()
         
+        # BƯỚC 8: GỌI HÀM pipeline.run(question) ĐỂ KHỞI CHẠY ĐƯỜNG ỐNG RAG
         # Đưa câu hỏi vào Pipeline RAG
         result = await pipeline.run(request.question)
         
@@ -87,10 +89,12 @@ async def chat_endpoint(request: ChatRequest):
         # 1. Là câu chào xã giao
         # 2. Câu hỏi trùng khớp chính xác trong bộ dữ liệu (Exact QA)
         # 3. Câu trả lời báo không có thông tin hoặc từ chối trả lời
+        # BƯỚC 23: TỰ ĐỘNG CHÈN THÊM DISCLAIMER NẾU ĐÁP ÁN KHÔNG PHẢI EXACT MATCH/XÃ GIAO/TỪ CHỐI
         if not is_greeting and not is_exact_qa and not is_no_info:
             disclaimer = "\n\nLưu ý: Câu trả lời này chỉ mang tính chất tham khảo. Vui lòng liên hệ bộ phận nhân sự hoặc quản lý để xác nhận thông tin chính xác."
             answer = answer.strip() + disclaimer
             
+        # BƯỚC 22: TÍNH TOÁN runtime_ms CỦA TRUY VẤN
         runtime_ms = (time.time() - start_time) * 1000
         
         return ChatResponse(

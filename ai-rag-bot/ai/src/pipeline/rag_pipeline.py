@@ -86,6 +86,7 @@ ANSWER:
 
         # 1. Truy xuất từ Qdrant
         print("      [RAG Local] Đang truy xuất dữ liệu từ Qdrant...", flush=True)
+        # BƯỚC 9: TRUY XUẤT 20 CHUNK TƯƠNG ĐỒNG NHẤT TỪ QDRANT VECTOR DB
         candidates = await self.retriever.search(query, top_k=20)
 
         self._clear_cuda_cache()
@@ -94,6 +95,7 @@ ANSWER:
         qa_candidates = [c for c in candidates if c.get("question") and c.get("answer")]
         if qa_candidates:
             print(f"      [RAG Local] Đang kiểm tra mức độ trùng khớp với {len(qa_candidates)} QA...", flush=True)
+            # BƯỚC 11: SO KHỚP CÂU HỎI MẪU BẰNG MÔ HÌNH RERANKER (NGƯỠNG 95%)
             best_qa = await self.reranker.check_qa_match(query, qa_candidates, threshold=0.95)
             self._clear_cuda_cache()
             
@@ -121,6 +123,7 @@ ANSWER:
                     ],
                     "is_exact_qa": True
                 }
+                # BƯỚC 13: GHI NHẬT KÝ TRUY VẤN Ở TRƯỜNG HỢP TRÙNG KHỚP CÂU HỎI MẪU (EXACT MATCH)
                 await self._write_log(log_path, entry)
                 
                 return {
@@ -136,6 +139,7 @@ ANSWER:
             f"      [RAG Local] Đang xếp hạng lại bằng reranker từ {len(candidates)} kết quả...",
             flush=True,
         )
+        # BƯỚC 15: XẾP HẠNG LẠI CÁC CHUNK TÌM THẤY VÀ LẤY 8 TOP CHUNKS LIÊN QUAN NHẤT
         top_chunks = await self.reranker.rerank(query, candidates, top_k=8)
 
         self._clear_cuda_cache()
@@ -143,7 +147,9 @@ ANSWER:
         # 3. Luôn sinh câu trả lời. Khi RAG không tìm thấy nội dung phù hợp,
         # mô hình vẫn có thể sử dụng kiến thức nền để hỗ trợ người dùng.
         print("      [RAG Local] Đang sinh câu trả lời bằng Qwen local...", flush=True)
+        # BƯỚC 17: XÂY DỰNG PROMPT KẾT HỢP NGỮ CẢNH (CONTEXT) VÀ CÂU HỎI
         prompt = self.build_prompt(query, top_chunks)
+        # BƯỚC 18: GỬI PROMPT VÀO MÔ HÌNH QWEN ĐỂ SINH CÂU TRẢ LỜI TỰ NHIÊN
         answer = await self.generator.generate(prompt)
         print("      [RAG Local] Hoàn thành sinh câu trả lời!", flush=True)
 
@@ -179,6 +185,7 @@ ANSWER:
             "is_exact_qa": False
         }
 
+        # BƯỚC 20: GHI NHẬT KÝ TRUY VẤN Ở TRƯỜNG HỢP QUA LLM GENERATOR
         await self._write_log(log_path, entry)
 
         return {
