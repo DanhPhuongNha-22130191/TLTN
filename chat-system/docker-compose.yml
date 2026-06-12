@@ -278,8 +278,10 @@ services:
   # Chat Service
   # =========================
   chat-service:
-    image: phuongnha/chat-service:${CHAT_SERVICE_TAG:-latest}
-    pull_policy: always
+    build:
+      context: ../chat-service
+    image: secretchat/chat-service:local
+    pull_policy: build
     platform: linux/amd64
     container_name: chat-service
 
