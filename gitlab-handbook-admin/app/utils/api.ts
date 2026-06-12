@@ -1,37 +1,25 @@
-// ─── Domain Types ─────────────────────────────────────────────────────────────
-
 export type UserStatus = 'ACTIVE' | 'INACTIVE' | 'SUSPENDED' | 'DELETED';
-export type UserRole   = 'EMPLOYEE' | 'CONTRACTOR' | 'ADMIN';
+export type UserRole = 'ADMIN' | 'USER';
+export type GroupRole = 'OWNER' | 'ADMIN' | 'MEMBER';
 
 export interface User {
   keycloakUserId: string;
-  username:       string;
-  email:          string;
-  fullName:       string;
-  avatar?:        string;
-  phoneNumber?:   string;
-  status:         UserStatus;
-  role?:          UserRole;
-  createdAt?:     string;
-  position?:      string;
-  level?:         string;
-  department?:    string;
-  team?:          string;
-  manager?:       string;
-  userType?:      string;
-  location?:      string;
-  country?:       string;
-  timezone?:      string;
-  startDate?:     string;
-  probationEndDate?: string;
-  remainingLeaveDays?: number;
-  skills?:        string;
-  projects?:      string;
-  github?:        string;
-  slack?:         string;
+  username: string;
+  email: string;
+  fullName?: string;
+  avatar?: string;
+  phoneNumber?: string;
+  status: UserStatus;
+  createdAt?: string;
 }
 
-export type GroupRole = 'OWNER' | 'ADMIN' | 'MEMBER';
+export interface CreateUserRequest {
+  username: string;
+  email: string;
+  fullName?: string;
+  phoneNumber?: string;
+  avatar?: string;
+}
 
 export interface GroupMember {
   groupId: number;
@@ -68,432 +56,354 @@ export interface UpdateGroupRequest {
   avatarUrl?: string;
 }
 
-export interface AddGroupMemberRequest {
-  userId: string;
-  invitedBy: string;
-  role?: string;
-}
-
-
-// ─── Auth ─────────────────────────────────────────────────────────────────────
-
 export interface LoginResponse {
-  success: boolean; message?: string;
-  accessToken?: string; refreshToken?: string; expiresIn?: number;
+  success: boolean;
+  message?: string;
+  accessToken?: string;
+  refreshToken?: string;
+  expiresIn?: number;
 }
-
-// ─── Request Payloads ─────────────────────────────────────────────────────────
-
-/** POST /api/users  — matches CreateUserCommand */
-export interface CreateUserRequest {
-  username:     string;
-  email:        string;
-  fullName:     string;
-  phoneNumber?: string;
-  avatar?:      string;
-  password?:    string;
-}
-
-/** PUT /api/users/{id} — matches UpdateUserCommand */
-export interface UpdateUserRequest {
-  fullName?:    string;
-  avatar?:      string;
-  phoneNumber?: string;
-  status?:      UserStatus;
-  username?:    string;
-  newPassword?: string;
-}
-
-/** PATCH /api/users/{id}/role — matches ChangeRoleRequest */
-export interface ChangeRoleRequest {
-  role: UserRole;
-}
-
-// ─── API Config ───────────────────────────────────────────────────────────────
 
 const DEFAULT_API_URL = 'https://localhost:8088';
+const MOCK_USERS_KEY = 'admin_mock_users';
+const MOCK_GROUPS_KEY = 'admin_mock_groups';
 
-export function getApiBaseUrl(): string {
-  if (typeof window !== 'undefined') return localStorage.getItem('API_BASE_URL') || DEFAULT_API_URL;
-  return DEFAULT_API_URL;
-}
-export function setApiBaseUrl(url: string) {
-  if (typeof window !== 'undefined') localStorage.setItem('API_BASE_URL', url);
-}
-export function getUseMockData(): boolean {
-  if (typeof window !== 'undefined') return localStorage.getItem('USE_MOCK_DATA') === 'true';
-  return false;
-}
-export function setUseMockData(v: boolean) {
-  if (typeof window !== 'undefined') localStorage.setItem('USE_MOCK_DATA', v ? 'true' : 'false');
-}
-
-// ─── Mock Data ────────────────────────────────────────────────────────────────
-
-const MOCK_KEY = 'mock_users';
-const DEFAULTS: User[] = [
-  { keycloakUserId: 'kc-001', username: 'nguyenvana', email: 'vana@company.com',
-    fullName: 'Nguyen Van A', phoneNumber: '0912345678', status: 'ACTIVE', role: 'EMPLOYEE', createdAt: '2025-01-15T08:00:00' },
-  { keycloakUserId: 'kc-002', username: 'tranthib', email: 'thib@company.com',
-    fullName: 'Tran Thi B', phoneNumber: '0987654321', status: 'ACTIVE', role: 'CONTRACTOR', createdAt: '2025-02-10T09:00:00' },
-  { keycloakUserId: 'kc-003', username: 'lehoangc', email: 'hoangc@company.com',
-    fullName: 'Le Hoang C', phoneNumber: '0933445566', status: 'INACTIVE', role: 'EMPLOYEE', createdAt: '2025-05-01T10:00:00' },
-  { keycloakUserId: 'kc-004', username: 'admin', email: 'admin@company.com',
-    fullName: 'System Administrator', status: 'ACTIVE', role: 'ADMIN', createdAt: '2024-01-01T00:00:00' },
+const defaultUsers: User[] = [
+  {
+    keycloakUserId: 'kc-admin',
+    username: 'admin',
+    email: 'admin@secretchat.local',
+    fullName: 'System Administrator',
+    status: 'ACTIVE',
+    createdAt: '2026-01-01T08:00:00',
+  },
+  {
+    keycloakUserId: 'kc-user-01',
+    username: 'minh.nguyen',
+    email: 'minh.nguyen@secretchat.local',
+    fullName: 'Nguyen Minh',
+    phoneNumber: '0912345678',
+    status: 'ACTIVE',
+    createdAt: '2026-02-14T09:30:00',
+  },
 ];
 
-function getMock(): User[] {
-  if (typeof window === 'undefined') return DEFAULTS;
-  const s = localStorage.getItem(MOCK_KEY);
-  if (!s) { localStorage.setItem(MOCK_KEY, JSON.stringify(DEFAULTS)); return DEFAULTS; }
-  return JSON.parse(s);
-}
-function saveMock(u: User[]) {
-  if (typeof window !== 'undefined') localStorage.setItem(MOCK_KEY, JSON.stringify(u));
-}
-
-const MOCK_GROUPS_KEY = 'mock_groups';
-const DEFAULT_GROUPS: Group[] = [
+const defaultGroups: Group[] = [
   {
     id: 1,
-    name: 'Phòng Dự Án Alpha',
-    description: 'Nơi thảo luận về các vấn đề kỹ thuật của dự án Alpha',
-    creatorId: 'kc-001',
-    avatarUrl: '',
+    name: 'Engineering',
+    description: 'Trao đổi nội bộ của nhóm kỹ thuật',
+    creatorId: 'kc-admin',
     isActive: true,
-    createdAt: '2025-03-01T10:00:00',
-    updatedAt: '2025-03-01T10:00:00',
+    createdAt: '2026-03-01T10:00:00',
+    updatedAt: '2026-03-01T10:00:00',
     members: [
-      { groupId: 1, userId: 'kc-001', role: 'OWNER', nickname: 'Anh Nguyễn', invitedBy: 'system', joinedAt: '2025-03-01T10:00:00' },
-      { groupId: 1, userId: 'kc-002', role: 'ADMIN', nickname: 'Chị Trần', invitedBy: 'kc-001', joinedAt: '2025-03-01T10:05:00' },
-      { groupId: 1, userId: 'kc-003', role: 'MEMBER', nickname: 'Lê C', invitedBy: 'kc-002', joinedAt: '2025-03-02T11:00:00' }
-    ]
+      { groupId: 1, userId: 'kc-admin', role: 'OWNER', joinedAt: '2026-03-01T10:00:00' },
+      { groupId: 1, userId: 'kc-user-01', role: 'MEMBER', invitedBy: 'kc-admin', joinedAt: '2026-03-01T10:05:00' },
+    ],
   },
-  {
-    id: 2,
-    name: 'Ban Giám Đốc',
-    description: 'Kênh thông tin nội bộ của các lãnh đạo công ty',
-    creatorId: 'kc-004',
-    avatarUrl: '',
-    isActive: true,
-    createdAt: '2025-01-01T08:00:00',
-    updatedAt: '2025-01-01T08:00:00',
-    members: [
-      { groupId: 2, userId: 'kc-004', role: 'OWNER', nickname: 'Boss Admin', invitedBy: 'system', joinedAt: '2025-01-01T08:00:00' },
-      { groupId: 2, userId: 'kc-001', role: 'MEMBER', nickname: 'Trưởng Phòng A', invitedBy: 'kc-004', joinedAt: '2025-01-02T09:00:00' }
-    ]
-  }
 ];
 
-function getMockGroups(): Group[] {
-  if (typeof window === 'undefined') return DEFAULT_GROUPS;
-  const s = localStorage.getItem(MOCK_GROUPS_KEY);
-  if (!s) { localStorage.setItem(MOCK_GROUPS_KEY, JSON.stringify(DEFAULT_GROUPS)); return DEFAULT_GROUPS; }
-  return JSON.parse(s);
-}
-function saveMockGroups(g: Group[]) {
-  if (typeof window !== 'undefined') localStorage.setItem(MOCK_GROUPS_KEY, JSON.stringify(g));
+export function getApiBaseUrl(): string {
+  if (typeof window === 'undefined') return DEFAULT_API_URL;
+  return localStorage.getItem('API_BASE_URL') || DEFAULT_API_URL;
 }
 
-// ─── HTTP Helper ──────────────────────────────────────────────────────────────
+export function setApiBaseUrl(url: string): void {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('API_BASE_URL', url.replace(/\/+$/, ''));
+  }
+}
 
-async function req<T = unknown>(path: string, init: RequestInit = {}): Promise<T> {
+export function getUseMockData(): boolean {
+  return typeof window !== 'undefined' && localStorage.getItem('USE_MOCK_DATA') === 'true';
+}
+
+export function setUseMockData(value: boolean): void {
+  if (typeof window !== 'undefined') localStorage.setItem('USE_MOCK_DATA', String(value));
+}
+
+function readMock<T>(key: string, initialValue: T): T {
+  if (typeof window === 'undefined') return initialValue;
+  const stored = localStorage.getItem(key);
+  if (stored) return JSON.parse(stored) as T;
+  localStorage.setItem(key, JSON.stringify(initialValue));
+  return initialValue;
+}
+
+function writeMock(key: string, value: unknown): void {
+  if (typeof window !== 'undefined') localStorage.setItem(key, JSON.stringify(value));
+}
+
+function mockUsers(): User[] {
+  return readMock(MOCK_USERS_KEY, defaultUsers);
+}
+
+function mockGroups(): Group[] {
+  return readMock(MOCK_GROUPS_KEY, defaultGroups);
+}
+
+async function request<T = void>(path: string, init: RequestInit = {}): Promise<T> {
+  const headers = new Headers(init.headers);
   const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
-  const h = new Headers(init.headers || {});
-  h.set('Content-Type', 'application/json');
-  if (token) h.set('Authorization', `Bearer ${token}`);
-  const r = await fetch(`${getApiBaseUrl()}${path}`, { ...init, headers: h });
-  if (!r.ok) { const t = await r.text().catch(() => `HTTP ${r.status}`); throw new Error(t); }
-  const ct = r.headers.get('content-type') || '';
-  if (ct.includes('application/json')) return r.json() as Promise<T>;
-  return r.text() as unknown as Promise<T>;
-}
+  headers.set('Content-Type', 'application/json');
+  if (token) headers.set('Authorization', `Bearer ${token}`);
 
-// ─── API ──────────────────────────────────────────────────────────────────────
+  const response = await fetch(`${getApiBaseUrl()}${path}`, { ...init, headers });
+  if (response.status === 401) {
+    throw new Error(path.endsWith('/auth/login')
+      ? 'Username hoặc mật khẩu không chính xác.'
+      : 'Phiên đăng nhập đã hết hạn hoặc không hợp lệ.');
+  }
+  if (response.status === 403) {
+    throw new Error('Tài khoản không có quyền quản trị.');
+  }
+  if (!response.ok) {
+    const body = await response.text().catch(() => '');
+    try {
+      const parsed = JSON.parse(body) as { message?: string; error?: string };
+      throw new Error(parsed.message || parsed.error || `Yêu cầu thất bại (HTTP ${response.status}).`);
+    } catch (error) {
+      if (error instanceof SyntaxError) {
+        throw new Error(body || `Yêu cầu thất bại (HTTP ${response.status}).`);
+      }
+      throw error;
+    }
+  }
+  if (response.status === 204) return undefined as T;
+  const contentType = response.headers.get('content-type') || '';
+  return contentType.includes('application/json')
+    ? await response.json() as T
+    : await response.text() as unknown as T;
+}
 
 export const api = {
-
   async login(username: string, password: string): Promise<LoginResponse> {
     if (getUseMockData()) {
-      if (username === 'admin' && password === 'admin') {
-        const r: LoginResponse = { success: true, accessToken: 'mock-token', refreshToken: 'mock-refresh', expiresIn: 3600, message: 'OK' };
-        localStorage.setItem('accessToken', r.accessToken!);
-        localStorage.setItem('refreshToken', r.refreshToken!);
-        return r;
+      if (username !== 'admin' || password !== 'admin') {
+        throw new Error('Tài khoản mock: admin / admin');
       }
-      throw new Error('Sai thông tin đăng nhập (mock: admin / admin)');
+      const result = { success: true, accessToken: 'mock-token', refreshToken: 'mock-refresh', expiresIn: 3600 };
+      localStorage.setItem('accessToken', result.accessToken);
+      localStorage.setItem('refreshToken', result.refreshToken);
+      return result;
     }
-    const r = await req<LoginResponse>('/api/users/auth/login', { method: 'POST', body: JSON.stringify({ username, password }) });
-    if (r.accessToken)  localStorage.setItem('accessToken',  r.accessToken);
-    if (r.refreshToken) localStorage.setItem('refreshToken', r.refreshToken);
-    return r;
+    const result = await request<LoginResponse>('/api/users/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ username, password }),
+    });
+    if (!result.success || !result.accessToken) {
+      throw new Error(result.message || 'Đăng nhập thất bại.');
+    }
+    localStorage.setItem('accessToken', result.accessToken);
+    if (result.refreshToken) localStorage.setItem('refreshToken', result.refreshToken);
+    return result;
   },
 
-  async logout(refreshToken: string): Promise<void> {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    if (!getUseMockData()) await req('/api/users/auth/logout', { method: 'POST', body: JSON.stringify({ refreshToken }) });
+  async logout(): Promise<void> {
+    const refreshToken = typeof window !== 'undefined' ? localStorage.getItem('refreshToken') : null;
+    try {
+      if (!getUseMockData() && refreshToken) {
+        await request('/api/users/auth/logout', {
+          method: 'POST',
+          body: JSON.stringify({ refreshToken }),
+        });
+      }
+    } finally {
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+    }
   },
 
   async getAllUsers(): Promise<User[]> {
-    if (getUseMockData()) return getMock();
-    return req<User[]>('/api/users');
+    return getUseMockData() ? mockUsers() : request<User[]>('/api/users');
   },
 
   async getUserById(id: string): Promise<User> {
-    if (getUseMockData()) {
-      const u = getMock().find(u => u.keycloakUserId === id);
-      if (!u) throw new Error('Không tìm thấy người dùng');
-      return u;
-    }
-    return req<User>(`/api/users/${id}`);
+    if (!getUseMockData()) return request<User>(`/api/users/${encodeURIComponent(id)}`);
+    const user = mockUsers().find((item) => item.keycloakUserId === id);
+    if (!user) throw new Error('Không tìm thấy người dùng.');
+    return user;
   },
 
   async getUserByUsername(username: string): Promise<User> {
-    if (getUseMockData()) {
-      const u = getMock().find(u => u.username === username);
-      if (!u) throw new Error('Không tìm thấy username');
-      return u;
-    }
-    return req<User>(`/api/users/username/${username}`);
+    if (!getUseMockData()) return request<User>(`/api/users/username/${encodeURIComponent(username)}`);
+    const user = mockUsers().find((item) => item.username === username);
+    if (!user) throw new Error('Không tìm thấy username.');
+    return user;
   },
 
   async getUserByEmail(email: string): Promise<User> {
-    if (getUseMockData()) {
-      const u = getMock().find(u => u.email === email);
-      if (!u) throw new Error('Không tìm thấy email');
-      return u;
-    }
-    return req<User>(`/api/users/email/${email}`);
+    if (!getUseMockData()) return request<User>(`/api/users/email/${encodeURIComponent(email)}`);
+    const user = mockUsers().find((item) => item.email === email);
+    if (!user) throw new Error('Không tìm thấy email.');
+    return user;
   },
 
-  /** POST /api/users — no password (Keycloak handles credentials) */
   async createUser(data: CreateUserRequest): Promise<User> {
-    if (getUseMockData()) {
-      const list = getMock();
-      if (list.some(u => u.username === data.username)) throw new Error(`Username '${data.username}' đã tồn tại`);
-      if (list.some(u => u.email    === data.email))    throw new Error(`Email '${data.email}' đã được dùng`);
-      const nu: User = { keycloakUserId: `kc-${Date.now()}`, ...data, status: 'ACTIVE', role: 'EMPLOYEE', createdAt: new Date().toISOString() };
-      list.push(nu); saveMock(list); return nu;
+    if (!getUseMockData()) {
+      return request<User>('/api/users', { method: 'POST', body: JSON.stringify(data) });
     }
-    return req<User>('/api/users', { method: 'POST', body: JSON.stringify(data) });
+    const users = mockUsers();
+    if (users.some((item) => item.username === data.username || item.email === data.email)) {
+      throw new Error('Username hoặc email đã tồn tại.');
+    }
+    const created: User = {
+      keycloakUserId: `kc-${Date.now()}`,
+      username: data.username,
+      email: data.email,
+      fullName: data.fullName || '',
+      phoneNumber: data.phoneNumber,
+      avatar: data.avatar,
+      status: 'ACTIVE',
+      createdAt: new Date().toISOString(),
+    };
+    writeMock(MOCK_USERS_KEY, [...users, created]);
+    return created;
   },
 
-  /** PUT /api/users/{id} — fullName, avatar, phoneNumber only */
-  async updateUser(id: string, data: UpdateUserRequest): Promise<User> {
-    if (getUseMockData()) {
-      const list = getMock();
-      const i = list.findIndex(u => u.keycloakUserId === id);
-      if (i === -1) throw new Error('Người dùng không tồn tại');
-      list[i] = { ...list[i], ...data };
-      saveMock(list); return list[i];
-    }
-    return req<User>(`/api/users/${id}`, { method: 'PUT', body: JSON.stringify(data) });
-  },
-
-  /** DELETE /api/users/{id} */
   async deleteUser(id: string): Promise<void> {
-    if (getUseMockData()) { saveMock(getMock().filter(u => u.keycloakUserId !== id)); return; }
-    await req(`/api/users/${id}`, { method: 'DELETE' });
-  },
-
-  /** PATCH /api/users/{id}/role */
-  async changeRole(id: string, role: UserRole): Promise<void> {
-    if (getUseMockData()) {
-      const list = getMock();
-      const i = list.findIndex(u => u.keycloakUserId === id);
-      if (i !== -1) { list[i] = { ...list[i], role }; saveMock(list); }
+    if (!getUseMockData()) {
+      await request(`/api/users/${encodeURIComponent(id)}`, { method: 'DELETE' });
       return;
     }
-    await req(`/api/users/${id}/role`, { method: 'PATCH', body: JSON.stringify({ role }) });
+    writeMock(MOCK_USERS_KEY, mockUsers().filter((item) => item.keycloakUserId !== id));
   },
 
-  async getAllGroups(): Promise<Group[]> {
-    if (getUseMockData()) return getMockGroups();
-    return req<Group[]>('/api/groups');
+  async changeRole(id: string, role: UserRole): Promise<void> {
+    if (getUseMockData()) return;
+    await request(`/api/users/${encodeURIComponent(id)}/role`, {
+      method: 'PATCH',
+      body: JSON.stringify({ role }),
+    });
   },
 
   async getGroupDetails(id: number): Promise<Group> {
-    if (getUseMockData()) {
-      const g = getMockGroups().find(g => g.id === id);
-      if (!g) throw new Error('Không tìm thấy nhóm');
-      return g;
-    }
-    return req<Group>(`/api/groups/${id}`);
+    if (!getUseMockData()) return request<Group>(`/api/groups/${id}`);
+    const group = mockGroups().find((item) => item.id === id);
+    if (!group) throw new Error(`Không tìm thấy nhóm #${id}.`);
+    return group;
   },
 
   async createGroup(data: CreateGroupRequest): Promise<Group> {
-    if (getUseMockData()) {
-      const list = getMockGroups();
-      const newId = list.length > 0 ? Math.max(...list.map(g => g.id)) + 1 : 1;
-      
-      const newMembers: GroupMember[] = [
-        { groupId: newId, userId: data.creatorId, role: 'OWNER', nickname: '', invitedBy: 'system', joinedAt: new Date().toISOString() }
-      ];
-      if (data.memberIds) {
-        data.memberIds.forEach(mId => {
-          if (mId !== data.creatorId) {
-            newMembers.push({ groupId: newId, userId: mId, role: 'MEMBER', nickname: '', invitedBy: data.creatorId, joinedAt: new Date().toISOString() });
-          }
-        });
-      }
-
-      const ng: Group = {
-        id: newId,
-        name: data.name,
-        description: data.description,
-        creatorId: data.creatorId,
-        avatarUrl: data.avatarUrl,
-        isActive: true,
-        members: newMembers,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
-      list.push(ng);
-      saveMockGroups(list);
-      return ng;
+    if (!getUseMockData()) {
+      return request<Group>('/api/groups', { method: 'POST', body: JSON.stringify(data) });
     }
-    return req<Group>('/api/groups', { method: 'POST', body: JSON.stringify(data) });
+    const groups = mockGroups();
+    const id = groups.length ? Math.max(...groups.map((item) => item.id)) + 1 : 1;
+    const now = new Date().toISOString();
+    const memberIds = [...new Set(data.memberIds || [])].filter((memberId) => memberId !== data.creatorId);
+    const created: Group = {
+      id,
+      name: data.name,
+      description: data.description,
+      creatorId: data.creatorId,
+      avatarUrl: data.avatarUrl,
+      isActive: true,
+      createdAt: now,
+      updatedAt: now,
+      members: [
+        { groupId: id, userId: data.creatorId, role: 'OWNER', joinedAt: now },
+        ...memberIds.map((userId) => ({ groupId: id, userId, role: 'MEMBER' as const, invitedBy: data.creatorId, joinedAt: now })),
+      ],
+    };
+    writeMock(MOCK_GROUPS_KEY, [...groups, created]);
+    return created;
   },
 
   async updateGroup(id: number, data: UpdateGroupRequest): Promise<Group> {
-    if (getUseMockData()) {
-      const list = getMockGroups();
-      const idx = list.findIndex(g => g.id === id);
-      if (idx === -1) throw new Error('Nhóm không tồn tại');
-      list[idx] = { ...list[idx], ...data, updatedAt: new Date().toISOString() };
-      saveMockGroups(list);
-      return list[idx];
+    if (!getUseMockData()) {
+      return request<Group>(`/api/groups/${id}`, { method: 'PUT', body: JSON.stringify(data) });
     }
-    return req<Group>(`/api/groups/${id}`, { method: 'PUT', body: JSON.stringify(data) });
+    const groups = mockGroups();
+    const index = groups.findIndex((item) => item.id === id);
+    if (index < 0) throw new Error('Nhóm không tồn tại.');
+    groups[index] = { ...groups[index], ...data, updatedAt: new Date().toISOString() };
+    writeMock(MOCK_GROUPS_KEY, groups);
+    return groups[index];
   },
 
-  async deleteGroup(id: number, userId: string): Promise<void> {
-    if (getUseMockData()) {
-      const list = getMockGroups().filter(g => g.id !== id);
-      saveMockGroups(list);
+  async deleteGroup(id: number, ownerId: string): Promise<void> {
+    if (!getUseMockData()) {
+      await request(`/api/groups/${id}?userId=${encodeURIComponent(ownerId)}`, { method: 'DELETE' });
       return;
     }
-    await req(`/api/groups/${id}?userId=${userId}`, { method: 'DELETE' });
+    writeMock(MOCK_GROUPS_KEY, mockGroups().filter((item) => item.id !== id));
   },
 
-  async addGroupMember(groupId: number, data: AddGroupMemberRequest): Promise<Group> {
-    if (getUseMockData()) {
-      const list = getMockGroups();
-      const idx = list.findIndex(g => g.id === groupId);
-      if (idx === -1) throw new Error('Nhóm không tồn tại');
-      const g = list[idx];
-      if (!g.members) g.members = [];
-      if (g.members.some(m => m.userId === data.userId)) throw new Error('Thành viên đã ở trong nhóm');
-      
-      const newMember: GroupMember = {
-        groupId,
-        userId: data.userId,
-        role: (data.role as GroupRole) || 'MEMBER',
-        invitedBy: data.invitedBy,
-        joinedAt: new Date().toISOString()
-      };
-      g.members.push(newMember);
-      g.updatedAt = new Date().toISOString();
-      saveMockGroups(list);
-      return g;
+  async addGroupMember(groupId: number, userId: string, invitedBy: string): Promise<Group> {
+    if (!getUseMockData()) {
+      return request<Group>(`/api/groups/${groupId}/members`, {
+        method: 'POST',
+        body: JSON.stringify({ userId, invitedBy, role: 'MEMBER' }),
+      });
     }
-    return req<Group>(`/api/groups/${groupId}/members`, { method: 'POST', body: JSON.stringify(data) });
+    const group = mockGroups().find((item) => item.id === groupId);
+    if (!group) throw new Error('Nhóm không tồn tại.');
+    if (group.members.some((member) => member.userId === userId)) throw new Error('Người dùng đã ở trong nhóm.');
+    group.members.push({ groupId, userId, invitedBy, role: 'MEMBER', joinedAt: new Date().toISOString() });
+    group.updatedAt = new Date().toISOString();
+    const groups = mockGroups().map((item) => item.id === groupId ? group : item);
+    writeMock(MOCK_GROUPS_KEY, groups);
+    return group;
   },
 
   async removeGroupMember(groupId: number, userId: string): Promise<void> {
-    if (getUseMockData()) {
-      const list = getMockGroups();
-      const idx = list.findIndex(g => g.id === groupId);
-      if (idx !== -1) {
-        const g = list[idx];
-        if (g.members) {
-          g.members = g.members.filter(m => m.userId !== userId);
-          g.updatedAt = new Date().toISOString();
-          saveMockGroups(list);
-        }
-      }
+    if (!getUseMockData()) {
+      await request(`/api/groups/${groupId}/members/${encodeURIComponent(userId)}`, { method: 'DELETE' });
       return;
     }
-    await req(`/api/groups/${groupId}/members/${userId}`, { method: 'DELETE' });
+    const groups = mockGroups();
+    const group = groups.find((item) => item.id === groupId);
+    if (group) group.members = group.members.filter((member) => member.userId !== userId);
+    writeMock(MOCK_GROUPS_KEY, groups);
   },
 
   async updateGroupMemberNickname(groupId: number, userId: string, nickname: string): Promise<GroupMember> {
-    if (getUseMockData()) {
-      const list = getMockGroups();
-      const idx = list.findIndex(g => g.id === groupId);
-      if (idx === -1) throw new Error('Nhóm không tồn tại');
-      const g = list[idx];
-      const mIdx = g.members?.findIndex(m => m.userId === userId);
-      if (mIdx === undefined || mIdx === -1) throw new Error('Thành viên không ở trong nhóm');
-      const m = g.members![mIdx];
-      m.nickname = nickname;
-      g.updatedAt = new Date().toISOString();
-      saveMockGroups(list);
-      return m;
+    if (!getUseMockData()) {
+      return request<GroupMember>(`/api/groups/${groupId}/members/${encodeURIComponent(userId)}/nickname`, {
+        method: 'PUT',
+        body: JSON.stringify({ nickname }),
+      });
     }
-    return req<GroupMember>(`/api/groups/${groupId}/members/${userId}/nickname`, {
-      method: 'PUT',
-      body: JSON.stringify({ nickname })
-    });
+    const groups = mockGroups();
+    const member = groups.find((item) => item.id === groupId)?.members.find((item) => item.userId === userId);
+    if (!member) throw new Error('Không tìm thấy thành viên.');
+    member.nickname = nickname;
+    writeMock(MOCK_GROUPS_KEY, groups);
+    return member;
   },
 
-  async updateGroupMemberRole(groupId: number, userId: string, role: GroupRole): Promise<GroupMember> {
-    if (getUseMockData()) {
-      const list = getMockGroups();
-      const idx = list.findIndex(g => g.id === groupId);
-      if (idx === -1) throw new Error('Nhóm không tồn tại');
-      const g = list[idx];
-      const mIdx = g.members?.findIndex(m => m.userId === userId);
-      if (mIdx === undefined || mIdx === -1) throw new Error('Thành viên không ở trong nhóm');
-      const m = g.members![mIdx];
-      m.role = role;
-      g.updatedAt = new Date().toISOString();
-      saveMockGroups(list);
-      return m;
+  async updateGroupMemberRole(groupId: number, userId: string, role: Exclude<GroupRole, 'OWNER'>): Promise<GroupMember> {
+    if (!getUseMockData()) {
+      return request<GroupMember>(`/api/groups/${groupId}/members/${encodeURIComponent(userId)}/role`, {
+        method: 'PUT',
+        body: JSON.stringify({ role }),
+      });
     }
-    return req<GroupMember>(`/api/groups/${groupId}/members/${userId}/role`, {
-      method: 'PUT',
-      body: JSON.stringify({ role })
-    });
+    const groups = mockGroups();
+    const member = groups.find((item) => item.id === groupId)?.members.find((item) => item.userId === userId);
+    if (!member) throw new Error('Không tìm thấy thành viên.');
+    member.role = role;
+    writeMock(MOCK_GROUPS_KEY, groups);
+    return member;
   },
 
   async transferGroupOwnership(groupId: number, currentOwnerId: string, newOwnerId: string): Promise<Group> {
-    if (getUseMockData()) {
-      const list = getMockGroups();
-      const idx = list.findIndex(g => g.id === groupId);
-      if (idx === -1) throw new Error('Nhóm không tồn tại');
-      const g = list[idx];
-      
-      const curr = g.members?.find(m => m.userId === currentOwnerId);
-      if (curr) curr.role = 'MEMBER';
-      
-      const next = g.members?.find(m => m.userId === newOwnerId);
-      if (next) next.role = 'OWNER';
-      else {
-        g.members?.push({
-          groupId,
-          userId: newOwnerId,
-          role: 'OWNER',
-          invitedBy: currentOwnerId,
-          joinedAt: new Date().toISOString()
-        });
-      }
-      g.updatedAt = new Date().toISOString();
-      saveMockGroups(list);
-      return g;
+    if (!getUseMockData()) {
+      return request<Group>(`/api/groups/${groupId}/owner?currentOwnerId=${encodeURIComponent(currentOwnerId)}&newOwnerId=${encodeURIComponent(newOwnerId)}`, {
+        method: 'PUT',
+      });
     }
-    return req<Group>(`/api/groups/${groupId}/owner?currentOwnerId=${currentOwnerId}&newOwnerId=${newOwnerId}`, {
-      method: 'PUT'
+    const groups = mockGroups();
+    const group = groups.find((item) => item.id === groupId);
+    if (!group) throw new Error('Nhóm không tồn tại.');
+    group.members.forEach((member) => {
+      if (member.userId === currentOwnerId) member.role = 'MEMBER';
+      if (member.userId === newOwnerId) member.role = 'OWNER';
     });
+    group.creatorId = newOwnerId;
+    writeMock(MOCK_GROUPS_KEY, groups);
+    return group;
   },
-
-  async getGroupMembers(groupId: number): Promise<GroupMember[]> {
-    if (getUseMockData()) {
-      const g = getMockGroups().find(g => g.id === groupId);
-      if (!g) throw new Error('Nhóm không tồn tại');
-      return g.members || [];
-    }
-    return req<GroupMember[]>(`/api/groups/${groupId}/members`);
-  }
 };

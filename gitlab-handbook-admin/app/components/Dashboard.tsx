@@ -1,605 +1,324 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
-import { api, User, getApiBaseUrl, getUseMockData, setUseMockData, setApiBaseUrl } from '../utils/api';
-import UserModal from './UserModal';
+import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  api,
+  CreateUserRequest,
+  getApiBaseUrl,
+  getUseMockData,
+  setApiBaseUrl,
+  setUseMockData,
+  User,
+  UserRole,
+} from '../utils/api';
 import GroupsSection from './GroupsSection';
+import UserModal from './UserModal';
 
 interface DashboardProps {
   onLogout: () => void;
 }
 
+type Tab = 'overview' | 'users' | 'groups';
+type SearchMode = 'all' | 'username' | 'email' | 'id';
+type Toast = { message: string; type: 'success' | 'error' };
+
+function initials(name: string): string {
+  return name.split(/\s+/).filter(Boolean).map((part) => part[0]).join('').slice(0, 2).toUpperCase() || 'U';
+}
+
+function formatDate(value?: string): string {
+  if (!value) return 'Chưa có';
+  return new Intl.DateTimeFormat('vi-VN', { dateStyle: 'medium' }).format(new Date(value));
+}
+
 export default function Dashboard({ onLogout }: DashboardProps) {
+  const [activeTab, setActiveTab] = useState<Tab>('overview');
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchType, setSearchType] = useState<'all' | 'username' | 'email' | 'id'>('all');
+  const [query, setQuery] = useState('');
+  const [searchMode, setSearchMode] = useState<SearchMode>('all');
   const [statusFilter, setStatusFilter] = useState('ALL');
-  const [deptFilter, setDeptFilter] = useState('ALL');
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [showCreateUser, setShowCreateUser] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [apiUrl, setApiUrl] = useState(() => getApiBaseUrl());
+  const [mockMode, setMockMode] = useState(() => getUseMockData());
+  const [toast, setToast] = useState<Toast | null>(null);
 
-  // Tab state
-  const [activeTab, setActiveTab] = useState<'users' | 'groups'>('users');
-
-  // Pagination states
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
-
-  // Modals / Drawer state
-  const [isUserModalOpen, setIsUserModalOpen] = useState(false);
-  const [userToEdit, setUserToEdit] = useState<User | null>(null);
-  const [selectedUserDetail, setSelectedUserDetail] = useState<User | null>(null);
-
-  // Settings
-  const [showSettingsDrawer, setShowSettingsDrawer] = useState(false);
-  const [apiUrlSetting, setApiUrlSetting] = useState('');
-  const [useMockSetting, setUseMockSetting] = useState(false);
-
-  // Toast notification state
-  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
-
-  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+  const notify = useCallback((message: string, type: Toast['type'] = 'success') => {
     setToast({ message, type });
-    setTimeout(() => setToast(null), 4000);
-  };
-
-  const fetchUsers = async () => {
-    setLoading(true);
-    try {
-      const data = await api.getAllUsers();
-      setUsers(data);
-      setCurrentPage(1); // Reset page to 1 on fresh load
-    } catch (err: any) {
-      showToast(err.message || 'Lỗi tải danh sách người dùng', 'error');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchUsers();
-    setApiUrlSetting(getApiBaseUrl());
-    setUseMockSetting(getUseMockData());
+    window.setTimeout(() => setToast(null), 4000);
   }, []);
 
-  const handleLogout = async () => {
-    const refreshToken = typeof window !== 'undefined' ? localStorage.getItem('refreshToken') || '' : '';
-    await api.logout(refreshToken);
-    onLogout();
-  };
-
-  // Perform search
-  const handleSearch = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    setCurrentPage(1); // Reset to page 1 on search
-
-    if (!searchQuery.trim()) {
-      fetchUsers();
-      return;
-    }
-
+  const loadUsers = useCallback(async () => {
     setLoading(true);
     try {
-      let foundUsers: User[] = [];
-      if (searchType === 'username') {
-        const u = await api.getUserByUsername(searchQuery.trim());
-        if (u) foundUsers = [u];
-      } else if (searchType === 'email') {
-        const u = await api.getUserByEmail(searchQuery.trim());
-        if (u) foundUsers = [u];
-      } else if (searchType === 'id') {
-        const u = await api.getUserById(searchQuery.trim());
-        if (u) foundUsers = [u];
-      } else {
-        // Local filter
-        const all = await api.getAllUsers();
-        foundUsers = all.filter(
-          (u) =>
-            u.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            u.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            u.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            u.keycloakUserId.toLowerCase().includes(searchQuery.toLowerCase())
-        );
-      }
-      setUsers(foundUsers);
-      showToast(`Tìm thấy ${foundUsers.length} kết quả phù hợp`);
-    } catch (err: any) {
-      showToast(err.message || 'Không tìm thấy người dùng phù hợp', 'error');
-      setUsers([]);
+      setUsers(await api.getAllUsers());
+    } catch (error) {
+      notify(error instanceof Error ? error.message : 'Không thể tải danh sách người dùng.', 'error');
     } finally {
       setLoading(false);
     }
-  };
+  }, [notify]);
 
-  const handleSaveUser = async (formData: any) => {
-    try {
-      if (userToEdit) {
-        // Edit flow
-        const updated = await api.updateUser(userToEdit.keycloakUserId, formData);
-        showToast(`Đã cập nhật thông tin: ${updated.fullName}`);
-      } else {
-        // Create flow
-        const created = await api.createUser(formData);
-        showToast(`Đã thêm thành công nhân sự: ${created.fullName}`);
-      }
-      fetchUsers();
-      if (selectedUserDetail && userToEdit && selectedUserDetail.keycloakUserId === userToEdit.keycloakUserId) {
-        setSelectedUserDetail({ ...selectedUserDetail, ...formData });
-      }
-    } catch (err: any) {
-      throw err;
-    }
-  };
-
-  const handleDeleteUser = async (userId: string, name: string) => {
-    if (!confirm(`Bạn có chắc chắn muốn xóa nhân sự ${name} (${userId}) không?`)) return;
-
-    try {
-      await api.deleteUser(userId);
-      showToast(`Đã xóa thành công nhân sự: ${name}`);
-      fetchUsers();
-      if (selectedUserDetail?.keycloakUserId === userId) {
-        setSelectedUserDetail(null);
-      }
-    } catch (err: any) {
-      showToast(err.message || 'Lỗi khi xóa nhân sự', 'error');
-    }
-  };
-
-  const handleApplySettings = () => {
-    setApiBaseUrl(apiUrlSetting);
-    setUseMockData(useMockSetting);
-    showToast('Đã áp dụng cấu hình kết nối mới');
-    setShowSettingsDrawer(false);
-    fetchUsers();
-  };
-
-  // Reset page when filters change
-  const handleStatusFilterChange = (val: string) => {
-    setStatusFilter(val);
-    setCurrentPage(1);
-  };
-
-  const handleDeptFilterChange = (val: string) => {
-    setDeptFilter(val);
-    setCurrentPage(1);
-  };
-
-  // Get department options dynamically
-  const departments = useMemo(() => {
-    const depts = new Set<string>();
-    users.forEach((u) => {
-      if (u.department) depts.add(u.department);
-    });
-    return Array.from(depts);
-  }, [users]);
-
-  // Client-side filtering
-  const filteredUsers = useMemo(() => {
-    return users.filter((u) => {
-      const matchStatus = statusFilter === 'ALL' || u.status === statusFilter;
-      const matchDept = deptFilter === 'ALL' || u.department === deptFilter;
-      return matchStatus && matchDept;
-    });
-  }, [users, statusFilter, deptFilter]);
-
-  // Pagination calculations
-  const totalPages = Math.max(1, Math.ceil(filteredUsers.length / pageSize));
-  
-  // Adjust page if it exceeds total pages
   useEffect(() => {
-    if (currentPage > totalPages) {
-      setCurrentPage(totalPages);
+    let cancelled = false;
+    api.getAllUsers()
+      .then((data) => {
+        if (!cancelled) setUsers(data);
+      })
+      .catch((error: unknown) => {
+        if (!cancelled) {
+          notify(error instanceof Error ? error.message : 'Không thể tải danh sách người dùng.', 'error');
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [notify]);
+
+  const filteredUsers = useMemo(() => {
+    const normalized = query.trim().toLowerCase();
+    return users.filter((user) => {
+      const matchesStatus = statusFilter === 'ALL' || user.status === statusFilter;
+      const matchesQuery = !normalized || [user.fullName, user.username, user.email, user.keycloakUserId]
+        .some((value) => (value || '').toLowerCase().includes(normalized));
+      return matchesStatus && matchesQuery;
+    });
+  }, [query, statusFilter, users]);
+
+  const stats = useMemo(() => ({
+    total: users.length,
+    active: users.filter((user) => user.status === 'ACTIVE').length,
+    locked: users.filter((user) => user.status === 'SUSPENDED' || user.status === 'INACTIVE').length,
+    newest: [...users].sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''))[0],
+  }), [users]);
+
+  async function handleExactSearch(event: FormEvent) {
+    event.preventDefault();
+    if (!query.trim() || searchMode === 'all') return;
+    setLoading(true);
+    try {
+      const value = query.trim();
+      const found = searchMode === 'username'
+        ? await api.getUserByUsername(value)
+        : searchMode === 'email'
+          ? await api.getUserByEmail(value)
+          : await api.getUserById(value);
+      setUsers([found]);
+      setStatusFilter('ALL');
+      notify('Đã tải người dùng từ endpoint tìm kiếm.');
+    } catch (error) {
+      setUsers([]);
+      notify(error instanceof Error ? error.message : 'Không tìm thấy người dùng.', 'error');
+    } finally {
+      setLoading(false);
     }
-  }, [totalPages, currentPage]);
+  }
 
-  const paginatedUsers = useMemo(() => {
-    const startIndex = (currentPage - 1) * pageSize;
-    return filteredUsers.slice(startIndex, startIndex + pageSize);
-  }, [filteredUsers, currentPage, pageSize]);
+  async function handleCreateUser(data: CreateUserRequest) {
+    const created = await api.createUser(data);
+    notify(`Đã tạo tài khoản @${created.username}.`);
+    await loadUsers();
+  }
 
-  // Statistics
-  const stats = useMemo(() => {
-    const total = users.length;
-    const active = users.filter((u) => u.status === 'ACTIVE').length;
-    const pending = users.filter((u) => u.status === 'INACTIVE').length;
-    const avgLeave = users.length
-      ? Math.round(users.reduce((acc, u) => acc + (u.remainingLeaveDays || 0), 0) / users.length)
-      : 0;
+  async function handleRoleChange(user: User, role: UserRole) {
+    if (!confirm(`Gán role ${role} cho @${user.username}?`)) return;
+    try {
+      await api.changeRole(user.keycloakUserId, role);
+      notify(`Đã gán role ${role} cho @${user.username}.`);
+    } catch (error) {
+      notify(error instanceof Error ? error.message : 'Không thể đổi role.', 'error');
+    }
+  }
 
-    return { total, active, pending, avgLeave };
-  }, [users]);
+  async function handleDelete(user: User) {
+    if (!confirm(`Xóa vĩnh viễn tài khoản @${user.username}?`)) return;
+    try {
+      await api.deleteUser(user.keycloakUserId);
+      setSelectedUser(null);
+      notify(`Đã xóa @${user.username}.`);
+      await loadUsers();
+    } catch (error) {
+      notify(error instanceof Error ? error.message : 'Không thể xóa người dùng.', 'error');
+    }
+  }
+
+  async function handleLogout() {
+    await api.logout().catch(() => undefined);
+    onLogout();
+  }
+
+  function applySettings() {
+    setApiBaseUrl(apiUrl.trim());
+    setUseMockData(mockMode);
+    setShowSettings(false);
+    notify('Đã cập nhật cấu hình kết nối.');
+    void loadUsers();
+  }
+
+  const navigation: Array<{ id: Tab; label: string; note: string }> = [
+    { id: 'overview', label: 'Tổng quan', note: 'Trạng thái hệ thống' },
+    { id: 'users', label: 'Người dùng', note: 'Tài khoản và phân quyền' },
+    { id: 'groups', label: 'Nhóm chat', note: 'Tra cứu và quản trị nhóm' },
+  ];
 
   return (
-    <div className="min-h-screen bg-slate-50 text-zinc-800 flex font-sans">
-      {/* Toast Alert */}
+    <div className="min-h-screen bg-[#f3f6fb] text-slate-900 lg:flex">
       {toast && (
-        <div className={`fixed bottom-5 right-5 z-[100] max-w-sm p-4 rounded-xl border shadow-xl flex items-start gap-3 transition-all transform translate-y-0 ${
-          toast.type === 'success'
-            ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
-            : 'bg-red-50 border-red-200 text-red-700'
-        }`}>
-          <div className="shrink-0">
-            {toast.type === 'success' ? (
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            ) : (
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
-            )}
-          </div>
-          <div className="text-sm font-semibold">{toast.message}</div>
-        </div>
+        <div className={`fixed right-5 top-5 z-[100] max-w-sm rounded-2xl border px-4 py-3 text-sm font-semibold shadow-xl ${
+          toast.type === 'success' ? 'border-emerald-200 bg-emerald-50 text-emerald-800' : 'border-red-200 bg-red-50 text-red-700'
+        }`}>{toast.message}</div>
       )}
 
-      {/* Sidebar Navigation */}
-      <aside className="w-64 border-r border-zinc-200 bg-white shrink-0 hidden md:flex flex-col justify-between shadow-sm">
-        <div>
-          {/* Logo Brand */}
-          <div className="p-6 border-b border-zinc-100 flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center font-bold text-white shadow-md shadow-indigo-600/20">
-              SC
-            </div>
-            <div>
-              <span className="font-extrabold text-zinc-950 tracking-wider block text-sm">SECRET CHAT</span>
-              <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider block">Admin Console</span>
-            </div>
+      <aside className="flex w-full flex-col bg-[#0b1739] text-white lg:fixed lg:inset-y-0 lg:w-72">
+        <div className="flex items-center gap-3 border-b border-white/10 px-6 py-6">
+          <div className="grid h-11 w-11 place-items-center rounded-2xl bg-blue-500 font-black shadow-lg shadow-blue-500/25">SC</div>
+          <div>
+            <p className="font-bold tracking-wide">Secret Chat</p>
+            <p className="text-xs text-blue-200/70">Administration</p>
           </div>
-
-          {/* Navigation Links */}
-          <nav className="p-4 space-y-1">
-            <button
-              onClick={() => { setActiveTab('users'); setSelectedUserDetail(null); }}
-              className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-                activeTab === 'users'
-                  ? 'bg-indigo-50 text-indigo-700'
-                  : 'text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50'
-              }`}
-            >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-              </svg>
-              Quản Lý Nhân Sự
-            </button>
-
-            <button
-              onClick={() => { setActiveTab('groups'); setSelectedUserDetail(null); }}
-              className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-                activeTab === 'groups'
-                  ? 'bg-indigo-50 text-indigo-700'
-                  : 'text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50'
-              }`}
-            >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-              </svg>
-              Quản Lý Nhóm Chat
-            </button>
-
-            <button
-              onClick={() => setShowSettingsDrawer(true)}
-              className="w-full flex items-center gap-3 px-4 py-2.5 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50 rounded-xl text-sm font-semibold transition-all text-left"
-            >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-              Cấu Hình Hệ Thống
-            </button>
-          </nav>
         </div>
-
-        {/* User profile & Logout */}
-        <div className="p-4 border-t border-zinc-100 bg-zinc-50/40">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-full bg-zinc-200 flex items-center justify-center font-bold text-zinc-700">
-              QT
-            </div>
-            <div>
-              <span className="block text-sm font-semibold text-zinc-950">Quản Trị Viên</span>
-              <span className="block text-xs text-zinc-400">Master Console</span>
-            </div>
-          </div>
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center justify-center gap-2 py-2 border border-zinc-200 hover:border-red-200 hover:text-red-600 text-zinc-600 rounded-xl text-sm font-semibold transition-all hover:bg-red-50"
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-            </svg>
-            Đăng Xuất
-          </button>
+        <nav className="grid flex-1 gap-2 p-4 sm:grid-cols-3 lg:block lg:space-y-2">
+          {navigation.map((item) => (
+            <button key={item.id} onClick={() => setActiveTab(item.id)}
+              className={`w-full rounded-2xl px-4 py-3 text-left transition ${
+                activeTab === item.id ? 'bg-blue-500 text-white shadow-lg shadow-blue-950/30' : 'text-blue-100/75 hover:bg-white/10 hover:text-white'
+              }`}>
+              <span className="block text-sm font-bold">{item.label}</span>
+              <span className="mt-0.5 hidden text-xs opacity-65 lg:block">{item.note}</span>
+            </button>
+          ))}
+        </nav>
+        <div className="flex gap-2 border-t border-white/10 p-4 lg:block lg:space-y-2">
+          <button onClick={() => setShowSettings(true)} className="flex-1 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-blue-100 hover:bg-white/10 lg:w-full">Cấu hình API</button>
+          <button onClick={handleLogout} className="flex-1 rounded-xl px-4 py-2.5 text-sm font-semibold text-red-200 hover:bg-red-500/10 lg:w-full">Đăng xuất</button>
         </div>
       </aside>
 
-      {/* Main Panel Content Area */}
-      <main className="flex-1 min-w-0 flex flex-col">
-        {/* Header Search & Actions */}
-        <header className="h-16 border-b border-zinc-200 bg-white flex items-center justify-between px-6 z-20 shrink-0 shadow-sm">
-          {activeTab === 'users' ? (
-            <div className="flex items-center gap-4 flex-1 max-w-xl">
-              <form onSubmit={handleSearch} className="relative w-full flex items-center gap-2">
-                <div className="relative flex-1">
-                  <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-zinc-400">
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                  </span>
-                  <input
-                    type="text"
-                    placeholder={
-                      searchType === 'username' ? 'Tìm bằng chính xác Username...' :
-                      searchType === 'email' ? 'Tìm bằng chính xác Email...' :
-                      searchType === 'id' ? 'Tìm bằng chính xác User ID...' :
-                      'Tìm kiếm nhân sự trên hệ thống...'
-                    }
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-1.5 bg-zinc-50 border border-zinc-200 rounded-xl text-zinc-800 outline-none focus:border-indigo-500 text-sm focus:ring-1 focus:ring-indigo-500"
-                  />
-                </div>
-
-                <select
-                  value={searchType}
-                  onChange={(e) => setSearchType(e.target.value as any)}
-                  className="px-2 py-1.5 bg-zinc-50 border border-zinc-200 rounded-xl text-xs text-zinc-600 outline-none focus:border-indigo-500"
-                >
-                  <option value="all">Tìm Toàn Bộ</option>
-                  <option value="username">Bằng Username</option>
-                  <option value="email">Bằng Email</option>
-                  <option value="id">Bằng User ID</option>
-                </select>
-
-                <button
-                  type="submit"
-                  className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-semibold text-xs transition-all shadow-sm"
-                >
-                  Tìm
-                </button>
-              </form>
-            </div>
-          ) : (
-            <div className="flex items-center gap-2">
-              <h2 className="text-base font-extrabold text-zinc-950 tracking-wide">QUẢN LÝ NHÓM CHAT</h2>
-            </div>
-          )}
-
+      <main className="min-w-0 flex-1 lg:ml-72">
+        <header className="sticky top-0 z-20 flex items-center justify-between border-b border-slate-200/80 bg-white/90 px-5 py-4 backdrop-blur-xl sm:px-8">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-600">Admin console</p>
+            <h1 className="mt-1 text-xl font-bold">{navigation.find((item) => item.id === activeTab)?.label}</h1>
+          </div>
           <div className="flex items-center gap-3">
-            <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 bg-zinc-50 border border-zinc-200 rounded-xl text-xs text-zinc-500">
-              <span className={`w-2 h-2 rounded-full ${getUseMockData() ? 'bg-amber-500' : 'bg-emerald-500 animate-pulse'}`} />
-              API: {getUseMockData() ? 'Dữ liệu Giả Lập' : 'Cổng 8088 (API Thật)'}
+            <span className="hidden rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-600 sm:block">
+              {mockMode ? 'Mock data' : 'API thật'}
             </span>
-
-            {activeTab === 'users' && (
-              <button
-                onClick={() => {
-                  setUserToEdit(null);
-                  setIsUserModalOpen(true);
-                }}
-                className="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-xl text-sm font-semibold transition-all shadow-md shadow-indigo-600/10 flex items-center gap-2"
-              >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
-                Thêm Nhân Sự
-              </button>
-            )}
+            <button onClick={() => void loadUsers()} className="rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">Làm mới</button>
           </div>
         </header>
 
-        {/* Dashboard Panels */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-6">
-          {activeTab === 'users' ? (
-            <>
-              {/* Stat Cards */}
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="bg-white border border-zinc-200/80 p-5 rounded-2xl flex items-center justify-between shadow-sm">
-              <div>
-                <span className="text-zinc-400 text-xs font-bold uppercase tracking-wider block">Tổng Nhân Sự</span>
-                <span className="text-3xl font-extrabold text-zinc-950 mt-1 block">
-                  {loading ? '...' : stats.total}
-                </span>
-              </div>
-              <div className="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-100">
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
-              </div>
+        <div className="p-5 sm:p-8">
+          {activeTab === 'overview' && (
+            <div className="space-y-7">
+              <section className="overflow-hidden rounded-3xl bg-gradient-to-br from-[#102250] to-[#173b84] p-7 text-white shadow-xl shadow-blue-950/10">
+                <div className="max-w-2xl">
+                  <p className="text-sm font-semibold text-blue-200">Không gian quản trị tập trung</p>
+                  <h2 className="mt-2 text-3xl font-black tracking-tight">Quản lý đúng những gì backend đang hỗ trợ.</h2>
+                  <p className="mt-3 text-sm leading-6 text-blue-100/75">Tài khoản được quản lý qua user-service. Nhóm chat được tra cứu theo ID vì API hiện chưa cung cấp endpoint liệt kê toàn bộ nhóm.</p>
+                </div>
+              </section>
+              <section className="grid gap-4 md:grid-cols-3">
+                {[
+                  ['Tổng tài khoản', stats.total, 'Đồng bộ từ GET /api/users'],
+                  ['Đang hoạt động', stats.active, 'Trạng thái ACTIVE'],
+                  ['Chưa hoạt động', stats.locked, 'INACTIVE hoặc SUSPENDED'],
+                ].map(([label, value, note]) => (
+                  <div key={String(label)} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                    <p className="text-sm font-semibold text-slate-500">{label}</p>
+                    <p className="mt-3 text-3xl font-black text-slate-950">{value}</p>
+                    <p className="mt-2 text-xs text-slate-400">{note}</p>
+                  </div>
+                ))}
+              </section>
+              <section className="grid gap-5 lg:grid-cols-[1.4fr_1fr]">
+                <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                  <h3 className="font-bold">Thao tác nhanh</h3>
+                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                    <button onClick={() => { setActiveTab('users'); setShowCreateUser(true); }} className="rounded-2xl bg-blue-600 p-4 text-left text-white hover:bg-blue-700">
+                      <span className="block font-bold">Tạo người dùng</span><span className="mt-1 block text-xs text-blue-100">Gọi POST /api/users</span>
+                    </button>
+                    <button onClick={() => setActiveTab('groups')} className="rounded-2xl bg-slate-100 p-4 text-left text-slate-800 hover:bg-slate-200">
+                      <span className="block font-bold">Tra cứu nhóm</span><span className="mt-1 block text-xs text-slate-500">Tải nhóm bằng ID</span>
+                    </button>
+                  </div>
+                </div>
+                <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                  <h3 className="font-bold">Tài khoản mới nhất</h3>
+                  {stats.newest ? (
+                    <div className="mt-5 flex items-center gap-3">
+                      <div className="grid h-12 w-12 place-items-center rounded-2xl bg-blue-50 font-bold text-blue-700">{initials(stats.newest.fullName || stats.newest.username)}</div>
+                      <div className="min-w-0">
+                        <p className="truncate font-bold">{stats.newest.fullName || stats.newest.username}</p>
+                        <p className="truncate text-sm text-slate-500">@{stats.newest.username}</p>
+                        <p className="mt-1 text-xs text-slate-400">{formatDate(stats.newest.createdAt)}</p>
+                      </div>
+                    </div>
+                  ) : <p className="mt-4 text-sm text-slate-500">Chưa có dữ liệu.</p>}
+                </div>
+              </section>
             </div>
+          )}
 
-            <div className="bg-white border border-zinc-200/80 p-5 rounded-2xl flex items-center justify-between shadow-sm">
-              <div>
-                <span className="text-zinc-400 text-xs font-bold uppercase tracking-wider block">Đang Hoạt Động</span>
-                <span className="text-3xl font-extrabold text-emerald-600 mt-1 block">
-                  {loading ? '...' : stats.active}
-                </span>
-              </div>
-              <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100">
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-            </div>
-
-            <div className="bg-white border border-zinc-200/80 p-5 rounded-2xl flex items-center justify-between shadow-sm">
-              <div>
-                <span className="text-zinc-400 text-xs font-bold uppercase tracking-wider block">Chờ Kích Hoạt</span>
-                <span className="text-3xl font-extrabold text-amber-600 mt-1 block">
-                  {loading ? '...' : stats.pending}
-                </span>
-              </div>
-              <div className="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-100">
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                </svg>
-              </div>
-            </div>
-
-            <div className="bg-white border border-zinc-200/80 p-5 rounded-2xl flex items-center justify-between shadow-sm">
-              <div>
-                <span className="text-zinc-400 text-xs font-bold uppercase tracking-wider block">Nghỉ Phép Trung Bình</span>
-                <span className="text-3xl font-extrabold text-indigo-600 mt-1 block">
-                  {loading ? '...' : `${stats.avgLeave} ngày`}
-                </span>
-              </div>
-              <div className="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-100">
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-              </div>
-            </div>
-          </div>
-
-          {/* Filtering controls */}
-          <div className="bg-white border border-zinc-200/80 p-4 rounded-2xl flex flex-wrap items-center justify-between gap-4 shadow-sm">
-            <div className="flex flex-wrap items-center gap-4">
-              <div>
-                <label className="block text-zinc-400 text-[10px] font-semibold uppercase tracking-wider mb-1">Trạng thái</label>
-                <select
-                  value={statusFilter}
-                  onChange={(e) => handleStatusFilterChange(e.target.value)}
-                  className="bg-zinc-50 border border-zinc-200 rounded-xl px-3 py-1.5 text-xs text-zinc-700 outline-none focus:border-indigo-500"
-                >
-                  <option value="ALL">Tất cả trạng thái</option>
-                  <option value="ACTIVE">ACTIVE (Hoạt động)</option>
-                  <option value="INACTIVE">INACTIVE (Chưa hoạt động)</option>
-                  <option value="DEACTIVATED">DEACTIVATED (Vô hiệu)</option>
-                  <option value="PENDING">PENDING (Chờ phê duyệt)</option>
-                </select>
+          {activeTab === 'users' && (
+            <div className="space-y-5">
+              <div className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm xl:flex-row xl:items-center">
+                <form onSubmit={handleExactSearch} className="flex min-w-0 flex-1 flex-col gap-2 sm:flex-row">
+                  <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Tên, username, email hoặc Keycloak ID"
+                    className="min-w-0 flex-1 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10" />
+                  <select value={searchMode} onChange={(event) => setSearchMode(event.target.value as SearchMode)}
+                    className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-semibold text-slate-600">
+                    <option value="all">Lọc cục bộ</option><option value="username">Username chính xác</option>
+                    <option value="email">Email chính xác</option><option value="id">Keycloak ID</option>
+                  </select>
+                  {searchMode !== 'all' && <button className="rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white">Tra cứu</button>}
+                </form>
+                <div className="flex gap-2">
+                  <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)}
+                    className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-semibold text-slate-600">
+                    <option value="ALL">Mọi trạng thái</option><option value="ACTIVE">ACTIVE</option>
+                    <option value="INACTIVE">INACTIVE</option><option value="SUSPENDED">SUSPENDED</option><option value="DELETED">DELETED</option>
+                  </select>
+                  <button onClick={() => setShowCreateUser(true)} className="whitespace-nowrap rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-blue-700">+ Tạo tài khoản</button>
+                </div>
               </div>
 
-              <div>
-                <label className="block text-zinc-400 text-[10px] font-semibold uppercase tracking-wider mb-1">Phòng ban (Department)</label>
-                <select
-                  value={deptFilter}
-                  onChange={(e) => handleDeptFilterChange(e.target.value)}
-                  className="bg-zinc-50 border border-zinc-200 rounded-xl px-3 py-1.5 text-xs text-zinc-700 outline-none focus:border-indigo-500"
-                >
-                  <option value="ALL">Tất cả phòng ban</option>
-                  {departments.map((dept) => (
-                    <option key={dept} value={dept}>
-                      {dept}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <div className="text-xs text-zinc-500">
-                Hiển thị <span className="text-zinc-950 font-bold">{filteredUsers.length}</span> /{' '}
-                <span className="text-zinc-950 font-bold">{users.length}</span> nhân sự
-              </div>
-
-              <div className="flex items-center gap-2">
-                <label className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Cỡ trang:</label>
-                <select
-                  value={pageSize}
-                  onChange={(e) => {
-                    setPageSize(parseInt(e.target.value, 10));
-                    setCurrentPage(1);
-                  }}
-                  className="bg-zinc-50 border border-zinc-200 rounded-xl px-2 py-1 text-xs text-zinc-700 outline-none focus:border-indigo-500"
-                >
-                  <option value="5">5 dòng</option>
-                  <option value="10">10 dòng</option>
-                  <option value="25">25 dòng</option>
-                  <option value="50">50 dòng</option>
-                  <option value="100">100 dòng</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          {/* Main User List Table */}
-          <div className="bg-white border border-zinc-200/80 rounded-2xl overflow-hidden shadow-sm flex flex-col">
-            {loading ? (
-              <div className="p-12 flex flex-col items-center justify-center gap-3">
-                <svg className="animate-spin h-8 w-8 text-indigo-600" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                </svg>
-                <span className="text-zinc-500 text-sm font-semibold">Đang đồng bộ dữ liệu API thật...</span>
-              </div>
-            ) : paginatedUsers.length === 0 ? (
-              <div className="p-12 text-center text-zinc-400">
-                <svg className="w-12 h-12 mx-auto mb-3 text-zinc-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                </svg>
-                <p className="text-sm font-semibold">Không tìm thấy thông tin nhân sự</p>
-                <p className="text-xs text-zinc-400 mt-1">Vui lòng reset các bộ lọc hoặc kiểm tra lại kết nối đến cổng 8080.</p>
-              </div>
-            ) : (
-              <>
+              <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
+                  <div><h2 className="font-bold">Danh sách tài khoản</h2><p className="mt-0.5 text-xs text-slate-500">{filteredUsers.length} kết quả</p></div>
+                  {searchMode !== 'all' && <button onClick={() => { setQuery(''); setSearchMode('all'); void loadUsers(); }} className="text-sm font-semibold text-blue-600">Xóa kết quả tra cứu</button>}
+                </div>
                 <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse">
-                    <thead>
-                      <tr className="bg-zinc-50 border-b border-zinc-200 text-[10px] font-bold text-zinc-500 uppercase tracking-wider">
-                        <th className="px-6 py-4">Mã Nhân Viên</th>
-                        <th className="px-6 py-4">Username</th>
-                        <th className="px-6 py-4">Họ và Tên</th>
-                        <th className="px-6 py-4">Email</th>
-                        <th className="px-6 py-4">Vị trí / Level</th>
-                        <th className="px-6 py-4">Phòng ban</th>
-                        <th className="px-6 py-4">Trạng thái</th>
-                        <th className="px-6 py-4 text-right">Thao tác</th>
-                      </tr>
+                  <table className="w-full min-w-[850px] text-left text-sm">
+                    <thead className="bg-slate-50 text-xs uppercase tracking-wider text-slate-500">
+                      <tr><th className="px-5 py-3.5">Người dùng</th><th className="px-5 py-3.5">Liên hệ</th><th className="px-5 py-3.5">Trạng thái</th><th className="px-5 py-3.5">Ngày tạo</th><th className="px-5 py-3.5 text-right">Thao tác</th></tr>
                     </thead>
-                    <tbody className="divide-y divide-zinc-100">
-                      {paginatedUsers.map((u) => (
-                        <tr
-                          key={u.keycloakUserId}
-                          onClick={() => setSelectedUserDetail(u)}
-                          className="hover:bg-slate-50/70 transition-colors cursor-pointer group text-sm"
-                        >
-                          <td className="px-6 py-4 font-mono font-bold text-indigo-600">{u.keycloakUserId}</td>
-                          <td className="px-6 py-4 font-semibold text-zinc-950">{u.username}</td>
-                          <td className="px-6 py-4 text-zinc-800">{u.fullName}</td>
-                          <td className="px-6 py-4 text-zinc-500">{u.email}</td>
-                          <td className="px-6 py-4 text-xs font-semibold text-zinc-700">
-                            {u.position || '—'}
-                            {u.level && <span className="ml-1.5 text-[9px] bg-zinc-100 text-zinc-600 px-1 py-0.5 rounded">{u.level}</span>}
+                    <tbody className="divide-y divide-slate-100">
+                      {loading ? (
+                        <tr><td colSpan={5} className="px-5 py-14 text-center text-slate-500">Đang tải dữ liệu...</td></tr>
+                      ) : filteredUsers.length === 0 ? (
+                        <tr><td colSpan={5} className="px-5 py-14 text-center text-slate-500">Không có người dùng phù hợp.</td></tr>
+                      ) : filteredUsers.map((user) => (
+                        <tr key={user.keycloakUserId} className="hover:bg-slate-50/80">
+                          <td className="px-5 py-4">
+                            <button onClick={() => setSelectedUser(user)} className="flex items-center gap-3 text-left">
+                              <div className="grid h-10 w-10 place-items-center rounded-xl bg-blue-50 font-bold text-blue-700">{initials(user.fullName || user.username)}</div>
+                              <div><p className="font-bold text-slate-900">{user.fullName || 'Chưa cập nhật họ tên'}</p><p className="text-xs text-slate-500">@{user.username}</p></div>
+                            </button>
                           </td>
-                          <td className="px-6 py-4 text-zinc-500 text-xs">{u.department || '—'}</td>
-                          <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
-                            <div className="flex flex-col gap-1 items-start">
-                              <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
-                                  u.status === 'ACTIVE'
-                                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                                    : (u.status === 'SUSPENDED' || u.status === 'DELETED')
-                                    ? 'bg-red-50 text-red-700 border border-red-200'
-                                    : 'bg-zinc-100 text-zinc-600 border border-zinc-200'
-                                }`}>
-                                  <span className={`w-1.5 h-1.5 rounded-full ${u.status === 'ACTIVE' ? 'bg-emerald-500' : (u.status === 'SUSPENDED' || u.status === 'DELETED') ? 'bg-red-500' : 'bg-zinc-400'}`} />
-                                {u.status}
-                              </span>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 text-right" onClick={(e) => e.stopPropagation()}>
-                            <div className="flex items-center justify-end gap-2 opacity-60 group-hover:opacity-100 transition-opacity">
-                              <button
-                                onClick={() => {
-                                  setUserToEdit(u);
-                                  setIsUserModalOpen(true);
-                                }}
-                                title="Sửa thông tin"
-                                className="p-1.5 text-zinc-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all border border-transparent hover:border-indigo-100"
-                              >
-                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                                </svg>
-                              </button>
-
-                              <button
-                                onClick={() => handleDeleteUser(u.keycloakUserId, u.fullName)}
-                                title="Xóa nhân sự"
-                                className="p-1.5 text-zinc-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all border border-transparent hover:border-red-100"
-                              >
-                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                </svg>
-                              </button>
+                          <td className="px-5 py-4"><p>{user.email}</p><p className="mt-1 text-xs text-slate-400">{user.phoneNumber || 'Chưa có số điện thoại'}</p></td>
+                          <td className="px-5 py-4"><span className={`rounded-full px-2.5 py-1 text-xs font-bold ${user.status === 'ACTIVE' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'}`}>{user.status}</span></td>
+                          <td className="px-5 py-4 text-slate-500">{formatDate(user.createdAt)}</td>
+                          <td className="px-5 py-4">
+                            <div className="flex justify-end gap-2">
+                              <button onClick={() => void handleRoleChange(user, 'ADMIN')} className="rounded-lg border border-blue-200 px-2.5 py-1.5 text-xs font-bold text-blue-700 hover:bg-blue-50">ADMIN</button>
+                              <button onClick={() => void handleRoleChange(user, 'USER')} className="rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-bold text-slate-600 hover:bg-slate-100">USER</button>
+                              <button onClick={() => void handleDelete(user)} className="rounded-lg border border-red-200 px-2.5 py-1.5 text-xs font-bold text-red-600 hover:bg-red-50">Xóa</button>
                             </div>
                           </td>
                         </tr>
@@ -607,346 +326,51 @@ export default function Dashboard({ onLogout }: DashboardProps) {
                     </tbody>
                   </table>
                 </div>
-
-                {/* Pagination Controls Footer */}
-                <div className="px-6 py-4 border-t border-zinc-100 bg-zinc-50/50 flex flex-col sm:flex-row items-center justify-between gap-4">
-                  <div className="text-xs text-zinc-500">
-                    Hiển thị từ <span className="font-semibold text-zinc-800">{filteredUsers.length ? (currentPage - 1) * pageSize + 1 : 0}</span> đến{' '}
-                    <span className="font-semibold text-zinc-800">{Math.min(currentPage * pageSize, filteredUsers.length)}</span> trong tổng số{' '}
-                    <span className="font-semibold text-zinc-800">{filteredUsers.length}</span> nhân sự
-                  </div>
-
-                  <div className="flex items-center gap-1">
-                    {/* Previous page button */}
-                    <button
-                      onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                      disabled={currentPage === 1}
-                      className="px-3 py-1.5 border border-zinc-200 rounded-lg text-xs font-semibold text-zinc-600 hover:bg-white disabled:opacity-40 disabled:hover:bg-transparent transition-colors disabled:cursor-not-allowed"
-                    >
-                      Trang trước
-                    </button>
-
-                    {/* Page Numbers */}
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
-                      // Only show a sliding window of page numbers if too many
-                      if (totalPages > 6 && Math.abs(page - currentPage) > 2 && page !== 1 && page !== totalPages) {
-                        if (page === 2 || page === totalPages - 1) {
-                          return <span key={page} className="px-1.5 text-zinc-400 text-xs">...</span>;
-                        }
-                        return null;
-                      }
-
-                      return (
-                        <button
-                          key={page}
-                          onClick={() => setCurrentPage(page)}
-                          className={`w-8 h-8 rounded-lg text-xs font-semibold flex items-center justify-center transition-all ${
-                            currentPage === page
-                              ? 'bg-indigo-600 text-white shadow-sm'
-                              : 'border border-zinc-200 text-zinc-600 hover:bg-white'
-                          }`}
-                        >
-                          {page}
-                        </button>
-                      );
-                    })}
-
-                    {/* Next page button */}
-                    <button
-                      onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                      disabled={currentPage === totalPages}
-                      className="px-3 py-1.5 border border-zinc-200 rounded-lg text-xs font-semibold text-zinc-600 hover:bg-white disabled:opacity-40 disabled:hover:bg-transparent transition-colors disabled:cursor-not-allowed"
-                    >
-                      Trang sau
-                    </button>
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
-          </>
-          ) : (
-            <GroupsSection users={users} showToast={showToast} />
+              </div>
+            </div>
           )}
+
+          {activeTab === 'groups' && <GroupsSection users={users} showToast={notify} />}
         </div>
       </main>
 
-      {/* Slide-out User Profile details Drawer */}
-      {selectedUserDetail && (
-        <div className="fixed inset-0 z-40 flex justify-end bg-black/30 backdrop-blur-xs" onClick={() => setSelectedUserDetail(null)}>
-          <div
-            className="w-full max-w-lg bg-white border-l border-zinc-200 shadow-2xl h-full flex flex-col relative z-50 animate-slide-in"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Drawer Header */}
-            <div className="p-6 border-b border-zinc-200 bg-zinc-50 flex items-center justify-between">
-              <div>
-                <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider block">Hồ Sơ Chi Tiết Nhân Sự</span>
-                <h3 className="text-xl font-bold text-zinc-950 mt-1">{selectedUserDetail.fullName}</h3>
-              </div>
-              <button
-                onClick={() => setSelectedUserDetail(null)}
-                className="text-zinc-400 hover:text-zinc-600 p-1 hover:bg-zinc-100 rounded-lg"
-              >
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
+      {selectedUser && (
+        <div className="fixed inset-0 z-40 flex justify-end bg-slate-950/35 backdrop-blur-sm" onClick={() => setSelectedUser(null)}>
+          <aside className="h-full w-full max-w-md overflow-y-auto bg-white p-6 shadow-2xl" onClick={(event) => event.stopPropagation()}>
+            <div className="flex justify-between"><p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-600">User detail</p><button onClick={() => setSelectedUser(null)} className="text-slate-400">✕</button></div>
+            <div className="mt-7 flex items-center gap-4"><div className="grid h-16 w-16 place-items-center rounded-2xl bg-blue-600 text-xl font-black text-white">{initials(selectedUser.fullName || selectedUser.username)}</div><div><h2 className="text-xl font-bold">{selectedUser.fullName || 'Chưa cập nhật họ tên'}</h2><p className="text-sm text-slate-500">@{selectedUser.username}</p></div></div>
+            <dl className="mt-8 space-y-4 text-sm">
+              {[['Email', selectedUser.email], ['Số điện thoại', selectedUser.phoneNumber || 'Chưa có'], ['Trạng thái', selectedUser.status], ['Ngày tạo', formatDate(selectedUser.createdAt)], ['Keycloak ID', selectedUser.keycloakUserId]].map(([label, value]) => (
+                <div key={label} className="rounded-xl bg-slate-50 p-4"><dt className="text-xs font-bold uppercase tracking-wider text-slate-400">{label}</dt><dd className="mt-1 break-all font-semibold text-slate-800">{value}</dd></div>
+              ))}
+            </dl>
+            <p className="mt-6 rounded-xl border border-blue-100 bg-blue-50 p-4 text-xs leading-5 text-blue-800">API hiện không trả role của người dùng và không cho admin sửa hồ sơ người khác. Vì vậy màn hình chỉ cung cấp gán role và xóa tài khoản.</p>
+            <div className="mt-6 grid grid-cols-3 gap-2">
+              <button onClick={() => void handleRoleChange(selectedUser, 'ADMIN')} className="rounded-xl bg-blue-600 py-2.5 text-sm font-bold text-white">Gán ADMIN</button>
+              <button onClick={() => void handleRoleChange(selectedUser, 'USER')} className="rounded-xl bg-slate-100 py-2.5 text-sm font-bold text-slate-700">Gán USER</button>
+              <button onClick={() => void handleDelete(selectedUser)} className="rounded-xl bg-red-50 py-2.5 text-sm font-bold text-red-600">Xóa</button>
             </div>
+          </aside>
+        </div>
+      )}
 
-            {/* Drawer Body Info */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-6">
-              {/* Profile Card Header */}
-              <div className="flex items-center gap-4 bg-zinc-50 p-4 rounded-2xl border border-zinc-200/80">
-                <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 text-white font-extrabold text-2xl flex items-center justify-center shadow-sm">
-                  {selectedUserDetail.fullName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-zinc-900 font-bold">{selectedUserDetail.username}</span>
-                    <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-bold ${
-                      selectedUserDetail.status === 'ACTIVE'
-                        ? 'bg-emerald-50 text-emerald-700'
-                        : 'bg-zinc-100 text-zinc-600'
-                    }`}>
-                      {selectedUserDetail.status}
-                    </span>
-                  </div>
-                  <span className="block text-xs text-zinc-500 mt-1">{selectedUserDetail.email}</span>
-                  {selectedUserDetail.phoneNumber && (
-                    <span className="block text-xs text-zinc-400 mt-0.5">{selectedUserDetail.phoneNumber}</span>
-                  )}
-                </div>
-              </div>
-
-              {/* Department details */}
-              <div className="space-y-3">
-                <h4 className="text-xs font-bold text-indigo-600 uppercase tracking-wider">Công việc & Chức vụ</h4>
-                <div className="grid grid-cols-2 gap-3 text-xs">
-                  <div className="bg-zinc-50/40 p-2.5 rounded-xl border border-zinc-200">
-                    <span className="text-zinc-400 block">Phòng ban</span>
-                    <span className="text-zinc-900 font-semibold mt-1 block">{selectedUserDetail.department || '—'}</span>
-                  </div>
-                  <div className="bg-zinc-50/40 p-2.5 rounded-xl border border-zinc-200">
-                    <span className="text-zinc-400 block">Nhóm (Team)</span>
-                    <span className="text-zinc-900 font-semibold mt-1 block">{selectedUserDetail.team || '—'}</span>
-                  </div>
-                  <div className="bg-zinc-50/40 p-2.5 rounded-xl border border-zinc-200">
-                    <span className="text-zinc-400 block">Vị trí</span>
-                    <span className="text-zinc-900 font-semibold mt-1 block">{selectedUserDetail.position || '—'}</span>
-                  </div>
-                  <div className="bg-zinc-50/40 p-2.5 rounded-xl border border-zinc-200">
-                    <span className="text-zinc-400 block">Level</span>
-                    <span className="text-zinc-900 font-semibold mt-1 block">{selectedUserDetail.level || '—'}</span>
-                  </div>
-                  <div className="bg-zinc-50/40 p-2.5 rounded-xl border border-zinc-200">
-                    <span className="text-zinc-400 block">Người quản lý</span>
-                    <span className="text-zinc-900 font-semibold mt-1 block">{selectedUserDetail.manager || '—'}</span>
-                  </div>
-                  <div className="bg-zinc-50/40 p-2.5 rounded-xl border border-zinc-200">
-                    <span className="text-zinc-400 block">Loại hợp đồng</span>
-                    <span className="text-zinc-900 font-semibold mt-1 block">{selectedUserDetail.userType || '—'}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Geographic details */}
-              <div className="space-y-3">
-                <h4 className="text-xs font-bold text-indigo-600 uppercase tracking-wider">Địa điểm & Múi giờ</h4>
-                <div className="grid grid-cols-3 gap-3 text-xs">
-                  <div className="bg-zinc-50/40 p-2.5 rounded-xl border border-zinc-200">
-                    <span className="text-zinc-400 block">Địa điểm</span>
-                    <span className="text-zinc-900 font-semibold mt-0.5 block">{selectedUserDetail.location || '—'}</span>
-                  </div>
-                  <div className="bg-zinc-50/40 p-2.5 rounded-xl border border-zinc-200">
-                    <span className="text-zinc-400 block">Quốc gia</span>
-                    <span className="text-zinc-900 font-semibold mt-0.5 block">{selectedUserDetail.country || '—'}</span>
-                  </div>
-                  <div className="bg-zinc-50/40 p-2.5 rounded-xl border border-zinc-200">
-                    <span className="text-zinc-400 block">Múi giờ</span>
-                    <span className="text-zinc-900 font-semibold mt-0.5 block">{selectedUserDetail.timezone || '—'}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Dates and Leave */}
-              <div className="space-y-3">
-                <h4 className="text-xs font-bold text-indigo-600 uppercase tracking-wider">Thời gian & Ngày phép</h4>
-                <div className="grid grid-cols-3 gap-3 text-xs">
-                  <div className="bg-zinc-50/40 p-2.5 rounded-xl border border-zinc-200">
-                    <span className="text-zinc-400 block">Ngày bắt đầu</span>
-                    <span className="text-zinc-900 font-semibold mt-0.5 block">{selectedUserDetail.startDate || '—'}</span>
-                  </div>
-                  <div className="bg-zinc-50/40 p-2.5 rounded-xl border border-zinc-200">
-                    <span className="text-zinc-400 block">Hết thử việc</span>
-                    <span className="text-zinc-900 font-semibold mt-0.5 block">{selectedUserDetail.probationEndDate || '—'}</span>
-                  </div>
-                  <div className="bg-zinc-50/40 p-2.5 rounded-xl border border-zinc-200">
-                    <span className="text-zinc-400 block">Phép còn lại</span>
-                    <span className="text-indigo-600 font-bold mt-0.5 block">{selectedUserDetail.remainingLeaveDays ?? 0} Ngày</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Skills and Projects */}
-              <div className="space-y-4">
-                <div>
-                  <h4 className="text-xs font-bold text-indigo-600 uppercase tracking-wider mb-2">Kỹ năng chuyên môn</h4>
-                  <div className="flex flex-wrap gap-1.5">
-                    {selectedUserDetail.skills ? (
-                      selectedUserDetail.skills.split(',').map((s) => (
-                        <span key={s.trim()} className="bg-zinc-100 border border-zinc-200 text-zinc-700 px-2.5 py-1 rounded-lg text-[10px] font-semibold">
-                          {s.trim()}
-                        </span>
-                      ))
-                    ) : (
-                      <span className="text-zinc-400 text-xs italic">Chưa cập nhật kỹ năng</span>
-                    )}
-                  </div>
-                </div>
-
-                <div>
-                  <h4 className="text-xs font-bold text-indigo-600 uppercase tracking-wider mb-2">Dự án tham gia</h4>
-                  <div className="flex flex-wrap gap-1.5">
-                    {selectedUserDetail.projects ? (
-                      selectedUserDetail.projects.split(',').map((p) => (
-                        <span key={p.trim()} className="bg-indigo-50 border border-indigo-100 text-indigo-700 px-2.5 py-1 rounded-lg text-[10px] font-semibold">
-                          {p.trim()}
-                        </span>
-                      ))
-                    ) : (
-                      <span className="text-zinc-400 text-xs italic">Chưa gán dự án</span>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Contacts */}
-              <div className="space-y-3">
-                <h4 className="text-xs font-bold text-indigo-600 uppercase tracking-wider">Liên hệ mạng xã hội</h4>
-                <div className="grid grid-cols-2 gap-3 text-xs">
-                  <div className="bg-zinc-50/40 p-2.5 rounded-xl border border-zinc-200 flex items-center gap-2">
-                    <span className="text-zinc-400 font-semibold">GitHub:</span>
-                    <span className="text-zinc-900 font-semibold truncate">
-                      {selectedUserDetail.github ? (
-                        <a href={`https://${selectedUserDetail.github}`} target="_blank" rel="noreferrer" className="hover:underline text-indigo-600">
-                          {selectedUserDetail.github.replace('github.com/', '')}
-                        </a>
-                      ) : (
-                        '—'
-                      )}
-                    </span>
-                  </div>
-                  <div className="bg-zinc-50/40 p-2.5 rounded-xl border border-zinc-200 flex items-center gap-2">
-                    <span className="text-zinc-400 font-semibold">Slack:</span>
-                    <span className="text-zinc-900 font-semibold truncate">{selectedUserDetail.slack || '—'}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* User ID block */}
-              <div className="pt-2 text-[10px] text-zinc-400 font-mono flex items-center justify-between border-t border-zinc-200">
-                <span>Mã định danh User: {selectedUserDetail.keycloakUserId}</span>
-              </div>
-            </div>
-
-            {/* Drawer Footer Actions */}
-            <div className="p-4 border-t border-zinc-200 bg-zinc-50 flex items-center gap-3">
-              <button
-                onClick={() => {
-                  setUserToEdit(selectedUserDetail);
-                  setIsUserModalOpen(true);
-                }}
-                className="flex-1 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-800 rounded-xl text-xs font-semibold transition-colors border border-zinc-200"
-              >
-                Sửa Thông Tin
-              </button>
-              <button
-                onClick={() => handleDeleteUser(selectedUserDetail.keycloakUserId, selectedUserDetail.fullName)}
-                className="py-2 px-3 border border-red-200 hover:bg-red-50 text-red-600 rounded-xl text-xs font-semibold transition-colors"
-              >
-                Xóa Nhân Sự
-              </button>
-            </div>
+      {showSettings && (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/45 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-lg rounded-3xl bg-white p-6 shadow-2xl">
+            <div className="flex items-start justify-between"><div><p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-600">Connection</p><h2 className="mt-1 text-xl font-bold">Cấu hình API Gateway</h2></div><button onClick={() => setShowSettings(false)} className="text-slate-400">✕</button></div>
+            <label className="mt-6 block space-y-2 text-sm font-semibold text-slate-700">Base URL
+              <input value={apiUrl} onChange={(event) => setApiUrl(event.target.value)} className="w-full rounded-xl border border-slate-200 px-4 py-2.5 outline-none focus:border-blue-500" placeholder="https://localhost:8088" />
+            </label>
+            <label className="mt-5 flex items-center justify-between rounded-xl bg-slate-50 p-4">
+              <span><span className="block text-sm font-bold">Mock mode</span><span className="text-xs text-slate-500">Dùng dữ liệu trình duyệt để kiểm thử UI</span></span>
+              <input type="checkbox" checked={mockMode} onChange={(event) => setMockMode(event.target.checked)} className="h-5 w-5 accent-blue-600" />
+            </label>
+            <div className="mt-6 flex justify-end gap-3"><button onClick={() => setShowSettings(false)} className="rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-600">Hủy</button><button onClick={applySettings} className="rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-bold text-white">Áp dụng</button></div>
           </div>
         </div>
       )}
 
-      {/* Floating Developer settings modal */}
-      {showSettingsDrawer && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-xs p-4">
-          <div className="w-full max-w-md bg-white border border-zinc-200 rounded-2xl shadow-2xl overflow-hidden">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-200 bg-zinc-50">
-              <h3 className="text-lg font-bold text-zinc-950">Cấu hình kết nối API</h3>
-              <button
-                onClick={() => setShowSettingsDrawer(false)}
-                className="text-zinc-400 hover:text-zinc-650 rounded-lg p-1 hover:bg-zinc-100 transition-colors"
-              >
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-
-            <div className="p-6 space-y-4">
-              <div>
-                <label className="block text-zinc-500 text-xs font-semibold mb-1.5">Địa chỉ API Gateway/Backend</label>
-                <input
-                  type="text"
-                  value={apiUrlSetting}
-                  onChange={(e) => setApiUrlSetting(e.target.value)}
-                  placeholder="http://localhost:8080"
-                  className="w-full px-3 py-2 bg-zinc-50 border border-zinc-200 rounded-xl text-zinc-800 text-xs outline-none focus:border-indigo-500"
-                />
-              </div>
-
-              <div className="flex items-center justify-between pt-2">
-                <div>
-                  <span className="block text-zinc-800 text-xs font-semibold">Chạy Chế Độ Giả Lập (Mock Mode)</span>
-                  <span className="block text-zinc-400 text-[10px] mt-0.5">Sử dụng dữ liệu tạm trong localStorage</span>
-                </div>
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={useMockSetting}
-                    onChange={(e) => setUseMockSetting(e.target.checked)}
-                    className="sr-only peer"
-                  />
-                  <div className="w-9 h-5 bg-zinc-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-zinc-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600"></div>
-                </label>
-              </div>
-
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-zinc-200">
-                <button
-                  type="button"
-                  onClick={() => setShowSettingsDrawer(false)}
-                  className="px-4 py-2 border border-zinc-200 text-zinc-600 rounded-xl hover:bg-zinc-100 hover:text-zinc-800 transition-all text-xs font-semibold"
-                >
-                  Hủy bỏ
-                </button>
-                <button
-                  type="button"
-                  onClick={handleApplySettings}
-                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-semibold transition-all text-xs shadow-sm"
-                >
-                  Lưu cấu hình
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Shared Modals */}
-      <UserModal
-        isOpen={isUserModalOpen}
-        onClose={() => {
-          setIsUserModalOpen(false);
-          setUserToEdit(null);
-        }}
-        onSave={handleSaveUser}
-        userToEdit={userToEdit}
-      />
+      {showCreateUser && <UserModal isOpen onClose={() => setShowCreateUser(false)} onSave={handleCreateUser} />}
     </div>
   );
 }

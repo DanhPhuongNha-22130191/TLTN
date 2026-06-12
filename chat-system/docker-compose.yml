@@ -350,8 +350,10 @@ services:
   # API Gateway
   # =========================
   api-gateway:
-    image: phuongnha/api-gateway:${API_GATEWAY_TAG:-latest}
-    pull_policy: always
+    build:
+      context: ../api-gateway
+    image: secretchat/api-gateway:local
+    pull_policy: build
     platform: linux/amd64
     container_name: api-gateway
 
@@ -399,7 +401,7 @@ services:
 
       INTERNAL_SECRET_KEY: ${INTERNAL_SECRET_KEY:?Set INTERNAL_SECRET_KEY in chat-system/.env}
 
-      FRONTEND_URL: https://${PUBLIC_HOSTNAME:?Set PUBLIC_HOSTNAME in chat-system/.env}:3000
+      FRONTEND_URL: ${ADMIN_FRONTEND_URL:-http://localhost:3000}
 
       # =========================
       # Upload Config
