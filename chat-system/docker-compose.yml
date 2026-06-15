@@ -33,7 +33,8 @@ services:
     restart: unless-stopped
 
   mail-account-manager:
-    image: phuongnha/mail-account-manager:latest
+    build:
+      context: ../mail-service/account-manager
     environment:
       MAILSERVER_CONTAINER: secretchat-mailserver-1
       MAIL_DOMAIN: gitlab.handbook.local

@@ -80,7 +80,7 @@ def create_account(email, password, quota_bytes=None, allow_exists=False):
 
 
 def account_exists(email):
-    output = run_setup("email", "list", allow_empty=True)
+    output = run_setup("email", "list", allow_empty=True, allow_missing=True)
     return any(
         line.strip().split(" ", 1)[-1].split(" ", 1)[0] == email
         for line in output.splitlines()
