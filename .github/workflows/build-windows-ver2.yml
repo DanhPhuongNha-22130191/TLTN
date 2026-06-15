@@ -5,7 +5,7 @@ on:
     branches: [ "main", "master" ]
   pull_request:
     branches: [ "main", "master" ]
-  workflow_dispatch: # Cho phép bấm chạy thủ công trên giao diện GitHub
+  workflow_dispatch:
 
 jobs:
   build-windows:
@@ -24,22 +24,18 @@ jobs:
 
       - name: Build Standalone App with Maven
         working-directory: ./gitlab-handbook-chat
-        run: mvn clean javafx:jlink -DskipTests
+        run: .\mvnw.cmd clean javafx:jlink -DskipTests
 
       - name: Create Native Executable
         working-directory: ./gitlab-handbook-chat
         shell: pwsh
         run: |
           jpackage --type app-image --name SecretChat --module secretchat.secrectchat/secretchat.ChatApplication --runtime-image target/app --dest target/dist
-          Copy-Item .env.example target/dist/SecretChat/.env.example
-          Copy-Item .env.example target/dist/SecretChat/.env
           Copy-Item README-CONFIG.txt target/dist/SecretChat/README-CONFIG.txt
-          Copy-Item INSTALL-CLIENT-CA.ps1 target/dist/SecretChat/INSTALL-CLIENT-CA.ps1
 
       - name: Upload Windows Standalone App
         uses: actions/upload-artifact@v4
         with:
           name: SecretChat-Windows-App
           path: gitlab-handbook-chat/target/dist/SecretChat
-          include-hidden-files: true
-          if-no-files-found: warn
+          if-no-files-found: error
