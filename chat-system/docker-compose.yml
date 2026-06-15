@@ -217,20 +217,18 @@ services:
     restart: unless-stopped
 
   ollama:
-    image: ollama/ollama:0.11.4
-    volumes:
-      - ollama_data:/root/.ollama
+    image: secretchat/ollama-qwen2:1.5b
+    build:
+      context: ./ollama
+      args:
+        OLLAMA_MODEL: qwen2:1.5b
+    healthcheck:
+      test: ["CMD", "ollama", "show", "qwen2:1.5b"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
     restart: unless-stopped
-
-  ollama-model:
-    image: curlimages/curl:8.14.1
-    command:
-      - sh
-      - -c
-      - until curl -sf http://ollama:11434/api/tags >/dev/null; do sleep 2; done; curl -sf http://ollama:11434/api/pull -d '{"name":"qwen2:1.5b","stream":false}'
-    depends_on:
-      - ollama
-    restart: "no"
 
   ai-rag-bot:
     image: phuongnha/ai-rag-bot:latest
@@ -239,8 +237,8 @@ services:
       OLLAMA_URL: http://ollama:11434/api/generate
       PYTHONUNBUFFERED: 1
     depends_on:
-      ollama-model:
-        condition: service_completed_successfully
+      ollama:
+        condition: service_healthy
     restart: unless-stopped
 
   api-gateway:
@@ -294,7 +292,6 @@ volumes:
   mail_config:
   roundcube_db_data:
   redis_data:
-  ollama_data:
 
 networks:
   mail-network:
