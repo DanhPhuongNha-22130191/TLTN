@@ -66,7 +66,7 @@ export interface LoginResponse {
 
 
 
-const DEFAULT_API_URL = 'https://localhost:8088';
+const DEFAULT_API_URL = 'http://localhost:8088';
 const MOCK_USERS_KEY = 'admin_mock_users';
 const MOCK_GROUPS_KEY = 'admin_mock_groups';
 

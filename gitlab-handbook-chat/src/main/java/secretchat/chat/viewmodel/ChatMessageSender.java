@@ -5,6 +5,8 @@ import javafx.collections.ObservableList;
 import secretchat.chat.service.AIService;
 import secretchat.chat.service.ChatService;
 import secretchat.chat.service.RealtimeChatService;
+import secretchat.chat.view.ChatFileDialogs;
+import secretchat.common.exception.ApiException;
 import secretchat.dto.request.SendMessageRequest;
 import secretchat.dto.response.ConversationResponse;
 import secretchat.dto.response.MessageResponse;
@@ -27,7 +29,6 @@ import java.util.function.Supplier;
 final class ChatMessageSender {
     private static final System.Logger LOGGER =
             System.getLogger(ChatMessageSender.class.getName());
-    private static final long MAX_FILE_SIZE = 100 * 1024 * 1024L;
     private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm");
 
     private final ChatService chatService;
@@ -77,8 +78,8 @@ final class ChatMessageSender {
         boolean hasText = text != null && !text.trim().isEmpty();
         boolean hasFile = file != null;
         if (!hasText && !hasFile) return;
-        if (hasFile && file.length() > MAX_FILE_SIZE) {
-            errorConsumer.accept("Kích thước file không được vượt quá 100 MB.");
+        if (hasFile && file.length() > ChatFileDialogs.MAX_UPLOAD_BYTES) {
+            errorConsumer.accept(new ChatFileDialogs().uploadLimitMessage(file));
             return;
         }
 
@@ -201,8 +202,12 @@ final class ChatMessageSender {
             LOGGER.log(System.Logger.Level.ERROR, "Lỗi gửi file", error);
             Platform.runLater(() -> {
                 pending.setStatus("FAILED");
-                errorConsumer.accept(
-                        "Không thể gửi file qua WebSocket: " + rootMessage(error));
+                if (error instanceof ApiException apiError
+                        && apiError.getStatusCode() == 413) {
+                    errorConsumer.accept(apiError.getUserMessage());
+                } else {
+                    errorConsumer.accept("Không thể gửi file: " + rootMessage(error));
+                }
             });
         }
     }

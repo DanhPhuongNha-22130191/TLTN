@@ -55,5 +55,3 @@ spring:
           predicates:
             - Path=/ws/**
 
-app:
-  internal-secret: ${INTERNAL_SECRET_KEY}

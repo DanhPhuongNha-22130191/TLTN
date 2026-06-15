@@ -14,7 +14,6 @@ public final class GatewayHealthChecker {
         try {
             HttpClient client = HttpClient.newBuilder()
                     .connectTimeout(Duration.ofSeconds(3))
-                    .sslContext(secretchat.util.SslUtils.getSslContext())
                     .build();
 
             HttpRequest request = HttpRequest.newBuilder()

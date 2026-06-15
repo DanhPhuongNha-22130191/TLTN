@@ -27,7 +27,6 @@ public class ApiClient {
     private ApiClient() {
         this.client = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(10))
-                .sslContext(secretchat.util.SslUtils.getSslContext())
                 .build();
         this.mapper = new ObjectMapper();
     }
@@ -269,7 +268,10 @@ public class ApiClient {
         HttpResponse<String> response = sendWithRetry(builder, accessToken);
 
         if (response.statusCode() >= 400) {
-            throw new RuntimeException("Upload failed: " + response.statusCode());
+            throw GlobalExceptionHandler.handle(
+                    new RuntimeException(
+                            "API error: Status code " + response.statusCode()
+                                    + ", body: " + response.body()));
         }
         
         return response.body(); 

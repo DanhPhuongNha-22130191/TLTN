@@ -24,7 +24,7 @@ class QwenGenerator:
             "options": {
                 "temperature": 0.1,
                 "num_predict": 512,
-                "num_ctx": 4096,  # Tăng context window nhưng giới hạn ở 4K để tránh tràn RAM
+                "num_ctx": 4096,  
                 "repeat_penalty": 1.15,
                 "top_k": 40,
                 "top_p": 0.9,
@@ -51,7 +51,7 @@ class QwenGenerator:
                 if attempt == retries - 1:
                     return f"ERROR: {str(e)}"
                 import time
-                time.sleep(3) # Đợi 3s cho Ollama giải phóng RAM rồi thử lại
+                time.sleep(3) 
 
     async def generate(self, prompt: str) -> str:
         return await asyncio.to_thread(self._sync_generate, prompt)

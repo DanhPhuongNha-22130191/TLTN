@@ -1,4 +1,3 @@
-import hmac
 import imaplib
 import json
 import os
@@ -11,13 +10,12 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, unquote, urlparse
 
 
-API_TOKEN = os.environ["MAIL_ACCOUNT_API_TOKEN"]
 MAILSERVER_CONTAINER = os.getenv("MAILSERVER_CONTAINER", "mailserver")
 MAIL_DOMAIN = os.getenv("MAIL_DOMAIN", "gitlab.handbook.local").lower()
 IMAP_HOST = os.getenv("IMAP_HOST", "mail.gitlab.handbook.local")
 IMAP_PORT = int(os.getenv("IMAP_PORT", "993"))
 IMAP_USE_SSL = os.getenv("IMAP_USE_SSL", "true").lower() == "true"
-TLS_CA_FILE = os.environ["TLS_CA_FILE"]
+TLS_CA_FILE = os.getenv("TLS_CA_FILE")
 INITIAL_ADMIN_EMAIL = os.getenv("INITIAL_ADMIN_EMAIL", "")
 INITIAL_ADMIN_PASSWORD = os.getenv("INITIAL_ADMIN_PASSWORD", "")
 PORT = int(os.getenv("PORT", "8080"))
@@ -162,7 +160,6 @@ class Handler(BaseHTTPRequestHandler):
         path = urlparse(self.path).path
         try:
             if path == "/accounts":
-                self.require_token()
                 payload = self.read_json()
                 create_account(
                     validate_email(payload.get("email")),
@@ -190,7 +187,6 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_DELETE(self):
         try:
-            self.require_token()
             path = urlparse(self.path).path
             prefix = "/accounts/"
             if not path.startswith(prefix):
@@ -203,12 +199,6 @@ class Handler(BaseHTTPRequestHandler):
         except Exception as error:
             print(f"Unhandled request error: {error}", flush=True)
             self.respond(500, {"error": "Internal server error"})
-
-    def require_token(self):
-        authorization = self.headers.get("Authorization", "")
-        expected = f"Bearer {API_TOKEN}"
-        if not hmac.compare_digest(authorization, expected):
-            raise ApiError(401, "Invalid API token")
 
     def read_body(self):
         try:

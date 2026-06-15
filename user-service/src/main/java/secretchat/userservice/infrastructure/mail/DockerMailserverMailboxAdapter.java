@@ -30,9 +30,6 @@ public class DockerMailserverMailboxAdapter implements MailboxPort {
     @Value("${mail.internal.api-url}")
     private String apiUrl;
 
-    @Value("${mail.internal.api-token}")
-    private String apiToken;
-
     @Value("${mail.internal.quota-bytes:104857600}")
     private long quotaBytes;
 
@@ -46,7 +43,6 @@ public class DockerMailserverMailboxAdapter implements MailboxPort {
 
         send(HttpRequest.newBuilder()
                 .uri(URI.create(normalizedApiUrl() + "/accounts"))
-                .header("Authorization", "Bearer " + apiToken)
                 .header("Content-Type", "application/json")
                 .timeout(Duration.ofSeconds(20))
                 .POST(HttpRequest.BodyPublishers.ofString(toJson(body))));
@@ -57,7 +53,6 @@ public class DockerMailserverMailboxAdapter implements MailboxPort {
         String encodedEmail = URLEncoder.encode(email, StandardCharsets.UTF_8);
         send(HttpRequest.newBuilder()
                 .uri(URI.create(normalizedApiUrl() + "/accounts/" + encodedEmail))
-                .header("Authorization", "Bearer " + apiToken)
                 .timeout(Duration.ofSeconds(20))
                 .DELETE());
     }

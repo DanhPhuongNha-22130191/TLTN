@@ -53,7 +53,7 @@ public class GatewayConfig {
         // Final fallback.
         String finalHost = host != null ? host : "localhost";
         String finalPort = port != null ? port : "8088";
-        String finalScheme = scheme != null ? scheme : "https";
+        String finalScheme = scheme != null ? scheme : "http";
 
         this.gatewayUrl = finalScheme + "://" + finalHost + ":" + finalPort;
     }

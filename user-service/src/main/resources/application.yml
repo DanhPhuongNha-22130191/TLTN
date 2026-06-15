@@ -42,6 +42,5 @@ mail:
   internal:
     domain: ${INTERNAL_MAIL_DOMAIN:gitlab.handbook.local}
     api-url: ${MAIL_ACCOUNT_API_URL:http://mail-account-manager:8080}
-    api-token: ${MAIL_ACCOUNT_API_TOKEN}
     webmail-url: ${WEBMAIL_URL:http://localhost:8085/}
     quota-bytes: ${MAILBOX_QUOTA_BYTES:104857600}

@@ -359,7 +359,7 @@ export default function Dashboard({ onLogout }: DashboardProps) {
           <div className="w-full max-w-lg rounded-3xl bg-white p-6 shadow-2xl">
             <div className="flex items-start justify-between"><div><p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-600">Connection</p><h2 className="mt-1 text-xl font-bold">Cấu hình API Gateway</h2></div><button onClick={() => setShowSettings(false)} className="text-slate-400">✕</button></div>
             <label className="mt-6 block space-y-2 text-sm font-semibold text-slate-700">Base URL
-              <input value={apiUrl} onChange={(event) => setApiUrl(event.target.value)} className="w-full rounded-xl border border-slate-200 px-4 py-2.5 outline-none focus:border-blue-500" placeholder="https://localhost:8088" />
+              <input value={apiUrl} onChange={(event) => setApiUrl(event.target.value)} className="w-full rounded-xl border border-slate-200 px-4 py-2.5 outline-none focus:border-blue-500" placeholder="http://localhost:8088" />
             </label>
             <label className="mt-5 flex items-center justify-between rounded-xl bg-slate-50 p-4">
               <span><span className="block text-sm font-bold">Mock mode</span><span className="text-xs text-slate-500">Dùng dữ liệu trình duyệt để kiểm thử UI</span></span>

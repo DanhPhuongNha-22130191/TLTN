@@ -161,8 +161,7 @@ public class ChatController extends BaseChatController {
                     continue;
                 }
                 if (fileDialogs.exceedsUploadLimit(file)) {
-                    showAlert("Lỗi", "File " + file.getName()
-                            + " vượt quá kích thước tối đa 100 MB.");
+                    showAlert("Không thể gửi file", fileDialogs.uploadLimitMessage(file));
                     continue;
                 }
                 viewModel.sendMessage("", file);

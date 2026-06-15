@@ -24,7 +24,9 @@ public class SendMessageRequest {
     private String fileUrl;
     private String fileName;
     
-    @jakarta.validation.constraints.Max(value = 104857600, message = "Kích thước file không được vượt quá 100 MB")
+    @jakarta.validation.constraints.Max(
+            value = 52428800,
+            message = "File có dung lượng vượt quá 50 MB. Vui lòng chọn file nhỏ hơn để gửi.")
     private Long fileSize;
     
     private String fileType;

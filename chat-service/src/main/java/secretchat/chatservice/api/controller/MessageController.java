@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 public class MessageController {
 
     private static final Path UPLOAD_DIR = Paths.get("uploads").toAbsolutePath().normalize();
+    private static final long MAX_UPLOAD_BYTES = 50L * 1024 * 1024;
 
     private final MessageUseCase messageUseCase;
     private final MessageReactionUseCase reactionUseCase;
@@ -42,9 +43,11 @@ public class MessageController {
     @PostMapping("/upload")
     public ResponseEntity<String> uploadFile(@RequestParam("file") org.springframework.web.multipart.MultipartFile file) {
         try {
-            if (file.getSize() > 104857600L) {
-                return ResponseEntity.badRequest().body(
-                        "{\"error\":\"Kích thước file không được vượt quá 100 MB\"}");
+            if (file.getSize() > MAX_UPLOAD_BYTES) {
+                return ResponseEntity.status(413).body(
+                        "{\"error\":\"Payload Too Large\","
+                                + "\"message\":\"File có dung lượng vượt quá 50 MB. "
+                                + "Vui lòng chọn file nhỏ hơn để gửi.\"}");
             }
             if (!Files.exists(UPLOAD_DIR)) {
                 Files.createDirectories(UPLOAD_DIR);

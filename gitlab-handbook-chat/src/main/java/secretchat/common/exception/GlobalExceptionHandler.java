@@ -166,6 +166,10 @@ public class GlobalExceptionHandler {
             case 403 -> ApiException.forbidden();
             case 404 -> ApiException.notFound("Tài nguyên");
             case 409 -> ApiException.conflict("Dữ liệu đã tồn tại.");
+            case 413 -> new ApiException(
+                    413,
+                    "Payload Too Large",
+                    "File có dung lượng vượt quá 50 MB. Vui lòng chọn file nhỏ hơn để gửi.");
             case 422 -> ApiException.unprocessable("Dữ liệu không thể xử lý.");
             case 500 -> ApiException.serverError();
             default  -> new ApiException(statusCode, "Error", "Đã xảy ra lỗi. Vui lòng thử lại.");

@@ -39,7 +39,7 @@ public final class FilePreviewController {
             return;
         }
         if (fileDialogs.exceedsUploadLimit(candidate)) {
-            alertHandler.accept("Lỗi", "Kích thước file không được vượt quá 100 MB.");
+            alertHandler.accept("Không thể gửi file", fileDialogs.uploadLimitMessage(candidate));
             clear();
             return;
         }
