@@ -111,6 +111,11 @@ public class GroupService implements GroupUseCase {
     }
 
     @Override
+    public List<Group> getAllGroups() {
+        return groupRepositoryPort.findAll();
+    }
+
+    @Override
     @Transactional
     public void deleteGroup(Long groupId, String userId) {
         Group group = getGroupDetails(groupId);

@@ -302,6 +302,11 @@ export const api = {
     });
   },
 
+  async getAllGroups(): Promise<Group[]> {
+    if (!getUseMockData()) return request<Group[]>('/api/groups');
+    return mockGroups();
+  },
+
   async getGroupDetails(id: number): Promise<Group> {
     if (!getUseMockData()) return request<Group>(`/api/groups/${id}`);
     const group = mockGroups().find((item) => item.id === id);

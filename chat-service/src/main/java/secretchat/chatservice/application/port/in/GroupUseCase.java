@@ -12,6 +12,7 @@ public interface GroupUseCase {
     Group createGroup(CreateGroupCommand command);
     Group updateGroup(Long groupId, UpdateGroupCommand command);
     Group getGroupDetails(Long groupId);
+    List<Group> getAllGroups();
     void deleteGroup(Long groupId, String userId);
     
     // Group Member management
