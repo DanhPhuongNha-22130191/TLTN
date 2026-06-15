@@ -217,7 +217,6 @@ services:
     restart: unless-stopped
 
   ollama:
-    image: secretchat/ollama-qwen2:1.5b
     build:
       context: ./ollama
       args:
