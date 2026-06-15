@@ -48,6 +48,15 @@ public class GroupController {
         return ResponseEntity.ok(GroupApiMapper.toResponse(group));
     }
 
+    @GetMapping
+    public ResponseEntity<List<GroupResponse>> getAllGroups() {
+        List<Group> groups = groupUseCase.getAllGroups();
+        List<GroupResponse> responses = groups.stream()
+                .map(GroupApiMapper::toResponse)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(responses);
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteGroup(
             @PathVariable Long id,
