@@ -190,7 +190,9 @@ services:
     restart: unless-stopped
 
   chat-service:
-    image: phuongnha/chat-service:latest
+    build:
+      context: ../chat-service
+    image: secretchat-chat-service:local
     environment:
       SPRING_PROFILES_ACTIVE: dev
       SERVER_PORT: 8083

@@ -189,18 +189,6 @@ async function request<T = void>(path: string, init: RequestInit = {}): Promise<
   return parseResponse<T>(response);
 }
 
-async function uploadRequest<T = void>(path: string, formData: FormData): Promise<T> {
-  const headers = new Headers();
-  const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
-  if (token) headers.set('Authorization', `Bearer ${token}`);
-  const response = await fetch(`${getApiBaseUrl()}${path}`, {
-    method: 'POST',
-    headers,
-    body: formData,
-  });
-  return parseResponse<T>(response);
-}
-
 export const api = {
   async login(username: string, password: string): Promise<LoginResponse> {
     if (getUseMockData()) {

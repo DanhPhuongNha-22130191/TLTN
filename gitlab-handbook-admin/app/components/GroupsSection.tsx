@@ -1,6 +1,6 @@
 'use client';
 
-import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import { api, Group, GroupMember, User } from '../utils/api';
 
 interface GroupsSectionProps {
@@ -19,7 +19,7 @@ export default function GroupsSection({ users, showToast }: GroupsSectionProps) 
   const [group, setGroup] = useState<Group | null>(null);
   const [groups, setGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(false);
-  const [loadingGroups, setLoadingGroups] = useState(false);
+  const [loadingGroups, setLoadingGroups] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
   const [newMemberId, setNewMemberId] = useState('');
@@ -38,7 +38,7 @@ export default function GroupsSection({ users, showToast }: GroupsSectionProps) 
     return user ? `${user.fullName || user.username} (@${user.username})` : userId;
   }
 
-  async function loadAllGroups() {
+  const loadAllGroups = useCallback(async () => {
     setLoadingGroups(true);
     try {
       const data = await api.getAllGroups();
@@ -48,11 +48,26 @@ export default function GroupsSection({ users, showToast }: GroupsSectionProps) 
     } finally {
       setLoadingGroups(false);
     }
-  }
+  }, [showToast]);
 
   useEffect(() => {
-    void loadAllGroups();
-  }, []);
+    let cancelled = false;
+    api.getAllGroups()
+      .then((data) => {
+        if (!cancelled) setGroups(data);
+      })
+      .catch((error: unknown) => {
+        if (!cancelled) {
+          showToast(error instanceof Error ? error.message : 'Không thể tải danh sách nhóm.', 'error');
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingGroups(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [showToast]);
 
   async function loadGroup(idValue: string | number = groupId) {
     const id = Number(idValue);
@@ -207,9 +222,9 @@ export default function GroupsSection({ users, showToast }: GroupsSectionProps) 
       <section className="rounded-3xl bg-gradient-to-r from-[#102250] to-[#1c4ba5] p-6 text-white shadow-xl shadow-blue-950/10">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-xl">
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-200">GET /api/groups/{'{id}'}</p>
-            <h2 className="mt-2 text-2xl font-black">Tra cứu nhóm theo ID</h2>
-            <p className="mt-2 text-sm leading-6 text-blue-100/75">Nhập ID để tải chi tiết thông tin và thực hiện các thao tác quản trị nhóm.</p>
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-200">GET /api/groups</p>
+            <h2 className="mt-2 text-2xl font-black">Danh sách và quản trị nhóm chat</h2>
+            <p className="mt-2 text-sm leading-6 text-blue-100/75">Xem toàn bộ nhóm hoặc nhập ID để tải chi tiết thông tin và thực hiện các thao tác quản trị nhóm.</p>
           </div>
           <form onSubmit={handleLookup} className="flex w-full gap-2 lg:max-w-md">
             <input type="number" min="1" required value={groupId} onChange={(event) => setGroupId(event.target.value)}
@@ -235,7 +250,7 @@ export default function GroupsSection({ users, showToast }: GroupsSectionProps) 
             <div className="py-16 text-center">
               <div className="mx-auto grid h-12 w-12 place-items-center rounded-xl bg-slate-50 text-slate-400 text-lg">✕</div>
               <h4 className="mt-3 font-bold text-sm">Chưa có nhóm nào</h4>
-              <p className="mt-1 text-xs text-slate-500">Hãy nhấn "+ Tạo nhóm mới" để bắt đầu.</p>
+              <p className="mt-1 text-xs text-slate-500">Hãy nhấn &quot;+ Tạo nhóm mới&quot; để bắt đầu.</p>
             </div>
           ) : (
             <div className="overflow-x-auto">

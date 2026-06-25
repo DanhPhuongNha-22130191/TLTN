@@ -17,7 +17,42 @@ Cần cài trước các phần mềm sau:
 
 Sau khi cài Docker Desktop, mở Docker Desktop và chờ trạng thái Docker Engine chạy ổn định trước khi chạy các lệnh bên dưới.
 
-## 2. Cài Docker Desktop
+## 2. Yêu cầu phần cứng
+
+Hệ thống chạy nhiều service cùng lúc bằng Docker Compose, bao gồm PostgreSQL, Redis, Keycloak, mail server, API Gateway, chat service, user service, AI RAG bot và Ollama. Máy chạy server nên có cấu hình đủ để Docker và model AI hoạt động ổn định.
+
+### 2.1. Cấu hình tối thiểu
+
+- CPU: 4 nhân.
+- RAM: 8 GB.
+- Ổ đĩa trống: 20 GB.
+- Hệ điều hành: Windows 10/11 64-bit.
+- Docker Desktop: bật WSL 2 backend.
+- Mạng: có kết nối Internet trong lần chạy đầu để tải Docker image và model.
+
+Cấu hình tối thiểu phù hợp để chạy thử, demo nhanh hoặc phát triển với ít người dùng.
+
+### 2.2. Cấu hình khuyến nghị
+
+- CPU: 6 đến 8 nhân trở lên.
+- RAM: 16 GB trở lên.
+- Ổ đĩa trống: 40 GB trở lên, ưu tiên SSD.
+- GPU: không bắt buộc, nhưng nếu có GPU hỗ trợ Ollama thì tốc độ phản hồi AI sẽ tốt hơn.
+- Mạng LAN ổn định nếu có client kết nối từ máy khác.
+
+Cấu hình khuyến nghị phù hợp để chạy đầy đủ server, client admin web, client chat desktop và AI local cùng lúc.
+
+### 2.3. Tài nguyên Docker Desktop khuyến nghị
+
+Trong Docker Desktop, vào `Settings` > `Resources` và cấp tối thiểu:
+
+- CPU: 4 cores.
+- Memory: 8 GB.
+- Disk image size: 40 GB trở lên.
+
+Nếu máy có 16 GB RAM trở lên, nên cấp Docker khoảng 8 đến 12 GB RAM để Keycloak, database và Ollama chạy ổn định hơn.
+
+## 3. Cài Docker Desktop
 
 1. Tải Docker Desktop tại trang chính thức: https://www.docker.com/products/docker-desktop/
 2. Cài đặt Docker Desktop theo hướng dẫn mặc định.
@@ -32,7 +67,7 @@ docker compose version
 
 Nếu hai lệnh trên hiển thị phiên bản Docker và Docker Compose là đã cài thành công.
 
-## 3. Cài Ollama và tải model Qwen2:1.5B
+## 4. Cài Ollama và tải model Qwen2:1.5B
 
 1. Tải Ollama tại trang chính thức: https://ollama.com/download
 2. Cài đặt và mở Ollama.
@@ -52,7 +87,7 @@ Trong danh sách model cần có `qwen2:1.5b`.
 
 Lưu ý: Trong `chat-system/docker-compose.yml`, service `ollama` cũng build sẵn image với model `qwen2:1.5b`. Việc pull bằng Ollama Desktop giúp kiểm tra trước model và môi trường Ollama trên máy.
 
-## 4. Clone project
+## 5. Clone project
 
 Chọn thư mục muốn lưu project, sau đó chạy:
 
@@ -68,7 +103,7 @@ git clone https://github.com/DanhPhuongNha-22130191/TLTN.git
 cd TLTN
 ```
 
-## 5. Chạy hệ thống bằng Docker Compose
+## 6. Chạy hệ thống bằng Docker Compose
 
 Di chuyển vào thư mục `chat-system`:
 
@@ -96,7 +131,7 @@ Xem log khi cần kiểm tra lỗi:
 docker compose logs -f
 ```
 
-## 6. Cài đặt và chạy client
+## 7. Cài đặt và chạy client
 
 Hệ thống có 2 client:
 
@@ -105,7 +140,7 @@ Hệ thống có 2 client:
 
 Nên chạy server bằng Docker Compose trước, sau đó mới mở client.
 
-### 6.1. Client chat desktop
+### 7.1. Client chat desktop
 
 Client chat là ứng dụng JavaFX, cần JDK 21.
 
@@ -164,7 +199,7 @@ File build sẽ nằm trong thư mục:
 gitlab-handbook-chat\dist
 ```
 
-### 6.2. Client admin web
+### 7.2. Client admin web
 
 Client admin web là ứng dụng Next.js, cần Node.js 20 trở lên.
 
@@ -201,7 +236,7 @@ Trong màn hình admin có thể chỉnh API URL nếu server chạy trên máy 
 http://192.168.1.91:8088
 ```
 
-## 7. Mở tường lửa cho port 8088
+## 8. Mở tường lửa cho port 8088
 
 API Gateway của hệ thống chạy ở port `8088`. Nếu máy khác trong cùng mạng cần truy cập vào hệ thống, mở Windows Firewall cho port này.
 
@@ -217,7 +252,7 @@ Kiểm tra rule đã tạo:
 Get-NetFirewallRule -DisplayName "TLTN API Gateway 8088"
 ```
 
-## 8. Truy cập hệ thống
+## 9. Truy cập hệ thống
 
 Sau khi các container chạy ổn định, các cổng chính:
 
@@ -233,7 +268,106 @@ Tài khoản quản trị mặc định trong compose:
 - Mail admin: `admin@gitlab.handbook.local`
 - Mail admin password: `admin123`
 
-## 9. Dừng hệ thống
+## 10. Lược đồ tuần tự tra cứu AI
+
+Phần này mô tả luồng người dùng tra cứu bằng Trợ lý AI trong client chat desktop. Để dễ nhìn, lược đồ được tách thành 2 phần: luồng tổng thể qua các service và luồng xử lý nội bộ của RAG pipeline. STOMP broker là simple broker nội bộ của `chat-service`, không phải service riêng.
+
+### 10.1. Luồng tổng thể từ client đến AI
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as Người dùng
+    participant C as Client chat JavaFX
+    participant G as API Gateway :8088
+    participant CS as Chat Service
+    participant DB as PostgreSQL
+    participant AI as AI RAG Bot
+
+    U->>C: Chọn cuộc trò chuyện "TRỢ LÝ AI"
+    U->>C: Nhập câu hỏi và nhấn Gửi
+    C->>C: Kiểm tra nội dung câu hỏi
+
+    alt Câu hỏi trống
+        C-->>U: Yêu cầu nhập câu hỏi
+    else Câu hỏi hợp lệ
+        C->>C: Tạo tin nhắn tạm trạng thái SENDING
+        C->>G: STOMP SEND /app/chat.sendMessage
+        G->>CS: Chuyển tiếp câu hỏi
+        CS->>DB: Lưu câu hỏi
+        CS->>CS: Publish qua Spring STOMP simple broker nội bộ
+        CS-->>C: MessageResponse
+        C->>C: Hiển thị trạng thái AI đang xử lý
+
+        C->>G: POST /api/ai/chat {question}
+        G->>AI: POST /chat {question/query}
+        AI-->>G: {answer, sources}
+        G-->>C: {answer, sources}
+
+        C->>G: STOMP SEND /app/chat.sendMessage
+        Note over C,G: senderId = AI_ASSISTANT, content = answer
+        G->>CS: Chuyển tiếp câu trả lời AI
+        CS->>DB: Lưu câu trả lời AI
+        CS->>CS: Publish qua Spring STOMP simple broker nội bộ
+        CS-->>C: MessageResponse
+        C->>C: Ẩn trạng thái AI đang xử lý
+        C-->>U: Hiển thị câu trả lời AI
+    end
+
+    opt API AI hoặc WebSocket lỗi
+        C->>C: Dừng trạng thái loading
+        C-->>U: Thông báo Trợ lý AI tạm thời không khả dụng
+    end
+```
+
+### 10.2. Luồng xử lý nội bộ trong AI RAG Bot
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant G as API Gateway
+    participant API as FastAPI /chat
+    participant RAG as AsyncQueryPipeline
+    participant E as BGE-M3 Embedding
+    participant Q as Qdrant Local DB
+    participant RR as BGE Reranker
+    participant O as Ollama / Qwen2:1.5b
+    participant L as Query log
+
+    G->>API: POST /chat {question/query}
+    API->>RAG: run(query)
+    RAG->>E: Mã hóa query thành dense + sparse vector
+    E-->>RAG: dense vector, sparse vector
+    RAG->>Q: Hybrid search top 20
+    Note over RAG,Q: Dense + Sparse, hợp nhất bằng RRF
+    Q-->>RAG: Danh sách chunk và QA liên quan
+
+    alt Có QA trùng khớp >= 0.95
+        RAG->>RR: check_qa_match(query, qa_candidates)
+        RR-->>RAG: Câu trả lời chuẩn
+        RAG->>L: Ghi log is_exact_qa = true
+        RAG-->>API: answer, sources
+    else Không có QA trùng khớp
+        RAG->>RR: rerank(query, candidates, top 8)
+        RR-->>RAG: Top chunks liên quan nhất
+        RAG->>RAG: Tạo prompt từ context + question
+        RAG->>O: POST /api/generate
+        Note over RAG,O: model = qwen2:1.5b, stream = false
+        O-->>RAG: Câu trả lời sinh bởi LLM
+        RAG->>L: Ghi log is_exact_qa = false
+        RAG-->>API: answer, sources
+    end
+
+    API->>API: Thêm disclaimer nếu cần
+    API-->>G: {answer, sources}
+```
+
+File PlantUML có sẵn tại:
+
+- `docs/diagrams/sequence/sequence-ai-search-overview.puml`
+- `docs/diagrams/sequence/sequence-ai-rag-internal.puml`
+
+## 11. Dừng hệ thống
 
 Trong thư mục `chat-system`, chạy:
 
@@ -249,7 +383,7 @@ docker compose down -v
 
 Chỉ dùng `docker compose down -v` khi chắc chắn không cần giữ dữ liệu cũ.
 
-## 10. Một số lỗi thường gặp
+## 12. Một số lỗi thường gặp
 
 Nếu Docker báo không kết nối được Docker Engine:
 
