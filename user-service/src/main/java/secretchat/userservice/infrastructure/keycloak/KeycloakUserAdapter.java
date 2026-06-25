@@ -171,4 +171,18 @@ public class KeycloakUserAdapter implements KeycloakUserPort {
             throw new KeycloakException("Failed to assign role '" + role + "' to user: " + e.getMessage(), e);
         }
     }
+
+    @Override
+    public void setEnabled(String keycloakUserId, boolean enabled) {
+        try {
+            var userResource = keycloak.realm(realm).users().get(keycloakUserId);
+            UserRepresentation user = userResource.toRepresentation();
+            user.setEnabled(enabled);
+            userResource.update(user);
+        } catch (NotFoundException e) {
+            throw new UserNotFoundException("User not found in Keycloak: " + keycloakUserId);
+        } catch (Exception e) {
+            throw new KeycloakException("Failed to update Keycloak user status: " + e.getMessage(), e);
+        }
+    }
 }

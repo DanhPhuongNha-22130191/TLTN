@@ -2,6 +2,7 @@ package secretchat.userservice.application.service;
 
 import org.springframework.stereotype.Service;
 import secretchat.userservice.application.dto.ChangeRoleCommand;
+import secretchat.userservice.application.dto.ChangeStatusCommand;
 import secretchat.userservice.application.dto.CreateUserCommand;
 import secretchat.userservice.application.dto.UpdateUserCommand;
 import secretchat.userservice.application.dto.UserResult;
@@ -126,5 +127,25 @@ public class UserApplicationService implements UserUseCase {
             throw new UserNotFoundException("User not found: " + command.keycloakUserId());
         }
         keycloakUserPort.assignRole(command.keycloakUserId(), command.role().name());
+    }
+
+    @Override
+    public UserResult changeStatus(ChangeStatusCommand command) {
+        User existing = userRepository.findByKeycloakUserId(new KeycloakUserId(command.keycloakUserId()))
+                .orElseThrow(() -> new UserNotFoundException("User not found: " + command.keycloakUserId()));
+
+        User updated = User.builder()
+                .keycloakUserId(existing.getKeycloakUserId())
+                .username(existing.getUsername())
+                .email(existing.getEmail())
+                .fullName(existing.getFullName())
+                .avatar(existing.getAvatar())
+                .phoneNumber(existing.getPhoneNumber())
+                .status(command.status())
+                .createdAt(existing.getCreatedAt())
+                .build();
+
+        keycloakUserPort.setEnabled(command.keycloakUserId(), command.status() == UserStatus.ACTIVE);
+        return UserResult.from(userRepository.save(updated));
     }
 }

@@ -137,7 +137,9 @@ services:
     restart: unless-stopped
 
   user-service:
-    image: phuongnha/user-service:latest
+    build:
+      context: ../user-service
+    image: secretchat-user-service:local
     environment:
       SERVER_PORT: 8082
       DB_HOST: postgres
@@ -244,7 +246,9 @@ services:
     restart: unless-stopped
 
   api-gateway:
-    image: phuongnha/api-gateway:latest
+    build:
+      context: ../api-gateway
+    image: secretchat-api-gateway:local
     ports:
       - "8088:8088"
     environment:

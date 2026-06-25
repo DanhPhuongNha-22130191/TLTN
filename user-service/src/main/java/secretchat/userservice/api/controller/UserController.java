@@ -8,10 +8,12 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import secretchat.userservice.api.dto.*;
 import secretchat.userservice.application.dto.ChangeRoleCommand;
+import secretchat.userservice.application.dto.ChangeStatusCommand;
 import secretchat.userservice.application.dto.CreateUserCommand;
 import secretchat.userservice.application.dto.UpdateUserCommand;
 import secretchat.userservice.application.usecase.UserUseCase;
 import secretchat.userservice.domain.enums.UserRole;
+import secretchat.userservice.domain.enums.UserStatus;
 
 import java.util.List;
 
@@ -133,5 +135,16 @@ public class UserController {
     ) {
         userUseCase.changeRole(new ChangeRoleCommand(keycloakUserId, UserRole.valueOf(request.role())));
         return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{keycloakUserId}/status")
+    public ResponseEntity<UserResponse> changeStatus(
+            @PathVariable String keycloakUserId,
+            @Valid @RequestBody ChangeStatusRequest request
+    ) {
+        UserResponse response = UserResponse.from(userUseCase.changeStatus(
+                new ChangeStatusCommand(keycloakUserId, UserStatus.fromValue(request.status()))
+        ));
+        return ResponseEntity.ok(response);
     }
 }

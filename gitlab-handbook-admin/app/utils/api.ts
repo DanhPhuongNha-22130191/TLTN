@@ -1,6 +1,14 @@
 export type UserStatus = 'ACTIVE' | 'INACTIVE' | 'SUSPENDED' | 'DELETED';
 export type UserRole = 'ADMIN' | 'USER';
 export type GroupRole = 'OWNER' | 'ADMIN' | 'MEMBER';
+export type AccessLevel = 'STAFF' | 'LEAD' | 'MANAGER' | 'DIRECTOR';
+export type AccessUnit = 'ENGINEERING' | 'HR' | 'SALES' | 'SUPPORT' | 'OPERATIONS';
+
+export interface UserAccessProfile {
+  role: UserRole;
+  level: AccessLevel;
+  unit: AccessUnit;
+}
 
 export interface User {
   keycloakUserId: string;
@@ -69,6 +77,7 @@ export interface LoginResponse {
 const DEFAULT_API_URL = 'http://localhost:8088';
 const MOCK_USERS_KEY = 'admin_mock_users';
 const MOCK_GROUPS_KEY = 'admin_mock_groups';
+const USER_ACCESS_KEY = 'admin_user_access_profiles';
 
 
 const defaultUsers: User[] = [
@@ -144,6 +153,17 @@ function mockUsers(): User[] {
 
 function mockGroups(): Group[] {
   return readMock(MOCK_GROUPS_KEY, defaultGroups);
+}
+
+function defaultAccessProfiles(): Record<string, UserAccessProfile> {
+  return {
+    'kc-admin': { role: 'ADMIN', level: 'DIRECTOR', unit: 'ENGINEERING' },
+    'kc-user-01': { role: 'USER', level: 'STAFF', unit: 'ENGINEERING' },
+  };
+}
+
+function mockAccessProfiles(): Record<string, UserAccessProfile> {
+  return readMock(USER_ACCESS_KEY, defaultAccessProfiles());
 }
 
 
@@ -283,11 +303,47 @@ export const api = {
   },
 
   async changeRole(id: string, role: UserRole): Promise<void> {
-    if (getUseMockData()) return;
+    if (getUseMockData()) {
+      const profiles = mockAccessProfiles();
+      profiles[id] = { role, level: profiles[id]?.level || 'STAFF', unit: profiles[id]?.unit || 'ENGINEERING' };
+      writeMock(USER_ACCESS_KEY, profiles);
+      return;
+    }
     await request(`/api/users/${encodeURIComponent(id)}/role`, {
       method: 'PATCH',
       body: JSON.stringify({ role }),
     });
+  },
+
+  async changeStatus(id: string, status: Exclude<UserStatus, 'DELETED'>): Promise<User> {
+    if (!getUseMockData()) {
+      return request<User>(`/api/users/${encodeURIComponent(id)}/status`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status }),
+      });
+    }
+    const users = mockUsers();
+    const index = users.findIndex((item) => item.keycloakUserId === id);
+    if (index < 0) throw new Error('Không tìm thấy người dùng.');
+    users[index] = { ...users[index], status };
+    writeMock(MOCK_USERS_KEY, users);
+    return users[index];
+  },
+
+  async getUserAccessProfiles(): Promise<Record<string, UserAccessProfile>> {
+    return mockAccessProfiles();
+  },
+
+  async saveUserAccessProfile(id: string, profile: UserAccessProfile): Promise<void> {
+    if (!getUseMockData()) {
+      await request(`/api/users/${encodeURIComponent(id)}/role`, {
+        method: 'PATCH',
+        body: JSON.stringify({ role: profile.role }),
+      });
+    }
+    const profiles = mockAccessProfiles();
+    profiles[id] = profile;
+    writeMock(USER_ACCESS_KEY, profiles);
   },
 
   async getAllGroups(): Promise<Group[]> {

@@ -1,41 +1,41 @@
-name: Build Windows Application
+# name: Build Windows Application
 
-on:
-  push:
-    branches: [ "main", "master" ]
-  pull_request:
-    branches: [ "main", "master" ]
-  workflow_dispatch:
+# on:
+#   push:
+#     branches: [ "main", "master" ]
+#   pull_request:
+#     branches: [ "main", "master" ]
+#   workflow_dispatch:
 
-jobs:
-  build-windows:
-    runs-on: windows-latest
+# jobs:
+#   build-windows:
+#     runs-on: windows-latest
 
-    steps:
-      - name: Checkout Source Code
-        uses: actions/checkout@v4
+#     steps:
+#       - name: Checkout Source Code
+#         uses: actions/checkout@v4
 
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
-        with:
-          java-version: '21'
-          distribution: 'temurin'
-          cache: maven
+#       - name: Set up JDK 21
+#         uses: actions/setup-java@v4
+#         with:
+#           java-version: '21'
+#           distribution: 'temurin'
+#           cache: maven
 
-      - name: Build Standalone App with Maven
-        working-directory: ./gitlab-handbook-chat
-        run: .\mvnw.cmd clean javafx:jlink -DskipTests
+#       - name: Build Standalone App with Maven
+#         working-directory: ./gitlab-handbook-chat
+#         run: .\mvnw.cmd clean javafx:jlink -DskipTests
 
-      - name: Create Native Executable
-        working-directory: ./gitlab-handbook-chat
-        shell: pwsh
-        run: |
-          jpackage --type app-image --name SecretChat --module secretchat.secrectchat/secretchat.ChatApplication --runtime-image target/app --dest target/dist
-          Copy-Item README-CONFIG.txt target/dist/SecretChat/README-CONFIG.txt
+#       - name: Create Native Executable
+#         working-directory: ./gitlab-handbook-chat
+#         shell: pwsh
+#         run: |
+#           jpackage --type app-image --name SecretChat --module secretchat.secrectchat/secretchat.ChatApplication --runtime-image target/app --dest target/dist
+#           Copy-Item README-CONFIG.txt target/dist/SecretChat/README-CONFIG.txt
 
-      - name: Upload Windows Standalone App
-        uses: actions/upload-artifact@v4
-        with:
-          name: SecretChat-Windows-App
-          path: gitlab-handbook-chat/target/dist/SecretChat
-          if-no-files-found: error
+#       - name: Upload Windows Standalone App
+#         uses: actions/upload-artifact@v4
+#         with:
+#           name: SecretChat-Windows-App
+#           path: gitlab-handbook-chat/target/dist/SecretChat
+#           if-no-files-found: error

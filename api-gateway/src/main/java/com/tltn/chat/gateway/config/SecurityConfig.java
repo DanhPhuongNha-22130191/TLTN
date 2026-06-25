@@ -88,7 +88,7 @@ public class SecurityConfig {
                         .pathMatchers(HttpMethod.GET, "/api/users").authenticated()
 
                         // admin APIs
-                        .pathMatchers("/api/users/**").hasRole("ADMIN")
+                        .pathMatchers("/api/users/**").hasAnyRole("ADMIN", "admin")
 
                         .anyExchange().authenticated()
                 )
@@ -113,6 +113,8 @@ public class SecurityConfig {
             }
             Collection<String> roles = (Collection<String>) realmAccess.get("roles");
             return roles.stream()
+                    .flatMap(role -> java.util.stream.Stream.of(role, role.toUpperCase()))
+                    .distinct()
                     .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
                     .collect(Collectors.toList());
         });

@@ -1,15 +1,18 @@
 'use client';
 
 import { FormEvent, useState } from 'react';
-import { CreateUserRequest } from '../utils/api';
+import { AccessLevel, AccessUnit, CreateUserRequest, UserAccessProfile, UserRole } from '../utils/api';
 
 interface UserModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (data: CreateUserRequest) => Promise<void>;
+  onSave: (data: CreateUserRequest, accessProfile: UserAccessProfile) => Promise<void>;
 }
 
 const inputClass = 'w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10';
+const roles: UserRole[] = ['USER', 'ADMIN'];
+const levels: AccessLevel[] = ['STAFF', 'LEAD', 'MANAGER', 'DIRECTOR'];
+const units: AccessUnit[] = ['ENGINEERING', 'HR', 'SALES', 'SUPPORT', 'OPERATIONS'];
 
 export default function UserModal({ isOpen, onClose, onSave }: UserModalProps) {
   const [form, setForm] = useState<CreateUserRequest>({
@@ -18,6 +21,11 @@ export default function UserModal({ isOpen, onClose, onSave }: UserModalProps) {
     fullName: '',
     phoneNumber: '',
     avatar: '',
+  });
+  const [accessProfile, setAccessProfile] = useState<UserAccessProfile>({
+    role: 'USER',
+    level: 'STAFF',
+    unit: 'ENGINEERING',
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -29,7 +37,7 @@ export default function UserModal({ isOpen, onClose, onSave }: UserModalProps) {
     setLoading(true);
     setError('');
     try {
-      await onSave(form);
+      await onSave(form, accessProfile);
       onClose();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Không thể tạo người dùng.');
@@ -62,6 +70,29 @@ export default function UserModal({ isOpen, onClose, onSave }: UserModalProps) {
               Email <span className="text-red-500">*</span>
               <input required type="email" className={inputClass} value={form.email}
                 onChange={(event) => setForm({ ...form, email: event.target.value })} placeholder="minh@company.com" />
+            </label>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-3">
+            <label className="space-y-1.5 text-sm font-semibold text-slate-700">
+              Role
+              <select className={inputClass} value={accessProfile.role}
+                onChange={(event) => setAccessProfile({ ...accessProfile, role: event.target.value as UserRole })}>
+                {roles.map((role) => <option key={role} value={role}>{role}</option>)}
+              </select>
+            </label>
+            <label className="space-y-1.5 text-sm font-semibold text-slate-700">
+              Cấp bậc
+              <select className={inputClass} value={accessProfile.level}
+                onChange={(event) => setAccessProfile({ ...accessProfile, level: event.target.value as AccessLevel })}>
+                {levels.map((level) => <option key={level} value={level}>{level}</option>)}
+              </select>
+            </label>
+            <label className="space-y-1.5 text-sm font-semibold text-slate-700">
+              Đơn vị
+              <select className={inputClass} value={accessProfile.unit}
+                onChange={(event) => setAccessProfile({ ...accessProfile, unit: event.target.value as AccessUnit })}>
+                {units.map((unit) => <option key={unit} value={unit}>{unit}</option>)}
+              </select>
             </label>
           </div>
           <label className="block space-y-1.5 text-sm font-semibold text-slate-700">

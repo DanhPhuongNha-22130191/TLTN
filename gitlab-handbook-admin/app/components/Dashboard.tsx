@@ -2,6 +2,8 @@
 
 import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import {
+  AccessLevel,
+  AccessUnit,
   api,
   CreateUserRequest,
   getApiBaseUrl,
@@ -9,6 +11,7 @@ import {
   setApiBaseUrl,
   setUseMockData,
   User,
+  UserAccessProfile,
   UserRole,
 } from '../utils/api';
 import GroupsSection from './GroupsSection';
@@ -21,6 +24,16 @@ interface DashboardProps {
 type Tab = 'overview' | 'users' | 'groups';
 type SearchMode = 'all' | 'username' | 'email' | 'id';
 type Toast = { message: string; type: 'success' | 'error' };
+const levels: AccessLevel[] = ['STAFF', 'LEAD', 'MANAGER', 'DIRECTOR'];
+const units: AccessUnit[] = ['ENGINEERING', 'HR', 'SALES', 'SUPPORT', 'OPERATIONS'];
+
+function defaultAccessProfile(user?: User): UserAccessProfile {
+  return {
+    role: user?.username === 'admin' ? 'ADMIN' : 'USER',
+    level: user?.username === 'admin' ? 'DIRECTOR' : 'STAFF',
+    unit: 'ENGINEERING',
+  };
+}
 
 function initials(name: string): string {
   return name.split(/\s+/).filter(Boolean).map((part) => part[0]).join('').slice(0, 2).toUpperCase() || 'U';
@@ -38,6 +51,9 @@ export default function Dashboard({ onLogout }: DashboardProps) {
   const [query, setQuery] = useState('');
   const [searchMode, setSearchMode] = useState<SearchMode>('all');
   const [statusFilter, setStatusFilter] = useState('ALL');
+  const [levelFilter, setLevelFilter] = useState('ALL');
+  const [unitFilter, setUnitFilter] = useState('ALL');
+  const [accessProfiles, setAccessProfiles] = useState<Record<string, UserAccessProfile>>({});
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [showCreateUser, setShowCreateUser] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -53,7 +69,12 @@ export default function Dashboard({ onLogout }: DashboardProps) {
   const loadUsers = useCallback(async () => {
     setLoading(true);
     try {
-      setUsers(await api.getAllUsers());
+      const [nextUsers, profiles] = await Promise.all([
+        api.getAllUsers(),
+        api.getUserAccessProfiles(),
+      ]);
+      setUsers(nextUsers);
+      setAccessProfiles(profiles);
     } catch (error) {
       notify(error instanceof Error ? error.message : 'Không thể tải danh sách người dùng.', 'error');
     } finally {
@@ -63,9 +84,12 @@ export default function Dashboard({ onLogout }: DashboardProps) {
 
   useEffect(() => {
     let cancelled = false;
-    api.getAllUsers()
-      .then((data) => {
-        if (!cancelled) setUsers(data);
+    Promise.all([api.getAllUsers(), api.getUserAccessProfiles()])
+      .then(([data, profiles]) => {
+        if (!cancelled) {
+          setUsers(data);
+          setAccessProfiles(profiles);
+        }
       })
       .catch((error: unknown) => {
         if (!cancelled) {
@@ -83,12 +107,15 @@ export default function Dashboard({ onLogout }: DashboardProps) {
   const filteredUsers = useMemo(() => {
     const normalized = query.trim().toLowerCase();
     return users.filter((user) => {
+      const access = accessProfiles[user.keycloakUserId] || defaultAccessProfile(user);
       const matchesStatus = statusFilter === 'ALL' || user.status === statusFilter;
+      const matchesLevel = levelFilter === 'ALL' || access.level === levelFilter;
+      const matchesUnit = unitFilter === 'ALL' || access.unit === unitFilter;
       const matchesQuery = !normalized || [user.fullName, user.username, user.email, user.keycloakUserId]
         .some((value) => (value || '').toLowerCase().includes(normalized));
-      return matchesStatus && matchesQuery;
+      return matchesStatus && matchesLevel && matchesUnit && matchesQuery;
     });
-  }, [query, statusFilter, users]);
+  }, [accessProfiles, levelFilter, query, statusFilter, unitFilter, users]);
 
   const stats = useMemo(() => ({
     total: users.length,
@@ -119,8 +146,10 @@ export default function Dashboard({ onLogout }: DashboardProps) {
     }
   }
 
-  async function handleCreateUser(data: CreateUserRequest) {
+  async function handleCreateUser(data: CreateUserRequest, accessProfile: UserAccessProfile) {
     const created = await api.createUser(data);
+    await api.saveUserAccessProfile(created.keycloakUserId, accessProfile);
+    setAccessProfiles((profiles) => ({ ...profiles, [created.keycloakUserId]: accessProfile }));
     notify(`Đã tạo tài khoản @${created.username}.`);
     await loadUsers();
   }
@@ -128,10 +157,40 @@ export default function Dashboard({ onLogout }: DashboardProps) {
   async function handleRoleChange(user: User, role: UserRole) {
     if (!confirm(`Gán role ${role} cho @${user.username}?`)) return;
     try {
-      await api.changeRole(user.keycloakUserId, role);
+      const next = { ...(accessProfiles[user.keycloakUserId] || defaultAccessProfile(user)), role };
+      await api.saveUserAccessProfile(user.keycloakUserId, next);
+      setAccessProfiles((profiles) => ({
+        ...profiles,
+        [user.keycloakUserId]: next,
+      }));
       notify(`Đã gán role ${role} cho @${user.username}.`);
     } catch (error) {
       notify(error instanceof Error ? error.message : 'Không thể đổi role.', 'error');
+    }
+  }
+
+  async function handleStatusChange(user: User, locked: boolean) {
+    const status = locked ? 'SUSPENDED' : 'ACTIVE';
+    const action = locked ? 'khóa' : 'mở khóa';
+    if (!confirm(`Xác nhận ${action} tài khoản @${user.username}?`)) return;
+    try {
+      const updated = await api.changeStatus(user.keycloakUserId, status);
+      setUsers((items) => items.map((item) => item.keycloakUserId === updated.keycloakUserId ? updated : item));
+      if (selectedUser?.keycloakUserId === updated.keycloakUserId) setSelectedUser(updated);
+      notify(`Đã ${action} @${user.username}.`);
+    } catch (error) {
+      notify(error instanceof Error ? error.message : `Không thể ${action} tài khoản.`, 'error');
+    }
+  }
+
+  async function handleAccessProfileChange(user: User, patch: Partial<UserAccessProfile>) {
+    const next = { ...(accessProfiles[user.keycloakUserId] || defaultAccessProfile(user)), ...patch };
+    try {
+      await api.saveUserAccessProfile(user.keycloakUserId, next);
+      setAccessProfiles((profiles) => ({ ...profiles, [user.keycloakUserId]: next }));
+      notify('Đã cập nhật phân quyền theo cấp bậc/đơn vị.');
+    } catch (error) {
+      notify(error instanceof Error ? error.message : 'Không thể cập nhật phân quyền.', 'error');
     }
   }
 
@@ -165,6 +224,7 @@ export default function Dashboard({ onLogout }: DashboardProps) {
     { id: 'users', label: 'Người dùng', note: 'Tài khoản và phân quyền' },
     { id: 'groups', label: 'Nhóm chat', note: 'Tra cứu và quản trị nhóm' },
   ];
+  const selectedAccess = selectedUser ? accessProfiles[selectedUser.keycloakUserId] || defaultAccessProfile(selectedUser) : null;
 
   return (
     <div className="min-h-screen bg-[#f3f6fb] text-slate-900 lg:flex">
@@ -284,6 +344,14 @@ export default function Dashboard({ onLogout }: DashboardProps) {
                     <option value="ALL">Mọi trạng thái</option><option value="ACTIVE">ACTIVE</option>
                     <option value="INACTIVE">INACTIVE</option><option value="SUSPENDED">SUSPENDED</option><option value="DELETED">DELETED</option>
                   </select>
+                  <select value={levelFilter} onChange={(event) => setLevelFilter(event.target.value)}
+                    className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-semibold text-slate-600">
+                    <option value="ALL">Mọi cấp bậc</option>{levels.map((level) => <option key={level} value={level}>{level}</option>)}
+                  </select>
+                  <select value={unitFilter} onChange={(event) => setUnitFilter(event.target.value)}
+                    className="rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-semibold text-slate-600">
+                    <option value="ALL">Mọi đơn vị</option>{units.map((unit) => <option key={unit} value={unit}>{unit}</option>)}
+                  </select>
                   <button onClick={() => setShowCreateUser(true)} className="whitespace-nowrap rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-blue-700">+ Tạo tài khoản</button>
                 </div>
               </div>
@@ -294,16 +362,18 @@ export default function Dashboard({ onLogout }: DashboardProps) {
                   {searchMode !== 'all' && <button onClick={() => { setQuery(''); setSearchMode('all'); void loadUsers(); }} className="text-sm font-semibold text-blue-600">Xóa kết quả tra cứu</button>}
                 </div>
                 <div className="overflow-x-auto">
-                  <table className="w-full min-w-[850px] text-left text-sm">
+                  <table className="w-full min-w-[1120px] text-left text-sm">
                     <thead className="bg-slate-50 text-xs uppercase tracking-wider text-slate-500">
-                      <tr><th className="px-5 py-3.5">Người dùng</th><th className="px-5 py-3.5">Liên hệ</th><th className="px-5 py-3.5">Trạng thái</th><th className="px-5 py-3.5">Ngày tạo</th><th className="px-5 py-3.5 text-right">Thao tác</th></tr>
+                      <tr><th className="px-5 py-3.5">Người dùng</th><th className="px-5 py-3.5">Liên hệ</th><th className="px-5 py-3.5">Phân quyền</th><th className="px-5 py-3.5">Đơn vị</th><th className="px-5 py-3.5">Trạng thái</th><th className="px-5 py-3.5">Ngày tạo</th><th className="px-5 py-3.5 text-right">Thao tác</th></tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
                       {loading ? (
-                        <tr><td colSpan={5} className="px-5 py-14 text-center text-slate-500">Đang tải dữ liệu...</td></tr>
+                        <tr><td colSpan={7} className="px-5 py-14 text-center text-slate-500">Đang tải dữ liệu...</td></tr>
                       ) : filteredUsers.length === 0 ? (
-                        <tr><td colSpan={5} className="px-5 py-14 text-center text-slate-500">Không có người dùng phù hợp.</td></tr>
-                      ) : filteredUsers.map((user) => (
+                        <tr><td colSpan={7} className="px-5 py-14 text-center text-slate-500">Không có người dùng phù hợp.</td></tr>
+                      ) : filteredUsers.map((user) => {
+                        const access = accessProfiles[user.keycloakUserId] || defaultAccessProfile(user);
+                        return (
                         <tr key={user.keycloakUserId} className="hover:bg-slate-50/80">
                           <td className="px-5 py-4">
                             <button onClick={() => setSelectedUser(user)} className="flex items-center gap-3 text-left">
@@ -312,17 +382,37 @@ export default function Dashboard({ onLogout }: DashboardProps) {
                             </button>
                           </td>
                           <td className="px-5 py-4"><p>{user.email}</p><p className="mt-1 text-xs text-slate-400">{user.phoneNumber || 'Chưa có số điện thoại'}</p></td>
+                          <td className="px-5 py-4">
+                            <div className="flex gap-2">
+                              <select value={access.role} onChange={(event) => void handleAccessProfileChange(user, { role: event.target.value as UserRole })}
+                                className="rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs font-bold text-slate-700">
+                                <option value="USER">USER</option><option value="ADMIN">ADMIN</option>
+                              </select>
+                              <select value={access.level} onChange={(event) => void handleAccessProfileChange(user, { level: event.target.value as AccessLevel })}
+                                className="rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs font-bold text-slate-700">
+                                {levels.map((level) => <option key={level} value={level}>{level}</option>)}
+                              </select>
+                            </div>
+                          </td>
+                          <td className="px-5 py-4">
+                            <select value={access.unit} onChange={(event) => void handleAccessProfileChange(user, { unit: event.target.value as AccessUnit })}
+                              className="rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs font-bold text-slate-700">
+                              {units.map((unit) => <option key={unit} value={unit}>{unit}</option>)}
+                            </select>
+                          </td>
                           <td className="px-5 py-4"><span className={`rounded-full px-2.5 py-1 text-xs font-bold ${user.status === 'ACTIVE' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'}`}>{user.status}</span></td>
                           <td className="px-5 py-4 text-slate-500">{formatDate(user.createdAt)}</td>
                           <td className="px-5 py-4">
                             <div className="flex justify-end gap-2">
                               <button onClick={() => void handleRoleChange(user, 'ADMIN')} className="rounded-lg border border-blue-200 px-2.5 py-1.5 text-xs font-bold text-blue-700 hover:bg-blue-50">ADMIN</button>
                               <button onClick={() => void handleRoleChange(user, 'USER')} className="rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-bold text-slate-600 hover:bg-slate-100">USER</button>
+                              <button onClick={() => void handleStatusChange(user, user.status === 'ACTIVE')} className={`rounded-lg border px-2.5 py-1.5 text-xs font-bold ${user.status === 'ACTIVE' ? 'border-amber-200 text-amber-700 hover:bg-amber-50' : 'border-emerald-200 text-emerald-700 hover:bg-emerald-50'}`}>{user.status === 'ACTIVE' ? 'Khóa' : 'Mở khóa'}</button>
                               <button onClick={() => void handleDelete(user)} className="rounded-lg border border-red-200 px-2.5 py-1.5 text-xs font-bold text-red-600 hover:bg-red-50">Xóa</button>
                             </div>
                           </td>
                         </tr>
-                      ))}
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>
@@ -340,14 +430,28 @@ export default function Dashboard({ onLogout }: DashboardProps) {
             <div className="flex justify-between"><p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-600">User detail</p><button onClick={() => setSelectedUser(null)} className="text-slate-400">✕</button></div>
             <div className="mt-7 flex items-center gap-4"><div className="grid h-16 w-16 place-items-center rounded-2xl bg-blue-600 text-xl font-black text-white">{initials(selectedUser.fullName || selectedUser.username)}</div><div><h2 className="text-xl font-bold">{selectedUser.fullName || 'Chưa cập nhật họ tên'}</h2><p className="text-sm text-slate-500">@{selectedUser.username}</p></div></div>
             <dl className="mt-8 space-y-4 text-sm">
-              {[['Email', selectedUser.email], ['Số điện thoại', selectedUser.phoneNumber || 'Chưa có'], ['Trạng thái', selectedUser.status], ['Ngày tạo', formatDate(selectedUser.createdAt)], ['Keycloak ID', selectedUser.keycloakUserId]].map(([label, value]) => (
+              {[['Email', selectedUser.email], ['Số điện thoại', selectedUser.phoneNumber || 'Chưa có'], ['Role', selectedAccess?.role || 'USER'], ['Cấp bậc', selectedAccess?.level || 'STAFF'], ['Đơn vị', selectedAccess?.unit || 'ENGINEERING'], ['Trạng thái', selectedUser.status], ['Ngày tạo', formatDate(selectedUser.createdAt)], ['Keycloak ID', selectedUser.keycloakUserId]].map(([label, value]) => (
                 <div key={label} className="rounded-xl bg-slate-50 p-4"><dt className="text-xs font-bold uppercase tracking-wider text-slate-400">{label}</dt><dd className="mt-1 break-all font-semibold text-slate-800">{value}</dd></div>
               ))}
             </dl>
-            <p className="mt-6 rounded-xl border border-blue-100 bg-blue-50 p-4 text-xs leading-5 text-blue-800">API hiện không trả role của người dùng và không cho admin sửa hồ sơ người khác. Vì vậy màn hình chỉ cung cấp gán role và xóa tài khoản.</p>
-            <div className="mt-6 grid grid-cols-3 gap-2">
+            <div className="mt-6 grid gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4">
+              <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Phân quyền theo cấp bậc/đơn vị</p>
+              <div className="grid gap-2 sm:grid-cols-3">
+                <select value={selectedAccess?.role || 'USER'} onChange={(event) => void handleAccessProfileChange(selectedUser, { role: event.target.value as UserRole })} className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold">
+                  <option value="USER">USER</option><option value="ADMIN">ADMIN</option>
+                </select>
+                <select value={selectedAccess?.level || 'STAFF'} onChange={(event) => void handleAccessProfileChange(selectedUser, { level: event.target.value as AccessLevel })} className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold">
+                  {levels.map((level) => <option key={level} value={level}>{level}</option>)}
+                </select>
+                <select value={selectedAccess?.unit || 'ENGINEERING'} onChange={(event) => void handleAccessProfileChange(selectedUser, { unit: event.target.value as AccessUnit })} className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold">
+                  {units.map((unit) => <option key={unit} value={unit}>{unit}</option>)}
+                </select>
+              </div>
+            </div>
+            <div className="mt-6 grid grid-cols-4 gap-2">
               <button onClick={() => void handleRoleChange(selectedUser, 'ADMIN')} className="rounded-xl bg-blue-600 py-2.5 text-sm font-bold text-white">Gán ADMIN</button>
               <button onClick={() => void handleRoleChange(selectedUser, 'USER')} className="rounded-xl bg-slate-100 py-2.5 text-sm font-bold text-slate-700">Gán USER</button>
+              <button onClick={() => void handleStatusChange(selectedUser, selectedUser.status === 'ACTIVE')} className="rounded-xl bg-amber-50 py-2.5 text-sm font-bold text-amber-700">{selectedUser.status === 'ACTIVE' ? 'Khóa' : 'Mở khóa'}</button>
               <button onClick={() => void handleDelete(selectedUser)} className="rounded-xl bg-red-50 py-2.5 text-sm font-bold text-red-600">Xóa</button>
             </div>
           </aside>
