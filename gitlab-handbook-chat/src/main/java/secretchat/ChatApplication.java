@@ -12,7 +12,7 @@ public class ChatApplication extends Application {
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(ChatApplication.class.getResource("/fxml/login-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
-        stage.setTitle("The GitLab Handbook Chat - Login");
+        stage.setTitle("The GitLab Handbook Chat");
         stage.setScene(scene);
         stage.show();
     }
