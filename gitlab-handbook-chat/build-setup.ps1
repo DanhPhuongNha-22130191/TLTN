@@ -5,6 +5,47 @@ param (
 
 $ErrorActionPreference = "Stop"
 
+$appName = "SecretChat"
+
+function Add-PortableDesktopShortcutScripts {
+    param (
+        [Parameter(Mandatory = $true)]
+        [string]$AppDir
+    )
+
+    $psScriptPath = Join-Path $AppDir "Create-Desktop-Shortcut.ps1"
+    $cmdScriptPath = Join-Path $AppDir "Create-Desktop-Shortcut.cmd"
+
+    @'
+$ErrorActionPreference = "Stop"
+
+$appDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$exePath = Join-Path $appDir "SecretChat.exe"
+if (-not (Test-Path $exePath)) {
+    throw "Khong tim thay SecretChat.exe trong thu muc ung dung."
+}
+
+$desktopPath = [Environment]::GetFolderPath("Desktop")
+$shortcutPath = Join-Path $desktopPath "SecretChat.lnk"
+
+$shell = New-Object -ComObject WScript.Shell
+$shortcut = $shell.CreateShortcut($shortcutPath)
+$shortcut.TargetPath = $exePath
+$shortcut.WorkingDirectory = $appDir
+$shortcut.IconLocation = "$exePath,0"
+$shortcut.Description = "SecretChat"
+$shortcut.Save()
+
+Write-Host "Da tao shortcut SecretChat tren Desktop: $shortcutPath"
+'@ | Set-Content -Path $psScriptPath -Encoding UTF8
+
+    @'
+@echo off
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0Create-Desktop-Shortcut.ps1"
+pause
+'@ | Set-Content -Path $cmdScriptPath -Encoding ASCII
+}
+
 if (-not $env:JAVA_HOME) {
     $candidate = Get-ChildItem "$env:USERPROFILE\.jdks\*" -Directory -ErrorAction SilentlyContinue |
         Where-Object { $_.Name -like "*21*" } |
@@ -47,8 +88,8 @@ gateway.scheme=http
     }
 
     $jpackageArgs = @(
-        "--name", "SecretChat",
-        "--vendor", "SecretChat",
+        "--name", $appName,
+        "--vendor", $appName,
         "--app-version", "1.0.0",
         "--runtime-image", (Join-Path $PSScriptRoot "target\app"),
         "--module", "secretchat.secrectchat/secretchat.ChatApplication",
@@ -65,9 +106,11 @@ gateway.scheme=http
     }
 
     if ($buildZip -or $Type -eq "app-image") {
-        Compress-Archive -Path (Join-Path $destDir "SecretChat") `
-            -DestinationPath (Join-Path $destDir "SecretChat-portable.zip") -Force
+        $appDir = Join-Path $destDir $appName
+        Add-PortableDesktopShortcutScripts -AppDir $appDir
+        Compress-Archive -Path $appDir `
+            -DestinationPath (Join-Path $destDir "$appName-portable.zip") -Force
     }
 } finally {
-    Set-Content -Path $configPath -Value $originalConfig
+    [System.IO.File]::WriteAllText($configPath, $originalConfig)
 }

@@ -15,6 +15,8 @@ Client tu dong ket noi:
   http://localhost:8088
 
 Khong can dat file cau hinh canh SecretChat.exe.
+Neu dung ban portable zip, giai nen SecretChat-portable.zip, mo thu muc SecretChat
+roi chay Create-Desktop-Shortcut.cmd de tao icon SecretChat tren Desktop.
 
 3. CLIENT TRONG LAN
 
