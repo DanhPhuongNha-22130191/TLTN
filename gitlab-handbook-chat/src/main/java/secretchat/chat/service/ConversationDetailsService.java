@@ -3,6 +3,7 @@ package secretchat.chat.service;
 import secretchat.chat.viewmodel.ChatViewModel;
 import secretchat.dto.response.MessageResponse;
 import secretchat.util.LinkUtils;
+import secretchat.util.MessageTimeFormatter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +15,7 @@ public class ConversationDetailsService {
                 .map(item -> {
                     MessageResponse response = item.getResponse();
                     return new SharedFile(response, response.getFileName(), item.getSenderName(),
-                            response.getCreatedAt(), response.getFileSize());
+                            MessageTimeFormatter.format(response.getCreatedAt()), response.getFileSize());
                 }).toList();
     }
 
@@ -24,7 +25,9 @@ public class ConversationDetailsService {
             if (item.isDeleted() || item.isDeletedForMe() || item.getContent() == null) continue;
             for (LinkUtils.LinkMatch link : LinkUtils.findLinks(item.getContent())) {
                 result.add(new SharedLink(link.value(), item.getSenderName(),
-                        item.getResponse() == null ? item.getTime() : item.getResponse().getCreatedAt()));
+                        item.getResponse() == null
+                                ? item.getTime()
+                                : MessageTimeFormatter.format(item.getResponse().getCreatedAt())));
             }
         }
         return result;

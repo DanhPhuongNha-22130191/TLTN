@@ -14,6 +14,7 @@ import secretchat.dto.response.FriendResponse;
 import secretchat.dto.response.MessageResponse;
 import secretchat.dto.response.UserResponse;
 import secretchat.util.IdUtils;
+import secretchat.util.MessageTimeFormatter;
 
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -253,7 +254,7 @@ final class ChatRealtimeCoordinator {
                     message,
                     sender,
                     content,
-                    formatTime(message.getCreatedAt()),
+                    MessageTimeFormatter.format(message.getCreatedAt()),
                     isMe,
                     file,
                     message.isDeleted(),
@@ -283,17 +284,6 @@ final class ChatRealtimeCoordinator {
     private String displayTyping(String username) {
         return username == null || username.isBlank()
                 ? "Đang nhập..." : username + " đang nhập...";
-    }
-
-    private String formatTime(String value) {
-        if (value == null || value.isBlank()) return "";
-        try {
-            return value.contains("T")
-                    ? value.substring(value.indexOf("T") + 1, value.indexOf("T") + 6)
-                    : value;
-        } catch (Exception ignored) {
-            return "";
-        }
     }
 
     private String rootMessage(Throwable error) {

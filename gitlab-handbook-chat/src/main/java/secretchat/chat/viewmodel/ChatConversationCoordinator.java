@@ -15,6 +15,7 @@ import secretchat.dto.response.GroupResponse;
 import secretchat.dto.response.MessageResponse;
 import secretchat.dto.response.UserResponse;
 import secretchat.util.IdUtils;
+import secretchat.util.MessageTimeFormatter;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -214,7 +215,7 @@ final class ChatConversationCoordinator {
                 message,
                 displayNameResolver.apply(message.getSenderId()),
                 content,
-                formatTime(message.getCreatedAt()),
+                MessageTimeFormatter.format(message.getCreatedAt()),
                 isMe,
                 isFile,
                 message.isDeleted(),
@@ -571,18 +572,6 @@ final class ChatConversationCoordinator {
             result.complete(findMessage(messageId));
         });
         return result;
-    }
-
-    private String formatTime(String value) {
-        if (value == null || value.isBlank()) return "";
-        try {
-            if (value.contains("T")) {
-                return value.substring(value.indexOf("T") + 1, value.indexOf("T") + 6);
-            }
-            return value;
-        } catch (Exception ignored) {
-            return "";
-        }
     }
 
     private String rootMessage(Throwable error) {
