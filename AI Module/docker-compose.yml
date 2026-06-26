@@ -10,11 +10,13 @@ services:
     network_mode: "host"
     environment:
       # Trỏ tới Qdrant đang chạy trên máy chủ thật
-      - QDRANT_HOST=localhost
+      - QDRANT_HOST=host.docker.internal
       - QDRANT_PORT=6333
       # Trỏ tới Ollama đang chạy trên máy chủ thật
-      - OLLAMA_URL=http://localhost:11434/api/generate
+      - OLLAMA_URL=http://host.docker.internal:11434/api/generate
       # Cấu hình Token (nếu cần tải model embedding)
       - TOKENIZERS_PARALLELISM=false
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       - ./ai:/app/ai # Mount code trực tiếp vào container, khi sửa code trên máy sẽ update ngay vào container mà không cần build lại
