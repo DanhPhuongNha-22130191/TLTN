@@ -54,7 +54,7 @@ async def main():
     
     qa_results = []
     
-    print(f"\n️ Đang sử dụng RAG Pipeline để sinh câu trả lời cho {len(questions)} câu hỏi...\n")
+    print(f"\nĐang sử dụng RAG Pipeline để sinh câu trả lời cho {len(questions)} câu hỏi...\n")
 
     for i, q in enumerate(questions, 1):
         try:
@@ -76,7 +76,7 @@ async def main():
             torch.cuda.empty_cache()
             
         except Exception as e:
-            print(f"️ Lỗi tại câu {i}: {e}")
+            print(f"Lỗi tại câu {i}: {e}")
 
     # 3. Ghi xuất ra file .md
     with open(output_path, "w", encoding="utf-8") as f:

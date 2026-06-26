@@ -9,7 +9,6 @@ except ImportError:
     CrossEncoder = None
 from ai.src.config import RERANKER_MODEL_NAME
 
-# Tắt cảnh báo phiền phức từ các thư viện model
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 warnings.filterwarnings("ignore")
 logging.getLogger("transformers").setLevel(logging.ERROR)
@@ -47,10 +46,6 @@ class Reranker:
         return best_chunks[:top_k]
 
     async def rerank(self, query: str, chunks: list, top_k: int = 3):
-        """
-        Đánh giá lại độ liên quan (Rerank) bất đồng bộ của danh sách chunks dựa trên câu truy vấn.
-        Chuyển tác vụ tính toán CrossEncoder (nặng về CPU/GPU) sang chạy trên Thread Pool để tránh làm tắc nghẽn event loop chính.
-        """
         return await asyncio.to_thread(self._sync_rerank, query, chunks, top_k)
 
     def _sync_check_qa(self, query: str, qa_chunks: list, threshold: float):
@@ -72,9 +67,5 @@ class Reranker:
         return None
 
     async def check_qa_match(self, query: str, qa_chunks: list, threshold: float = 1.0):
-        """
-        Kiểm tra xem câu hỏi của người dùng có trùng khớp/gần giống với câu hỏi nào trong tập QA không.
-        Sử dụng CrossEncoder để đánh giá mức độ tương đồng giữa hai câu hỏi.
-        """
         return await asyncio.to_thread(self._sync_check_qa, query, qa_chunks, threshold)
 

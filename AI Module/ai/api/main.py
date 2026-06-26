@@ -15,7 +15,6 @@ from ai.src.pipeline.rag_pipeline import AsyncQueryPipeline
 
 app = FastAPI(title="GitLab Internal AI Chat API")
 
-# Setup CORS to allow cross-origin requests from the browser
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -63,7 +62,6 @@ def is_greeting_query(query: str) -> bool:
     if query_clean in greetings:
         return True
     
-    # Check if query is very short and contains a greeting word
     words = query_clean.split()
     if len(words) <= 3:
         if any(w in greetings for w in words):
@@ -81,7 +79,6 @@ async def chat_endpoint(request: QueryRequest):
     is_exact_qa = result.get("is_exact_qa", False)
     is_greeting = is_greeting_query(request.query)
     
-    # Chuẩn hóa để kiểm tra các dạng câu trả lời không có thông tin/từ chối trả lời của LLM
     answer_clean = answer.strip().lower()
     refusal_keywords = [
         "không có thông tin",
@@ -94,10 +91,6 @@ async def chat_endpoint(request: QueryRequest):
     ]
     is_no_info = any(kw in answer_clean for kw in refusal_keywords)
     
-    # Không thêm disclaimer nếu:
-    # 1. Là câu chào xã giao
-    # 2. Câu hỏi trùng khớp chính xác trong bộ dữ liệu (Exact QA)
-    # 3. Câu trả lời báo không có thông tin hoặc từ chối trả lời
     if not is_greeting and not is_exact_qa and not is_no_info:
         disclaimer = "\n\nLưu ý: Câu trả lời này chỉ mang tính chất tham khảo. Vui lòng liên hệ bộ phận nhân sự hoặc quản lý để xác nhận thông tin chính xác."
         answer = answer.strip() + disclaimer

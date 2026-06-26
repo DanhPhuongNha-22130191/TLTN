@@ -60,7 +60,7 @@ async def main():
         
     generator = QwenGenerator()
     
-    print("🚀 BẮT ĐẦU SINH CÂU HỎI BẰNG OLLAMA (Qwen Local)...")
+    print("BẮT ĐẦU SINH CÂU HỎI BẰNG OLLAMA (Qwen Local)...")
     out_path = os.path.join(QA_DIR, "qa_dataset_100_generated.md")
     
     with open(out_path, "w", encoding="utf-8") as f:
@@ -94,7 +94,7 @@ Tài liệu:
             
             # Nếu AI đánh giá chunk là rác
             if "SKIP" in response[:20].upper():
-                print("  -> ⏭️ Bỏ qua (Tài liệu không phù hợp)")
+                print("  -> Bỏ qua (Tài liệu không phù hợp)")
                 continue
                 
             # Xoá các ký hiệu in đậm (**) và các ký tự markdown thừa
@@ -111,7 +111,7 @@ Tài liệu:
                 
                 # Check thêm bộ lọc chống tiếng Trung (kiểm tra ký tự non-ASCII lạ)
                 if any('\u4e00' <= char <= '\u9fff' for char in response):
-                    print("  -> ❌ Phát hiện Tiếng Trung, bỏ qua.")
+                    print("  -> Phát hiện Tiếng Trung, bỏ qua.")
                     continue
                 
                 success_count += 1
@@ -119,14 +119,14 @@ Tài liệu:
                 
                 with open(out_path, "a", encoding="utf-8") as f:
                     f.write(final_text)
-                print(f"  -> ✅ Thành công!")
+                print(f"  -> Thành công!")
             else:
-                print(f"  -> ⚠️ Sai định dạng, bỏ qua.")
+                print(f"  -> Sai định dạng, bỏ qua.")
                 
         except Exception as e:
-            print(f"  -> ❌ Lỗi: {e}")
+            print(f"  -> Lỗi: {e}")
             
-    print(f"\n🎉 HOÀN THÀNH! Đã lưu {success_count} câu hỏi vào: {out_path}")
+    print(f"\nHOÀN THÀNH! Đã lưu {success_count} câu hỏi vào: {out_path}")
 
 if __name__ == "__main__":
     asyncio.run(main())

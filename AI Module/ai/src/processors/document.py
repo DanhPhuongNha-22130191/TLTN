@@ -27,15 +27,12 @@ class RAGDocumentProcessor:
         self.config = config or ChunkingConfig()
         self.segmenter = SentenceSegmenter()
         self.parser = MarkdownParser()
-        # Nạp bộ phân tách từ (tokenizer) để đếm số lượng token chính xác
         self.tokenizer = AutoTokenizer.from_pretrained(TOKENIZER_MODEL_NAME)
 
     def count_tokens(self, text: str) -> int:
-        """Trả về số lượng token trong đoạn văn bản sử dụng tokenizer đã được cấu hình."""
         return len(self.tokenizer.encode(text, add_special_tokens=False))
 
     def load_file(self, path: str) -> str:
-        """Đọc nội dung văn bản từ các định dạng file khác nhau (.md, .txt, .pdf, .docx)."""
         ext = Path(path).suffix.lower()
         try:
             if ext in [".md", ".txt"]:
@@ -117,12 +114,10 @@ class RAGDocumentProcessor:
         raw_text = doc["content"]
         results = []
 
-        # Tự động phát hiện xem đây có phải là bộ câu hỏi đáp án sẵn hay không
         is_qa_dataset = bool(re.search(r"\bCâu\s*\d+:\s*", raw_text, re.IGNORECASE) and 
                              re.search(r"\bĐáp\s*án:\s*", raw_text, re.IGNORECASE))
 
         if is_qa_dataset:
-            # Tìm các khối Câu hỏi & Đáp án (giữ nguyên từng cặp QA làm 1 chunk độc lập)
             pattern = re.compile(
                 r"((?:Câu\s*\d+:\s*)(.*?)\n\s*Đáp\s*án:\s*(.*?))(?=\n\s*Câu\s*\d+:|\Z)",
                 re.DOTALL | re.IGNORECASE
@@ -134,7 +129,6 @@ class RAGDocumentProcessor:
                 if not chunk_text:
                     continue
 
-                # Tạo UUID định danh duy nhất cho chunk dựa trên hash của nội dung
                 uuid_hash = hashlib.md5(chunk_text.encode('utf-8')).hexdigest()
                 chunk_id = f"{uuid_hash[:8]}-{uuid_hash[8:12]}-{uuid_hash[12:16]}-{uuid_hash[16:20]}-{uuid_hash[20:]}"
 
@@ -153,7 +147,6 @@ class RAGDocumentProcessor:
                 print(f"Parsed {len(results)} QA pairs from QA dataset: {doc['source']}")
                 return results
 
-        # Fallback cho tài liệu thông thường
         text = self.clean_markdown(raw_text)
         sections = self.parser.extract_sections(text)
         for sec in sections:
@@ -183,7 +176,7 @@ class RAGDocumentProcessor:
         """Loads all supported documents recursively from the given folder path."""
         docs = []
         if not os.path.exists(base_path):
-            print(f"️ Warning: Dataset path '{base_path}' not found.")
+            print(f"Warning: Dataset path '{base_path}' not found.")
             return docs
 
         for root, _, files in os.walk(base_path):
@@ -206,7 +199,6 @@ class RAGDocumentProcessor:
         return docs
 
     def run(self, input_dir: str = HANDBOOK_DIR, output_path: str = CHUNKS_PATH) -> List[Dict]:
-        """Chạy toàn bộ luồng phân tích/cắt nhỏ văn bản (parsing/chunking) cho tất cả các file trong input_dir và lưu vào output_path."""
         docs = self.load_documents(input_dir)
         all_chunks = []
         seen = set()

@@ -10,7 +10,6 @@ from ai.src.config import (
     QDRANT_DB_PATH, COLLECTION_NAME, INDEXING_BATCH_SIZE, EMBEDDING_MODEL_NAME, CHUNKS_PATH
 )
 
-# Setup model warnings suppression
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 warnings.filterwarnings("ignore")
 logging.getLogger("transformers").setLevel(logging.ERROR)
@@ -23,14 +22,12 @@ class QdrantIndexer:
         self.model = None
 
     def connect(self):
-        """Kết nối tới Qdrant client."""
         if not self.client:
             print(f"Connecting to Qdrant Database at '{self.db_path}'...")
             self.client = QdrantClient(path=self.db_path)
         return self.client
 
     def load_embedding_model(self):
-        """Nạp chậm (lazy load) mô hình BGE-M3 để sinh hybrid embeddings."""
         if not self.model:
             print(f"Loading {EMBEDDING_MODEL_NAME} Model for Hybrid Indexing...")
             try:
@@ -69,14 +66,12 @@ class QdrantIndexer:
         return self.model
 
     def create_hybrid_collection(self, force_recreate: bool = True):
-        """Khởi tạo hoặc tạo lại collection hybrid dense + sparse trong Qdrant."""
         client = self.connect()
         
         if client.collection_exists(self.collection_name) and force_recreate:
-            print(f"️ Deleting old collection: {self.collection_name}")
+            print(f"Deleting old collection: {self.collection_name}")
             client.delete_collection(self.collection_name)
 
-        # Tìm kiếm Hybrid yêu cầu cấu hình cho cả 2 loại vector: 'dense' và 'sparse'
         client.create_collection(
             collection_name=self.collection_name,
             vectors_config={
@@ -89,7 +84,6 @@ class QdrantIndexer:
         print(f"Created hybrid collection '{self.collection_name}' successfully!")
 
     def load_chunks_from_jsonl(self, file_path: str = CHUNKS_PATH) -> list:
-        """Đọc các đoạn văn bản (chunks) đã xử lý từ file JSONL."""
         chunks = []
         if not os.path.exists(file_path):
             print(f"Missing chunks file: {file_path}")
@@ -102,14 +96,13 @@ class QdrantIndexer:
         return chunks
 
     def index_chunks(self, file_path: str = CHUNKS_PATH, batch_size: int = INDEXING_BATCH_SIZE):
-        """Sinh hybrid embeddings và lập chỉ mục (index) toàn bộ chunks vào Qdrant."""
         self.connect()
         self.load_embedding_model()
         self.create_hybrid_collection(force_recreate=True)
 
         chunks = self.load_chunks_from_jsonl(file_path)
         if not chunks:
-            print("️ No chunks found for indexing.")
+            print("No chunks found for indexing.")
             return
 
         print(f"Starting indexing pipeline for {len(chunks)} chunks...")
@@ -130,7 +123,6 @@ class QdrantIndexer:
             if not texts:
                 continue
 
-            # Trích xuất biểu diễn dense (nhúng dày) và sparse (nhúng thưa)
             embeddings = self.model.encode(
                 texts, return_dense=True, return_sparse=True, return_colbert_vecs=False
             )
@@ -139,7 +131,6 @@ class QdrantIndexer:
 
             points = []
             for idx, chunk in enumerate(valid_chunks):
-                # Phân tích cú pháp từ điển sparse: {'token_id': weight, ...}
                 sparse_dict = lexical_weights[idx]
                 indices = [int(k) for k in sparse_dict.keys()]
                 values = list(sparse_dict.values())
