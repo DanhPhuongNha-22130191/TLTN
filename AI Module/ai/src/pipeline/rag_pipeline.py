@@ -1,6 +1,7 @@
 import os
 import json
 import datetime
+import re
 from typing import Dict, Any, List
 
 try:
@@ -13,7 +14,7 @@ try:
 except ImportError:
     torch = None
 
-from ai.src.config import LOGS_DIR, GENERATOR_MODEL_NAME
+from ai.src.config import LOGS_DIR, GENERATOR_MODEL_NAME, QA_DIR
 from ai.src.retriever.hybrid import QdrantRetriever
 from ai.src.models.generator import QwenGenerator
 from ai.src.models.reranker import Reranker
@@ -24,9 +25,39 @@ class AsyncQueryPipeline:
         self.retriever = QdrantRetriever()
         self.reranker = Reranker()
         self.generator = QwenGenerator(generator_model)
+        self.qa_lookup = self._load_qa_lookup()
 
         self.logs_dir = LOGS_DIR
         os.makedirs(self.logs_dir, exist_ok=True)
+
+    def _normalize_question(self, value: str) -> str:
+        value = (value or "").strip().lower()
+        value = re.sub(r"\s+", " ", value)
+        return value.rstrip("?.!。？！ ")
+
+    def _load_qa_lookup(self) -> Dict[str, Dict[str, str]]:
+        qa_path = os.path.join(QA_DIR, "qa_dataset.md")
+        if not os.path.exists(qa_path):
+            return {}
+
+        with open(qa_path, "r", encoding="utf-8") as file:
+            raw_text = file.read()
+
+        pattern = re.compile(
+            r"(?:Câu\s*(\d+):\s*)(.*?)\n\s*Đáp\s*án:\s*(.*?)(?=\n\s*Câu\s*\d+:|\Z)",
+            re.DOTALL | re.IGNORECASE
+        )
+        lookup = {}
+        for question_number, question, answer in pattern.findall(raw_text):
+            normalized = self._normalize_question(question)
+            if normalized:
+                lookup[normalized] = {
+                    "chunk_id": f"qa_dataset_cau_{question_number}",
+                    "question": question.strip(),
+                    "answer": answer.strip(),
+                    "source": "qa_dataset.md"
+                }
+        return lookup
 
     def build_prompt(self, query: str, chunks: List[Dict[str, Any]]) -> str:
         context_blocks = []
@@ -72,6 +103,15 @@ ANSWER:
             torch.cuda.empty_cache()
 
     async def run(self, query: str) -> Dict[str, Any]:
+        exact_qa = self.qa_lookup.get(self._normalize_question(query))
+        if exact_qa:
+            return await self._return_exact_qa_result(
+                query=query,
+                answer=exact_qa["answer"],
+                best_qa=exact_qa,
+                candidates=[]
+            )
+
         candidates = await self.retriever.search(query, top_k=20)
         self._clear_cuda_cache()
 
