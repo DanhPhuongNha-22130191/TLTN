@@ -221,29 +221,16 @@ services:
       - chat_uploads:/app/uploads
     restart: unless-stopped
 
-  ollama:
-    build:
-      context: ./ollama
-      args:
-        OLLAMA_MODEL: qwen2:1.5b
-    healthcheck:
-      test: ["CMD", "ollama", "show", "qwen2:1.5b"]
-      interval: 10s
-      timeout: 5s
-      retries: 12
-      start_period: 10s
-    restart: unless-stopped
-
   ai-rag-bot:
     image: phuongnha/ai-rag-bot:latest
     environment:
       SERVER_PORT: 3000
-      OLLAMA_URL: http://ollama:11434/api/generate
+      OLLAMA_URL: http://host.docker.internal:11434/api/generate
       PYTHONUNBUFFERED: 1
-    depends_on:
-      ollama:
-        condition: service_healthy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     restart: unless-stopped
+
 
   api-gateway:
     build:

@@ -24,7 +24,7 @@ public class JwtAuthGlobalFilter implements GlobalFilter, Ordered {
                 .flatMap(jwt -> {
                     String username = jwt.getClaimAsString("preferred_username");
                     if (username == null) {
-                        username = jwt.getSubject(); // Fallback to subject
+                        username = jwt.getSubject();
                     }
                     String userId = jwt.getSubject();
                     
@@ -35,7 +35,7 @@ public class JwtAuthGlobalFilter implements GlobalFilter, Ordered {
                     
                     return chain.filter(exchange.mutate().request(request).build());
                 })
-                .switchIfEmpty(chain.filter(exchange)); // Nếu không có token (ví dụ permitAll routes), tiếp tục chuỗi filter
+                .switchIfEmpty(chain.filter(exchange)); 
     }
 
     @Override
