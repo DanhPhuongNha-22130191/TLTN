@@ -1,5 +1,20 @@
 # TLTN
 
+## Cấu trúc thư mục dự án
+
+Hệ thống được tổ chức thành các thư mục tương ứng với các microservice và các client khác nhau:
+
+*   **`AI Module`**: Chứa mã nguồn của Trợ lý AI RAG (FastAPI, sử dụng mô hình nhúng BGE-M3, lưu trữ vector trong Qdrant Local DB, và tích hợp Ollama Qwen2).
+*   **`api-gateway`**: Cổng API tập trung (Spring Cloud Gateway) làm nhiệm vụ định tuyến yêu cầu từ Client tới các microservices.
+*   **`chat-service`**: Microservice quản lý các cuộc trò chuyện, tin nhắn, thả cảm xúc, ghim tin nhắn và kết nối WebSocket (Java Spring Boot). Thiết kế theo chuẩn **DDD** và **Clean Architecture**.
+*   **`chat-system`**: Chứa cấu hình Docker Compose (`docker-compose.yml`) để triển khai toàn bộ hệ thống gồm các microservices, cơ sở dữ liệu (PostgreSQL, Redis), máy chủ định danh Keycloak và các service hỗ trợ.
+*   **`gitlab-handbook-admin`**: Ứng dụng Web dành cho Quản trị viên để quản lý danh bạ và tải lên tài liệu hướng dẫn nội bộ (Next.js / React).
+*   **`gitlab-handbook-chat`**: Ứng dụng Desktop Client dành cho người dùng nhắn tin nội bộ và tra cứu Trợ lý AI (JavaFX / Maven).
+*   **`mail-service`**: Chứa cấu hình và dịch vụ quản lý tài khoản email nội bộ (Docker Mailserver & Roundcube Webmail).
+*   **`user-service`**: Microservice quản lý thông tin hồ sơ người dùng, đồng bộ dữ liệu và phân quyền tích hợp Keycloak (Java Spring Boot). Thiết kế theo chuẩn **DDD** và **Clean Architecture**.
+
+---
+
 ## Hướng dẫn cài đặt hệ thống
 
 Tài liệu này hướng dẫn cài đặt và chạy hệ thống bằng Docker Desktop, Ollama và Docker Compose trên Windows.
